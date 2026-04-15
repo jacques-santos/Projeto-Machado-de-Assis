@@ -1,11 +1,43 @@
 import os
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
+
+DEFAULT_DATABASE_URL = (
+    "postgresql://machado_user:KoxlxtdtdAqwt0kEQfRvSkQUV7crmKfq"
+    "@dpg-d7ff8a1f9bms73d04tm0-a.virginia-postgres.render.com/machado_db"
+)
+
+
+def database_config_from_url(database_url: str) -> dict:
+    parsed = urlparse(database_url)
+    query = parse_qs(parsed.query)
+
+    engine_map = {
+        "postgres": "django.db.backends.postgresql",
+        "postgresql": "django.db.backends.postgresql",
+    }
+    engine = engine_map.get(parsed.scheme)
+    if not engine:
+        raise ValueError(f"Esquema de banco não suportado: {parsed.scheme}")
+
+    return {
+        "ENGINE": engine,
+        "NAME": parsed.path.lstrip("/"),
+        "USER": parsed.username or "",
+        "PASSWORD": parsed.password or "",
+        "HOST": parsed.hostname or "",
+        "PORT": str(parsed.port or 5432),
+        "OPTIONS": {
+            "sslmode": query.get("sslmode", [os.getenv("POSTGRES_SSLMODE", "require")])[0],
+        },
+    }
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -50,14 +82,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "machado_db"),
-        "USER": os.getenv("POSTGRES_USER", "machado_user"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "machado_pass"),
-        "HOST": os.getenv("POSTGRES_HOST", "localhost"),
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
-    }
+    "default": database_config_from_url(os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL)),
 }
 
 AUTH_PASSWORD_VALIDATORS = [
