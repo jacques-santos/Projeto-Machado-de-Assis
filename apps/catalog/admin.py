@@ -7,7 +7,6 @@ from .models import Assinatura, Genero, Instancia, Livro, LocalPublicacao, Midia
 class PecaAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "codigo_exibicao",
         "nome_obra",
         "ano_publicacao",
         "genero",

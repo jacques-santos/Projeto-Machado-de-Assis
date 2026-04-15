@@ -42,7 +42,7 @@ class LivroSerializer(serializers.ModelSerializer):
 class ReferenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Referencia
-        fields = ["id", "tipo", "url", "descricao"]
+        fields = ["id", "tipo", "descricao"]
 
 
 class PecaListSerializer(serializers.ModelSerializer):
@@ -55,7 +55,6 @@ class PecaListSerializer(serializers.ModelSerializer):
         model = Peca
         fields = [
             "id",
-            "codigo_exibicao",
             "ano_publicacao",
             "mes_publicacao",
             "data_publicacao",
@@ -64,7 +63,6 @@ class PecaListSerializer(serializers.ModelSerializer):
             "instancia",
             "livro",
             "genero",
-            "slug",
         ]
 
 
@@ -73,7 +71,6 @@ class PecaWriteSerializer(serializers.ModelSerializer):
         model = Peca
         fields = [
             "id",
-            "codigo_exibicao",
             "nome_obra",
             "nome_obra_simples",
             "ano_publicacao",
@@ -82,7 +79,6 @@ class PecaWriteSerializer(serializers.ModelSerializer):
             "fonte",
             "dados_publicacao",
             "observacoes",
-            "registro",
             "reproducoes_texto",
             "assinatura",
             "genero",
@@ -100,7 +96,6 @@ class PecaDetailSerializer(serializers.ModelSerializer):
     local_publicacao = LocalPublicacaoSerializer(read_only=True)
     midia = MidiaSerializer(read_only=True)
     livro = LivroSerializer(read_only=True)
-    referencias = ReferenciaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Peca

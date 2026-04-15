@@ -7,6 +7,9 @@
 - `apps/catalog/management/commands/import_pecas.py`: comando de gestão para importação
 - `apps/catalog/management/commands/db_status.py`: comando para validar conexão e contagem de registros
 - `tests/`: testes unitários iniciais
+- `docs/`: documentação do projeto (relatórios, verificações, correções)
+- `scripts/`: scripts de utilidade (automação, inicialização do servidor)
+- `sql/`: scripts SQL para correções de banco de dados
 - `requirements.txt`: dependências básicas
 
 ## Como iniciar

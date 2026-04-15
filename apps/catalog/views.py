@@ -77,7 +77,6 @@ class PecaViewSet(viewsets.ModelViewSet):
             "midia",
             "livro",
         )
-        .prefetch_related("referencias")
         .all()
     )
     search_fields = [
@@ -85,7 +84,6 @@ class PecaViewSet(viewsets.ModelViewSet):
         "nome_obra_simples",
         "dados_publicacao",
         "observacoes",
-        "registro",
     ]
     filterset_fields = [
         "ano_publicacao",
