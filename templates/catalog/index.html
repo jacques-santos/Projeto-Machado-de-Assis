@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Acervo - Banco de Dados Machado de Assis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}" />
+{% endblock %}
+
+{% block content %}
+<!-- Barra de busca e controles -->
+<section class="toolbar card">
+  <div class="toolbar__row">
+    <label class="field field--grow">
+      <span>Busca geral</span>
+      <input 
+        id="global-search" 
+        type="text" 
+        placeholder="Ex.: crônica, teatro, Machado de Assis" 
+        aria-label="Busca geral no acervo"
+      />
+    </label>
+
+    <label class="field">
+      <span>Itens por página</span>
+      <select id="page-size" aria-label="Quantidade de itens por página">
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </label>
+
+    <div class="toolbar__actions">
+      <button id="apply-search" type="button" class="btn-primary">Buscar</button>
+      <button id="clear-filters" type="button" class="btn-secondary">Limpar filtros</button>
+    </div>
+  </div>
+
+  <div class="toolbar__row toolbar__row--compact">
+    <label class="toggle">
+      <input id="toggle-extra" type="checkbox" />
+      <span>Mostrar dados adicionais</span>
+    </label>
+    <label class="toggle">
+      <input id="toggle-compact" type="checkbox" />
+      <span>Modo compacto</span>
+    </label>
+    <label class="toggle">
+      <input id="toggle-dated-only" type="checkbox" />
+      <span>Somente com data</span>
+    </label>
+  </div>
+</section>
+
+<!-- Filtros por faceta (lateral) -->
+<div class="content-grid">
+  <section class="sidebar card">
+    <h3>Filtrar por</h3>
+
+    <div class="facet">
+      <h4>Gênero</h4>
+      <div id="filter-genero" class="facet-items">
+        <p class="loading-text">Carregando...</p>
+      </div>
+    </div>
+
+    <div class="facet">
+      <h4>Assinatura</h4>
+      <div id="filter-assinatura" class="facet-items">
+        <p class="loading-text">Carregando...</p>
+      </div>
+    </div>
+
+    <div class="facet">
+      <h4>Instância</h4>
+      <div id="filter-instancia" class="facet-items">
+        <p class="loading-text">Carregando...</p>
+      </div>
+    </div>
+
+    <div class="facet">
+      <h4>Livro</h4>
+      <div id="filter-livro" class="facet-items">
+        <p class="loading-text">Carregando...</p>
+      </div>
+    </div>
+
+    <div class="facet">
+      <h4>Mídia</h4>
+      <div id="filter-midia" class="facet-items">
+        <p class="loading-text">Carregando...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabela de resultados -->
+  <section class="main">
+    <div class="results-header card">
+      <div id="loading-indicator" class="loading-text" style="display: none;">Carregando...</div>
+      <div id="results-summary" class="results-summary">
+        Nenhum filtro aplicado ainda
+      </div>
+    </div>
+
+    <div class="table-container card">
+      <table class="results-table" id="results-table">
+        <thead>
+          <tr>
+            <th class="col-id">
+              <button class="sort-btn" data-sort="id" title="Ordenar por código">
+                Código
+                <span class="sort-indicator"></span>
+              </button>
+            </th>
+            <th class="col-ano">
+              <button class="sort-btn" data-sort="ano_publicacao" title="Ordenar por ano">
+                Ano
+                <span class="sort-indicator"></span>
+              </button>
+            </th>
+            <th class="col-mes">
+              <button class="sort-btn" data-sort="mes_publicacao" title="Ordenar por mês">
+                Mês
+                <span class="sort-indicator"></span>
+              </button>
+            </th>
+            <th class="col-data">
+              <button class="sort-btn" data-sort="data_publicacao" title="Ordenar por data">
+                Data
+                <span class="sort-indicator"></span>
+              </button>
+            </th>
+            <th class="col-obra">
+              <button class="sort-btn" data-sort="nome_obra" title="Ordenar por nome">
+                Nome da Peça
+                <span class="sort-indicator"></span>
+              </button>
+            </th>
+            <th class="col-assinatura">Assinatura</th>
+            <th class="col-instancia">Instância</th>
+            <th class="col-livro">Livro</th>
+            <th class="col-genero">Gênero</th>
+          </tr>
+          <!-- Linha de filtros por coluna -->
+          <tr class="filters-row">
+            <td>
+              <input type="text" class="column-filter" data-column-filter="id" placeholder="Código" />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="ano_publicacao" placeholder="Ano" />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="mes_publicacao" placeholder="Mês" />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="data_publicacao" placeholder="Data" />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="nome_obra" placeholder="Nome..." />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="assinatura" placeholder="Assin..." />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="instancia" placeholder="Inst..." />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="livro" placeholder="Livro..." />
+            </td>
+            <td>
+              <input type="text" class="column-filter" data-column-filter="genero" placeholder="Gênero..." />
+            </td>
+          </tr>
+        </thead>
+        <tbody id="results-body">
+          <tr>
+            <td colspan="9" class="empty-state">
+              <p>Carregando dados...</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginação -->
+    <div class="pagination card">
+      <button id="prev-page" type="button" class="btn-secondary">← Anterior</button>
+      <span id="page-indicator" class="page-indicator">Página 1</span>
+      <button id="next-page" type="button" class="btn-secondary">Próxima →</button>
+    </div>
+  </section>
+</div>
+
+<!-- Modal de detalhe -->
+<div id="detail-modal" class="modal" style="display: none;">
+  <div class="modal-overlay"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="detail-title">Detalhes da Peça</h2>
+      <button id="close-modal" type="button" class="close-btn" aria-label="Fechar modal">×</button>
+    </div>
+    <div id="detail-content" class="modal-body">
+      <!-- Conteúdo detalhado será inserido aqui pelo JS -->
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Configuração da API
+  window.MACHADO_CONFIG = {
+    apiBase: '{% url "api-root" %}api/v1'
+  };
+</script>
+<script src="{% static 'js/catalog.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Banco de Dados Machado de Assis{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__title">Banco de Dados Machado de Assis</div>
+      <div class="brand__subtitle">Catálogo digital de obras e registros</div>
+    </div>
+
+    <nav class="topnav" aria-label="Navegação principal">
+      <a href="{% url 'catalog:home' %}" class="navbtn {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">Acervo</a>
+      <a href="{% url 'pages:credits' %}" class="navbtn">Créditos</a>
+      <a href="{% url 'pages:about' %}" class="navbtn">Criado por</a>
+      <a href="/admin/" class="navbtn">Admin</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>Projeto Machado de Assis &mdash; Catálogo digital</p>
+  </footer>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

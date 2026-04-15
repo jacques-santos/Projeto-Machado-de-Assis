@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Criado por - Banco de Dados Machado de Assis{% endblock %}
+
+{% block content %}
+<article class="page-content card">
+  <h1>Criado por</h1>
+  
+  <section>
+    <h2>Sobre o desenvolvimento</h2>
+    <p>Este projeto foi desenvolvido como uma iniciativa de preservação digital e disponibilização de informações sobre Machado de Assis, um dos maiores autores da literatura brasileira.</p>
+  </section>
+
+  <section>
+    <h2>Objetivo</h2>
+    <p>O objetivo principal é criar uma ferramenta de pesquisa acessível, onde estudiosos e leitores possam explorar catalogicamente as obras, registros de publicação, edições e informações relacionadas à produção de Machado de Assis.</p>
+  </section>
+
+  <section>
+    <h2>Metodologia</h2>
+    <p>Os dados foram compilados a partir de pesquisa acadêmica rigorosa, preservando informações sobre:</p>
+    <ul>
+      <li>Obras publicadas e peças literárias</li>
+      <li>Datas e locais de publicação</li>
+      <li>Assinaturas e pseudônimos</li>
+      <li>Gêneros literários</li>
+      <li>Instâncias e ocorrências</li>
+      <li>Mídias de publicação</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Evolução</h2>
+    <p>Este catálogo continua evoluindo. Melhorias, correções e novas informações são adicionadas regularmente. Se você encontrar erros ou tiver sugestões, este é um projeto vivo e aberto à colaboração.</p>
+  </section>
+
+  <div class="nav-links">
+    <a href="{% url 'catalog:home' %}" class="btn-secondary">← Voltar para Acervo</a>
+  </div>
+</article>
+{% endblock %}

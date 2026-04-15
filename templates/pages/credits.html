@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Créditos - Banco de Dados Machado de Assis{% endblock %}
+
+{% block content %}
+<article class="page-content card">
+  <h1>Créditos</h1>
+  
+  <section>
+    <h2>Sobre este projeto</h2>
+    <p>Banco de Dados Machado de Assis é um catálogo digital dedicado às obras, registros e documentação relacionados a Joaquim Maria Machado de Assis, um dos maiores escritores da literatura brasileira.</p>
+  </section>
+
+  <section>
+    <h2>Dados</h2>
+    <p>Os dados preservados neste catálogo foram compilados com dedicação ao estudo da obra machadiana. Este banco de dados funciona como uma ferramenta de pesquisa para estudiosos, pesquisadores e leitores interessados em explorar a produção literária de Machado de Assis de forma sistêmica.</p>
+  </section>
+
+  <section>
+    <h2>Tecnologia</h2>
+    <p>Este projeto foi desenvolvido com tecnologias open-source:</p>
+    <ul>
+      <li><strong>Backend:</strong> Django e Django REST Framework</li>
+      <li><strong>Frontend:</strong> HTML, CSS e JavaScript puro</li>
+      <li><strong>Banco de dados:</strong> PostgreSQL</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Licença e Uso</h2>
+    <p>Este catálogo está disponível como recurso educacional e de pesquisa. As obras de Machado de Assis estão em domínio público.</p>
+  </section>
+
+  <div class="nav-links">
+    <a href="{% url 'catalog:home' %}" class="btn-secondary">← Voltar para Acervo</a>
+  </div>
+</article>
+{% endblock %}

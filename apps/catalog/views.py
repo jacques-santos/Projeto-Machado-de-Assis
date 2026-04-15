@@ -140,6 +140,9 @@ class PecaViewSet(viewsets.ModelViewSet):
                 "assinaturas": list(
                     Assinatura.objects.annotate(total=Count("peca")).values("id", "nome", "total")
                 ),
+                "instancias": list(
+                    Instancia.objects.annotate(total=Count("peca")).values("id", "nome", "total")
+                ),
                 "midias": list(Midia.objects.annotate(total=Count("peca")).values("id", "nome", "total")),
                 "livros": list(Livro.objects.annotate(total=Count("peca")).values("id", "titulo", "total")),
             }
