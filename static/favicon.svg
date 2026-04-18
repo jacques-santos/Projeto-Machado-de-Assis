@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Pince-nez: óculos de Machado de Assis -->
+  <!-- Lente esquerda -->
+  <circle cx="20" cy="28" r="12" fill="none" stroke="#3e2723" stroke-width="2.5"/>
+  <!-- Reflexo lente esquerda -->
+  <ellipse cx="16" cy="24" rx="3" ry="2" fill="#3e2723" opacity="0.08"/>
+  <!-- Lente direita -->
+  <circle cx="44" cy="28" r="12" fill="none" stroke="#3e2723" stroke-width="2.5"/>
+  <!-- Reflexo lente direita -->
+  <ellipse cx="40" cy="24" rx="3" ry="2" fill="#3e2723" opacity="0.08"/>
+  <!-- Ponte entre lentes -->
+  <path d="M32 28 C30 24, 28 23, 32 22 C36 23, 34 24, 32 28Z" fill="none" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+  <!-- Corrente/cordão descendo -->
+  <path d="M8 28 C4 32, 6 42, 14 48 C18 50, 20 52, 18 56" fill="none" stroke="#3e2723" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 2" opacity="0.6"/>
+</svg>
