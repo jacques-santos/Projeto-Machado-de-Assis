@@ -8,6 +8,8 @@ Esta pasta contém documentação de referência do projeto.
 
 - **`ACESSIBILIDADE_WCAG_AA.md`**: Checklist de conformidade WCAG 2.1 AA e referência técnica de acessibilidade
 
+- **`MAPA_MUDANCAS_PHASE3.md`**: Mapa detalhado de todas as mudanças realizadas na Phase 3
+
 ## Consulte também
 
 - `../README.md`: Documentação principal do projeto
