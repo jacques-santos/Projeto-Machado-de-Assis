@@ -11,7 +11,7 @@ body {
 
 /* ===== TOOLBAR & SEARCH ===== */
 .page {
-  padding: 16px;
+  padding: 8px;
   max-width: 100%;
   margin: 0 auto;
   width: 100%;
@@ -21,7 +21,7 @@ body {
   background-color: var(--table-row-bg);
   border: none;
   border-radius: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
@@ -420,6 +420,20 @@ button {
 
 .result-row:focus-within {
   background-color: var(--table-hover);
+}
+
+/* Plain text header label (columns without sort-btn) */
+.th-label {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  position: relative;
+  top: 1px;
+}
+
+.th-label + .filter-icon {
+  position: relative;
+  top: -1px;
 }
 
 /* Column widths */
@@ -1165,11 +1179,11 @@ button {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .page {
-    padding: 16px;
+    padding: 8px;
   }
 
   .toolbar {
-    margin-bottom: 16px;
+    margin-bottom: 8px;
   }
 
   .detail-grid {
@@ -1185,28 +1199,53 @@ button {
 
 @media (max-width: 768px) {
   .page {
-    padding: 12px;
+    padding: 8px;
     max-width: 100%;
   }
 
+  .toolbar {
+    margin-bottom: 8px;
+  }
+
   .toolbar__row {
-    padding: 16px;
+    padding: 12px;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .toolbar__row:last-child {
-    padding: 12px 16px;
+    padding: 10px 12px;
+  }
+
+  .toolbar__row--filters {
+    padding: 10px 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .toolbar__row--filters .field--sm {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+  }
+
+  .toolbar__row--compact {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 12px;
   }
 
   .toolbar__actions {
     width: 100%;
     margin-left: 0;
-    flex-direction: column;
+    flex-direction: row;
+    gap: 8px;
   }
 
   .toolbar__actions button {
     flex: 1;
+    padding: 10px 12px;
   }
 
   .field--grow {
@@ -1819,6 +1858,10 @@ body {
   font-variant: normal;
   letter-spacing: normal;
   color: #f8f9fa; /* quase branco */
+  vertical-align: middle;
+  padding: 10px;
+  display: table-cell;
+  height: 44px;
 }
 
 [data-theme="principal"] .results-table th:not(:last-child) {
@@ -1827,6 +1870,13 @@ body {
 
 [data-theme="principal"] .sort-btn {
   color: #f8f9fa;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 0;
+  background: none;
+  padding-top: 1px;
 }
 
 [data-theme="principal"] .sort-btn:hover {
@@ -1853,6 +1903,36 @@ body {
 
 [data-theme="principal"] .result-row:focus-within {
   background-color: #d6dbe0;
+}
+
+[data-theme="principal"] .results-table th .filter-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 0;
+  background: none;
+  color: #343a40;
+  background-color: #ffffff;
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+[data-theme="principal"] .th-with-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+}
+
+[data-theme="principal"] .sort-btn svg,
+[data-theme="principal"] .filter-icon svg {
+  fill: currentcolor;
+  vertical-align: middle;
 }
 
 [data-theme="principal"] .extra-data-row td {
@@ -2087,11 +2167,25 @@ a:not(.btn):not([role="tab"]):not(.navbtn):visited {
 
 @media (max-width: 480px) {
   .page {
-    padding: 10px;
+    padding: 8px;
   }
 
   .toolbar__row {
+    padding: 10px;
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .toolbar__row--filters {
+    padding: 8px 10px;
+  }
+
+  .toolbar__row--filters .field--sm {
+    flex: 1 1 100%;
+  }
+
+  .toolbar__row--compact {
+    padding: 8px 10px;
     gap: 10px;
   }
 
@@ -2101,7 +2195,7 @@ a:not(.btn):not([role="tab"]):not(.navbtn):visited {
 
   .toolbar__actions button {
     width: 100%;
-    padding: 12px 16px;
+    padding: 10px 14px;
     font-size: 13px;
   }
 

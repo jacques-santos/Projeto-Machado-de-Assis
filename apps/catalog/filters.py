@@ -198,15 +198,27 @@ class PecaFilterService:
                     queryset = queryset.filter(**{lookup: value})
                     filters_applied[param_name] = value
         
-        # Filtro por data_publicacao (multi-valor): ?data_publicacao=1870-03-15 00:00:00,...
+        # Filtro por data_publicacao (multi-valor): ?data_publicacao=1870-03-15,...
         if data_pub_raw := params.get('data_publicacao'):
             values = [v.strip() for v in data_pub_raw.split(',') if v.strip()]
             include_blank = '__blank__' in values
             date_values = [v for v in values if v != '__blank__']
             
+            # Normalizar: extrair apenas a parte da data (YYYY-MM-DD), sem hora
+            from datetime import datetime as dt_parser
+            parsed_dates = []
+            for dv in date_values:
+                # Strip time portion if present (e.g. "1854-10-03 00:00:00" -> "1854-10-03")
+                clean = dv.split(' ')[0].split('T')[0]
+                try:
+                    parsed = dt_parser.strptime(clean, '%Y-%m-%d').date()
+                    parsed_dates.append(parsed)
+                except (ValueError, TypeError):
+                    logger.warning(f"Could not parse date value: {dv}")
+            
             q = Q()
-            if date_values:
-                q |= Q(data_publicacao__in=date_values)
+            if parsed_dates:
+                q |= Q(data_publicacao__date__in=parsed_dates)
             if include_blank:
                 q |= Q(data_publicacao__isnull=True)
             if q:
@@ -330,7 +342,11 @@ class PecaFilterService:
             count = item['count']
             
             # Sanitizar valor
-            sanitized = sanitize_html_value(str(value)) if value else None
+            # Para DateTimeField, formatar como ISO date (sem hora)
+            if hasattr(value, 'strftime'):
+                sanitized = value.strftime('%Y-%m-%d')
+            else:
+                sanitized = sanitize_html_value(str(value)) if value else None
             
             # Evitar duplicatas
             if (sanitized,) in seen:

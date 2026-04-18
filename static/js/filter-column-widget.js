@@ -731,12 +731,28 @@ class FilterColumnWidget {
     const hasRange = this.filterState.rangeMin || this.filterState.rangeMax;
     this.filterState.isActive = finalSelectedValues.length < totalValuesToCompare || hasRange;
 
-    // Para colunas de data, usar APENAS filtro de range (data_min/data_max)
-    // Enviar valores individuais para datas é inviável (milhares de valores únicos)
-    // Mas preservar __blank__ (null) para filtrar registros sem data
+    // Para colunas de data:
+    // - Se o usuário selecionou um subconjunto de datas (via pesquisa ou desmarcando manualmente),
+    //   enviar os valores individuais (a API suporta ?data_publicacao=val1,val2,...)
+    // - Se todos estão selecionados, não enviar valores individuais
+    // - Sempre preservar __blank__ (null) para filtrar registros sem data
     if (this.columnType === 'date') {
       const hasBlank = finalSelectedValues.includes(null);
-      finalSelectedValues = hasBlank ? [null] : [];
+      
+      // Extrair datas válidas dos valores selecionados
+      const dateValues = finalSelectedValues
+        .filter(v => v !== null && v !== undefined && v !== 'None');
+      
+      const isSubset = dateValues.length > 0 && dateValues.length < this.allValues.length;
+      
+      if (isSubset) {
+        // Subconjunto de datas selecionadas: enviar valores individuais
+        finalSelectedValues = dateValues;
+        if (hasBlank) finalSelectedValues.push(null);
+      } else {
+        // Todos selecionados ou nenhum: não enviar valores individuais
+        finalSelectedValues = hasBlank ? [null] : [];
+      }
     }
 
     this.createFilterIcon();
@@ -820,10 +836,11 @@ class FilterColumnWidget {
     // Para coluna de data, formatar no padrão brasileiro
     if (this.columnType === 'date') {
       const dateStr = String(value);
-      // Tenta parsear como ISO date (YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)
-      const date = new Date(dateStr);
-      if (!isNaN(date.getTime())) {
-        return date.toLocaleDateString('pt-BR');
+      // Parsear como ISO date (YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS) sem usar new Date()
+      // para evitar problemas de timezone com datas históricas
+      const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (match) {
+        return `${match[3]}/${match[2]}/${match[1]}`;
       }
     }
     

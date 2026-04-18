@@ -216,8 +216,8 @@ class Peca(models.Model):
 
     class Meta:
         db_table = "tblpeca"
-        verbose_name = "Peça"
-        verbose_name_plural = "Peças"
+        verbose_name = "Título"
+        verbose_name_plural = "Títulos"
         ordering = ["-ano_publicacao", "nome_obra"]
         indexes = [
             # Índices existentes

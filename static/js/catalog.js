@@ -378,7 +378,12 @@ function buildApiUrl() {
       if (values instanceof Set) {
         values = Array.from(values);
       }
-      if (Array.isArray(values) && values.length > 0) {
+      // When a range is active, don't send selectedValues (the range already filters server-side).
+      // selectedValues for date columns with range would only contain __blank__ which conflicts with the range.
+      const hasRange = filterData.rangeMin || filterData.rangeMax;
+      if (hasRange) {
+        // Skip selectedValues entirely — range handles the filtering
+      } else if (Array.isArray(values) && values.length > 0) {
         // Skip sending selectedValues if ALL values are selected (no actual restriction)
         const widget = state.columnFilterWidgets[columnName];
         const totalValues = widget ? widget.allValues.length : 0;
@@ -388,7 +393,14 @@ function buildApiUrl() {
           // Mapear null para __blank__ e filtrar valores inválidos
           const validValues = values
             .filter(v => v !== 'None' && v !== '')
-            .map(v => v === null ? '__blank__' : v);
+            .map(v => {
+              if (v === null) return '__blank__';
+              // Strip time portion from datetime values (e.g. "1854-10-03 00:00:00" -> "1854-10-03")
+              if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}[ T]/.test(v)) {
+                return v.split(/[ T]/)[0];
+              }
+              return v;
+            });
           
           if (validValues.length > 0) {
             if (columnName === 'nome_obra') {
@@ -473,7 +485,7 @@ async function fetchColumnValuesForAutocomplete(column) {
 
 async function fetchPecas() {
   try {
-    setLoading('Carregando peças...');
+    setLoading('Carregando títulos...');
     
     const url = buildApiUrl();
     
@@ -673,7 +685,7 @@ function updateResultsDisplay() {
   setLoading('');
   
   if (state.total === 0) {
-    els.resultsSummary.textContent = 'Nenhuma peça encontrada';
+    els.resultsSummary.textContent = 'Nenhum título encontrado';
     els.resultsSummary.classList.add('empty');
     return;
   }
@@ -724,11 +736,11 @@ function updateTableDisplay() {
     const hasFilters = state.globalSearch || state.onlyDated || Object.keys(state.activeColumnFilters).length > 0;
     const suggestion = hasFilters
       ? '<p>Tente ajustar os filtros, remover termos de busca ou <button type="button" class="link-btn" id="empty-clear-filters">limpar todos os filtros</button>.</p>'
-      : '<p>Nenhuma peça disponível no momento.</p>';
+      : '<p>Nenhum título disponível no momento.</p>';
     els.resultsBody.innerHTML = `
       <tr>
         <td colspan="8" class="empty-state">
-          <p>Nenhuma peça corresponde aos seus filtros</p>
+          <p>Nenhum título corresponde aos seus filtros</p>
           ${suggestion}
         </td>
       </tr>
@@ -831,12 +843,19 @@ function applyClientFilters(rows) {
       return;
     }
 
+    // Skip client-side filtering when a range is active — the server already filters by range.
+    // selectedValues may only contain __blank__/null which would hide all dated records.
+    const hasRange = filterData.rangeMin || filterData.rangeMax;
+    if (hasRange) {
+      return;
+    }
+
     filtered = filtered.filter((row) => {
       const valueMap = {
         id: String(row.id),
         ano_publicacao: String(row.ano_publicacao || ''),
         mes_publicacao: String(row.mes_publicacao || ''),
-        data_publicacao: formatDate(row.data_publicacao),
+        data_publicacao: String(row.data_publicacao || '').split(/[ T]/)[0],
         nome_obra: stripHtmlAndDecode(row.nome_obra),
         assinatura: row.assinatura || '',
         midia: row.midia || '',
@@ -1075,8 +1094,9 @@ function updateActiveFiltersBar() {
             return (num >= 1 && num <= 12) ? monthNames[num - 1] : v;
           }
           if (columnName === 'data_publicacao') {
-            const date = new Date(v);
-            return !isNaN(date.getTime()) ? date.toLocaleDateString('pt-BR') : v;
+            // Formatar sem usar new Date() para evitar shift de timezone
+            const match = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
+            return match ? `${match[3]}/${match[2]}/${match[1]}` : v;
           }
           return String(v);
         });
@@ -1568,7 +1588,7 @@ function showDetailModal(id) {
     state.lastFocusedElement = document.activeElement;
   }
 
-  els.detailTitle.textContent = `Peça #${row.id} — ${stripHtmlAndDecode(row.nome_obra)}`;
+  els.detailTitle.textContent = `Título #${row.id} — ${stripHtmlAndDecode(row.nome_obra)}`;
   
   // Build fields array, only include non-empty optional fields
   const fields = [

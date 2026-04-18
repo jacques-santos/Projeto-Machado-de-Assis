@@ -83,7 +83,7 @@
 <!-- RESULTADOS: Informações sobre a Busca -->
 <section class="results-header card" role="status" aria-live="polite" aria-label="Resumo de resultados">
   <div id="loading-indicator" class="loading-text" style="display: none;" role="status" aria-busy="true" aria-label="Carregando dados">
-    Carregando peças...
+    Carregando títulos...
   </div>
   <div id="results-summary" class="results-summary empty" aria-live="assertive">
     Nenhuma busca realizada ainda
@@ -97,8 +97,8 @@
   <button id="clear-all-filters-btn" type="button" class="btn-clear-all" aria-label="Remover todos os filtros">Limpar todos</button>
 </section>
 
-<!-- TABELA: Listagem de Peças -->
-<section class="table-container card" role="region" aria-label="Tabela de resultados de peças">
+<!-- TABELA: Listagem de Títulos -->
+<section class="table-container card" role="region" aria-label="Tabela de resultados de títulos">
   <table class="results-table" id="results-table" role="table">
     <thead role="rowgroup">
       <tr role="row">
@@ -109,10 +109,10 @@
           </button>
         </th>
         <th class="col-ano" role="columnheader" scope="col">
-          Ano
+          <span class="th-label">Ano</span>
         </th>
         <th class="col-mes" role="columnheader" scope="col">
-          Mês
+          <span class="th-label">Mês</span>
         </th>
         <th class="col-data" role="columnheader" scope="col">
           <button class="sort-btn" data-sort="data_publicacao" title="Clique para ordenar por data completa" aria-label="Ordenar por data">
@@ -179,15 +179,15 @@
   </button>
 </section>
 
-<!-- MODAL: Detalhes da Peça -->
+<!-- MODAL: Detalhes do Título -->
 <div id="detail-modal" class="modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="detail-title">
   <div class="modal-overlay" tabindex="-1"></div>
   <div class="modal-content">
     <div class="modal-header">
-      <h2 id="detail-title">Detalhes da Peça</h2>
-      <button id="close-modal" type="button" class="close-btn" aria-label="Fechar detalhes da peça">×</button>
+      <h2 id="detail-title">Detalhes do Título</h2>
+      <button id="close-modal" type="button" class="close-btn" aria-label="Fechar detalhes do título">×</button>
     </div>
-    <div id="detail-content" class="modal-body" role="region" aria-label="Conteúdo detalhado da peça">
+    <div id="detail-content" class="modal-body" role="region" aria-label="Conteúdo detalhado do título">
       <!-- Conteúdo detalhado será inserido aqui pelo JavaScript -->
     </div>
   </div>

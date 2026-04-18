@@ -16,7 +16,7 @@
     <section class="stats-summary" id="stats-summary">
       <div class="stat-card">
         <span class="stat-number" id="stat-total">—</span>
-        <span class="stat-label">Peças no acervo</span>
+        <span class="stat-label">Títulos no acervo</span>
       </div>
       <div class="stat-card">
         <span class="stat-number" id="stat-period">—</span>
@@ -36,8 +36,8 @@
     <div class="stats-charts-grid">
       <!-- Gráfico por Gênero -->
       <section class="stats-chart-section">
-        <h2>Peças por Gênero</h2>
-        <div id="chart-genre" class="bar-chart" role="img" aria-label="Gráfico de peças por gênero"></div>
+        <h2>Títulos por Gênero</h2>
+        <div id="chart-genre" class="bar-chart" role="img" aria-label="Gráfico de títulos por gênero"></div>
         <button class="btn-show-more" id="btn-genre-more" style="display:none;" aria-expanded="false">
           Mostrar todos ▾
         </button>
@@ -56,7 +56,7 @@
     <!-- Gráfico por Ano (largura total) -->
     <section class="stats-chart-section stats-chart-section--full">
       <h2>Distribuição Temporal</h2>
-      <div id="chart-year" class="bar-chart bar-chart--timeline" role="img" aria-label="Gráfico de peças por ano"></div>
+      <div id="chart-year" class="bar-chart bar-chart--timeline" role="img" aria-label="Gráfico de títulos por ano"></div>
     </section>
   </div>
 
@@ -381,7 +381,7 @@
       document.getElementById('chart-year').innerHTML = data.por_ano.map(y => {
         const h = Math.max((y.total / maxYear) * chartHeight, 1);
         return `
-          <div class="timeline-row" title="${y.ano_publicacao}: ${y.total} peças">
+          <div class="timeline-row" title="${y.ano_publicacao}: ${y.total} títulos">
             <div class="timeline-bar" style="height: ${h}px"></div>
             <span class="timeline-label">${y.ano_publicacao}</span>
           </div>
