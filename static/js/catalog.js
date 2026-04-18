@@ -265,6 +265,21 @@ function highlightSearch(escapedText) {
   return escapedText.replace(regex, '<mark>$1</mark>');
 }
 
+/**
+ * Destaca termos de busca em conteúdo HTML, aplicando <mark> apenas
+ * em partes de texto fora de tags HTML.
+ */
+function highlightSearchInHtml(html) {
+  if (!state.globalSearch || !html) return html;
+  const term = state.globalSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${term})`, 'gi');
+  // Split by HTML tags, highlight only text segments
+  return html.replace(/(<[^>]+>)|([^<]+)/g, (match, tag, text) => {
+    if (tag) return tag;
+    return text.replace(regex, '<mark>$1</mark>');
+  });
+}
+
 function formatMonth(month) {
   if (!month || month < 1 || month > 12) return '—';
   const months = [
@@ -724,7 +739,7 @@ function buildExtraDataRow(row) {
   const fieldsHtml = fields.map(f => `
     <div class="${f.full ? 'extra-field-full' : 'extra-field'}">
       <span class="extra-label">${f.label}</span>
-      <span class="extra-value">${f.html ? openLinksInNewTab(f.value) : safeText(stripHtmlAndDecode(f.value))}</span>
+      <span class="extra-value">${f.html ? highlightSearchInHtml(openLinksInNewTab(f.value)) : highlightSearch(safeText(stripHtmlAndDecode(f.value)))}</span>
     </div>
   `).join('');
 
@@ -1974,6 +1989,18 @@ function initializeEventListeners() {
   const exportBtn = document.getElementById('export-csv');
   if (exportBtn) {
     exportBtn.addEventListener('click', exportCSV);
+  }
+
+  // Toggle toolbar visibility
+  const toggleToolbarBtn = document.getElementById('toggle-toolbar');
+  if (toggleToolbarBtn) {
+    toggleToolbarBtn.addEventListener('click', () => {
+      const toolbar = toggleToolbarBtn.closest('.toolbar');
+      const collapsed = toolbar.classList.toggle('toolbar--collapsed');
+      toggleToolbarBtn.setAttribute('aria-expanded', String(!collapsed));
+      toggleToolbarBtn.title = collapsed ? 'Mostrar painel de busca' : 'Ocultar painel de busca';
+      toggleToolbarBtn.setAttribute('aria-label', toggleToolbarBtn.title);
+    });
   }
 }
 

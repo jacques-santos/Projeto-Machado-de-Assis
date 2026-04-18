@@ -11,7 +11,7 @@ body {
 
 /* ===== TOOLBAR & SEARCH ===== */
 .page {
-  padding: 8px;
+  padding: 8px 8px 0px 8px;
   max-width: 100%;
   margin: 0 auto;
   width: 100%;
@@ -23,6 +23,71 @@ body {
   border-radius: 8px;
   margin-bottom: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+/* Toggle toolbar button */
+.btn-toggle-toolbar {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.btn-toggle-toolbar:hover {
+  color: var(--primary-color);
+}
+
+.toggle-toolbar-icon--closed {
+  display: none;
+}
+
+.toolbar.toolbar--collapsed .toggle-toolbar-icon--open {
+  display: none;
+}
+
+.toolbar.toolbar--collapsed .toggle-toolbar-icon--closed {
+  display: block;
+}
+
+/* Collapsed label */
+.toolbar__collapsed-label {
+  display: none;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.toolbar.toolbar--collapsed .toolbar__collapsed-label {
+  display: block;
+}
+
+.toolbar__content {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  max-height: 500px;
+  opacity: 1;
+}
+
+.toolbar.toolbar--collapsed .toolbar__content {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toolbar.toolbar--collapsed {
+  padding-bottom: 0;
+  margin-bottom: 8px;
+  min-height: 36px;
 }
 
 .toolbar__row {
@@ -182,7 +247,12 @@ button {
   cursor: pointer;
   width: 16px;
   height: 16px;
+  margin: 0;
+  flex-shrink: 0;
   accent-color: var(--primary-color);
+  -webkit-appearance: checkbox;
+  -moz-appearance: checkbox;
+  appearance: checkbox;
   transition: all 0.2s;
 }
 
@@ -1179,7 +1249,7 @@ button {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .page {
-    padding: 8px;
+    padding: 8px 8px 0px 8px;
   }
 
   .toolbar {
@@ -1199,7 +1269,7 @@ button {
 
 @media (max-width: 768px) {
   .page {
-    padding: 8px;
+    padding: 8px 8px 0px 8px;
     max-width: 100%;
   }
 
@@ -1208,32 +1278,34 @@ button {
   }
 
   .toolbar__row {
-    padding: 12px;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .toolbar__row:last-child {
-    padding: 10px 12px;
-  }
-
-  .toolbar__row--filters {
     padding: 10px 12px;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px;
+    align-items: flex-end;
+  }
+
+  .toolbar__row:last-child {
+    padding: 8px 12px;
+  }
+
+  .toolbar__row--filters {
+    padding: 8px 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .toolbar__row--filters .field--sm {
-    flex: 1 1 calc(50% - 4px);
-    min-width: 0;
+    flex: 1 1 calc(33.33% - 4px);
+    min-width: 80px;
   }
 
   .toolbar__row--compact {
     flex-direction: row;
     flex-wrap: wrap;
     padding: 8px 12px;
-    gap: 12px;
+    gap: 6px 16px;
   }
 
   .toolbar__actions {
@@ -1249,13 +1321,17 @@ button {
   }
 
   .field--grow {
-    min-width: auto;
-    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
   }
 
   .field input,
   .field select {
     width: 100%;
+  }
+
+  .field span {
+    font-size: 10px;
   }
 
   .results-table {
@@ -1321,7 +1397,20 @@ button {
   }
 
   .toggle {
-    font-size: 13px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    flex-shrink: 0;
+    margin: 0;
+    -webkit-appearance: checkbox;
+    -moz-appearance: checkbox;
+    appearance: checkbox;
   }
 
   .sort-btn {
@@ -1860,7 +1949,6 @@ body {
   color: #f8f9fa; /* quase branco */
   vertical-align: middle;
   padding: 10px;
-  display: table-cell;
   height: 44px;
 }
 
@@ -2066,6 +2154,23 @@ a:focus-visible,
   color: var(--wcag-text-secondary);
 }
 
+/* Modal detail labels: use a neutral tone across all themes */
+.detail-label {
+  color: var(--text-muted, #666);
+}
+
+[data-theme="principal"] .detail-label {
+  color: #666666;
+}
+
+[data-theme="light"] .detail-label {
+  color: #666666;
+}
+
+[data-theme="dark"] .detail-label {
+  color: #aaaaaa;
+}
+
 .text-muted {
   color: var(--wcag-text-muted);
 }
@@ -2167,36 +2272,53 @@ a:not(.btn):not([role="tab"]):not(.navbtn):visited {
 
 @media (max-width: 480px) {
   .page {
-    padding: 8px;
+    padding: 8px 8px 0px 8px;
   }
 
   .toolbar__row {
-    padding: 10px;
-    flex-direction: column;
-    gap: 8px;
+    padding: 8px 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: flex-end;
   }
 
   .toolbar__row--filters {
-    padding: 8px 10px;
+    padding: 6px 10px;
+    gap: 6px;
   }
 
   .toolbar__row--filters .field--sm {
-    flex: 1 1 100%;
+    flex: 1 1 calc(33.33% - 4px);
+    min-width: 70px;
   }
 
   .toolbar__row--compact {
-    padding: 8px 10px;
-    gap: 10px;
+    padding: 6px 10px;
+    gap: 4px 14px;
   }
 
   .toolbar__actions {
-    flex-direction: column;
+    width: 100%;
+    flex-direction: row;
+    gap: 6px;
   }
 
   .toolbar__actions button {
-    width: 100%;
+    flex: 1;
     padding: 10px 14px;
     font-size: 13px;
+  }
+
+  .toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    margin: 0;
+    -webkit-appearance: checkbox;
+    -moz-appearance: checkbox;
+    appearance: checkbox;
   }
 
   .results-table {
@@ -2358,25 +2480,7 @@ a:not(.btn):not([role="tab"]):not(.navbtn):visited {
 
 /* Book theme (default) WCAG values — already set in :root */
 
-/* ===== MOBILE: HIDE LESS IMPORTANT COLUMNS ===== */
-@media (max-width: 768px) {
-  .col-mes,
-  .col-data,
-  .col-instancia,
-  .col-midia {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .col-mes,
-  .col-data,
-  .col-instancia,
-  .col-midia,
-  .col-assinatura {
-    display: none;
-  }
-}
+/* ===== MOBILE: ALL COLUMNS VISIBLE (horizontal scroll) ===== */
 
 /* ===== SEARCH HIGHLIGHT ===== */
 .results-table mark {
