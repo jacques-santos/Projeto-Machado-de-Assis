@@ -1,36 +1,142 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="principal">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Catálogo digital de obras de Machado de Assis — busca, filtros e estatísticas do acervo literário." />
   <title>{% block title %}Banco de Dados Machado de Assis{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260417d" />
   {% block extra_css %}{% endblock %}
 </head>
 <body>
-  <header class="topbar">
+  <!-- Skip link para navegação por teclado -->
+  <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+
+  <header class="topbar" role="banner">
     <div class="brand">
-      <div class="brand__title">Banco de Dados Machado de Assis</div>
-      <div class="brand__subtitle">Catálogo digital de obras e registros</div>
+      <h1 class="brand__title">
+        <span class="brand__title--light">Banco de dados Machado de Assis</span>
+        <span class="brand__title--dark">Banco de dados Machado de Assis</span>
+        <span class="brand__title--book">Banco de dados Machado de Assis</span>
+      </h1>
+      <div class="brand__subtitle">
+        <span class="brand__subtitle--light">Bibliografia digital</span>
+        <span class="brand__subtitle--dark">Bibliografia digital</span>
+        <span class="brand__subtitle--book">Bibliografia digital</span>
+      </div>
     </div>
 
     <nav class="topnav" aria-label="Navegação principal">
-      <a href="{% url 'catalog:home' %}" class="navbtn {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">Acervo</a>
-      <a href="{% url 'pages:credits' %}" class="navbtn">Créditos</a>
-      <a href="{% url 'pages:about' %}" class="navbtn">Criado por</a>
-      <a href="/admin/" class="navbtn">Admin</a>
+      <a href="{% url 'catalog:home' %}" class="navbtn {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'catalog-home' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'catalog-home' %}page{% else %}false{% endif %}">Acervo</a>
+      <a href="{% url 'catalog:stats' %}" class="navbtn {% if request.resolver_match.url_name == 'stats' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'stats' %}page{% else %}false{% endif %}">Estatísticas</a>
+      <a href="{% url 'catalog:about' %}" class="navbtn {% if request.resolver_match.url_name == 'about' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'about' %}page{% else %}false{% endif %}">Sobre</a>
+      <div class="theme-selector" id="theme-selector">
+        <button class="navbtn theme-selector__toggle" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Escolher tema visual" title="Escolher tema visual" id="theme-toggle">Temas</button>
+        <ul class="theme-selector__menu" role="listbox" aria-label="Temas disponíveis" id="theme-menu">
+          <li role="option" data-theme-value="principal" class="theme-selector__option">🏠 Principal</li>
+          <li role="option" data-theme-value="book" class="theme-selector__option">📖 Biblioteca</li>
+          <li role="option" data-theme-value="light" class="theme-selector__option">☀️ Claro</li>
+          <li role="option" data-theme-value="dark" class="theme-selector__option">🌙 Escuro</li>
+        </ul>
+      </div>
     </nav>
   </header>
 
-  <main class="page">
+  <main class="page" id="main-content" role="main">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="footer">
-    <p>Projeto Machado de Assis &mdash; Catálogo digital</p>
-  </footer>
+  <!-- Back to top button (M9) -->
+  <button id="back-to-top" class="back-to-top" type="button" aria-label="Voltar ao topo" title="Voltar ao topo" style="display: none;">↑</button>
+
+  <script>
+    // Theme selector dropdown
+    (function() {
+      const btn = document.getElementById('theme-toggle');
+      const menu = document.getElementById('theme-menu');
+      const selector = document.getElementById('theme-selector');
+      if (!btn || !menu) return;
+
+      const themes = ['principal', 'book', 'light', 'dark'];
+      const labels = {
+        principal: '🏠 Principal',
+        book: '📖 Biblioteca',
+        light: '☀️ Claro',
+        dark: '🌙 Escuro'
+      };
+
+      function applyTheme(theme) {
+        if (theme === 'book') {
+          document.documentElement.removeAttribute('data-theme');
+        } else {
+          document.documentElement.setAttribute('data-theme', theme);
+        }
+        // Mark active option
+        menu.querySelectorAll('.theme-selector__option').forEach(function(opt) {
+          opt.classList.toggle('is-active', opt.getAttribute('data-theme-value') === theme);
+          opt.setAttribute('aria-selected', opt.getAttribute('data-theme-value') === theme);
+        });
+      }
+
+      function toggleMenu() {
+        var open = selector.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open);
+      }
+
+      function closeMenu() {
+        selector.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      // Restore saved theme
+      var saved = localStorage.getItem('theme');
+      if (saved && themes.includes(saved)) {
+        applyTheme(saved);
+      } else {
+        applyTheme('principal');
+      }
+
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleMenu();
+      });
+
+      menu.addEventListener('click', function(e) {
+        var opt = e.target.closest('.theme-selector__option');
+        if (!opt) return;
+        var theme = opt.getAttribute('data-theme-value');
+        applyTheme(theme);
+        localStorage.setItem('theme', theme);
+        closeMenu();
+      });
+
+      // Close on click outside
+      document.addEventListener('click', function(e) {
+        if (!selector.contains(e.target)) closeMenu();
+      });
+
+      // Close on Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeMenu();
+      });
+    })();
+  </script>
 
   {% block extra_js %}{% endblock %}
+
+  <script>
+    // Back to top button
+    (function() {
+      var btn = document.getElementById('back-to-top');
+      if (!btn) return;
+      window.addEventListener('scroll', function() {
+        btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+      });
+      btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+  </script>
 </body>
 </html>

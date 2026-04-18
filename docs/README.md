@@ -1,19 +1,14 @@
 # Documentação do Projeto
 
-Esta pasta contém documentação, relatórios e verificações do projeto.
+Esta pasta contém documentação de referência do projeto.
 
 ## Arquivos
 
-- **`CORRECAO_ACENTOS.md`**: Documentação sobre correções de acentuação no banco de dados
+- **`FRONTEND_README.md`**: Referência completa do frontend — funcionalidades, endpoints, gestão de estado, estrutura de arquivos e decisões de design
 
-- **`VERIFICACAO_CAMPOS.md`**: Verificação e validação dos campos do banco de dados
-
-- **`RELATORIO_CORRECOES_COMPLETO.md`**: Relatório completo de todas as correções realizadas
-
-- **`RELATORIO_CORRECOES_FINAL.md`**: Relatório final consolidado das correções
+- **`ACESSIBILIDADE_WCAG_AA.md`**: Checklist de conformidade WCAG 2.1 AA e referência técnica de acessibilidade
 
 ## Consulte também
 
 - `../README.md`: Documentação principal do projeto
 - `../scripts/`: Scripts de utilidade e automação
-- `../sql/`: Scripts SQL para manutenção do banco de dados

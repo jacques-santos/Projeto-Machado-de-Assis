@@ -126,7 +126,7 @@ The frontend is fully integrated with Django:
 - Static files served from `/static/` via Django
 - Templates rendered by Django in `templates/` directory
 - API endpoints consumed from `/api/v1/`
-- Admin interface available at `/admin/`
+- Admin interface available at `/admacmachado/`
 
 ### API Endpoints Used
 
@@ -236,7 +236,7 @@ Prepared for (but not implemented yet):
 ## 🔒 Admin Features
 
 If logged in as staff/admin:
-- Access Django admin at `/admin/`
+- Access Django admin at `/admacmachado/`
 - Add, edit, delete pieces
 - Manage genres, signatures, etc.
 - View audit trails

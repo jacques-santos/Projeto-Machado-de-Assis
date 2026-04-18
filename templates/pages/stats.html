@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Estatísticas — Banco de Dados Machado de Assis{% endblock %}
+
+{% block content %}
+<article class="page-content card">
+  <h1>Estatísticas do Acervo</h1>
+
+  <div id="stats-loading" class="loading-text" role="status" aria-busy="true">
+    Carregando estatísticas...
+  </div>
+
+  <div id="stats-content" style="display: none;">
+    <!-- Resumo -->
+    <section class="stats-summary" id="stats-summary">
+      <div class="stat-card">
+        <span class="stat-number" id="stat-total">—</span>
+        <span class="stat-label">Peças no acervo</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="stat-period">—</span>
+        <span class="stat-label">Período coberto</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="stat-genres">—</span>
+        <span class="stat-label">Gêneros literários</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="stat-signatures">—</span>
+        <span class="stat-label">Assinaturas</span>
+      </div>
+    </section>
+
+    <!-- Grid de gráficos lado a lado -->
+    <div class="stats-charts-grid">
+      <!-- Gráfico por Gênero -->
+      <section class="stats-chart-section">
+        <h2>Peças por Gênero</h2>
+        <div id="chart-genre" class="bar-chart" role="img" aria-label="Gráfico de peças por gênero"></div>
+        <button class="btn-show-more" id="btn-genre-more" style="display:none;" aria-expanded="false">
+          Mostrar todos ▾
+        </button>
+      </section>
+
+      <!-- Top Assinaturas -->
+      <section class="stats-chart-section">
+        <h2>Assinaturas Mais Utilizadas</h2>
+        <div id="chart-signature" class="bar-chart" role="img" aria-label="Gráfico das assinaturas mais utilizadas"></div>
+        <button class="btn-show-more" id="btn-sig-more" style="display:none;" aria-expanded="false">
+          Mostrar todas ▾
+        </button>
+      </section>
+    </div>
+
+    <!-- Gráfico por Ano (largura total) -->
+    <section class="stats-chart-section stats-chart-section--full">
+      <h2>Distribuição Temporal</h2>
+      <div id="chart-year" class="bar-chart bar-chart--timeline" role="img" aria-label="Gráfico de peças por ano"></div>
+    </section>
+  </div>
+
+  <nav class="nav-links" aria-label="Navegação entre páginas">
+    <a href="{% url 'catalog:home' %}" class="btn-primary">← Voltar ao Acervo</a>
+    <a href="{% url 'catalog:about' %}" class="btn-secondary">Sobre o Projeto</a>
+  </nav>
+</article>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .stats-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-card {
+    background: var(--light-bg, #f5f0e8);
+    border: 1px solid var(--border, #c9b99a);
+    border-radius: 10px;
+    padding: 1.25rem 0.75rem;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent, #6d4c41);
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .stat-label {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--muted, #795548);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+
+  /* Grid de gráficos lado a lado */
+  .stats-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .stats-chart-section {
+    background: var(--light-bg, #f5f0e8);
+    border: 1px solid var(--border, #c9b99a);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .stats-chart-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.15rem;
+    color: var(--accent, #6d4c41);
+    border-bottom: 2px solid var(--border, #c9b99a);
+    padding-bottom: 0.5rem;
+  }
+
+  .stats-chart-section--full {
+    margin-bottom: 2rem;
+  }
+
+  .bar-chart {
+    margin: 0;
+  }
+
+  .bar-chart--timeline {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
+  }
+
+  .bar-row.bar-row--hidden {
+    display: none;
+  }
+
+  .bar-label {
+    min-width: 130px;
+    max-width: 160px;
+    text-align: right;
+    color: var(--text, #3e2723);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-fill {
+    height: 20px;
+    background: var(--accent, #6d4c41);
+    border-radius: 3px;
+    min-width: 2px;
+    transition: width 0.5s ease;
+  }
+
+  [data-theme="light"] .bar-fill {
+    background: var(--accent, #1976d2);
+  }
+
+  [data-theme="principal"] .bar-fill {
+    background: var(--accent, #333333);
+  }
+
+  [data-theme="dark"] .bar-fill {
+    background: var(--accent, #64b5f6);
+  }
+
+  .bar-value {
+    font-size: 0.75rem;
+    color: var(--muted, #795548);
+    min-width: 36px;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  /* Botão "ver mais" */
+  .btn-show-more {
+    display: block;
+    margin: 0.75rem auto 0;
+    padding: 0.35rem 1rem;
+    background: transparent;
+    border: 1px solid var(--border, #c9b99a);
+    border-radius: 6px;
+    color: var(--accent, #6d4c41);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s;
+  }
+
+  .btn-show-more:hover {
+    background: var(--accent-soft, rgba(109, 76, 65, 0.12));
+  }
+
+  /* Timeline */
+  .timeline-row {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    width: 16px;
+    margin-right: 1px;
+    vertical-align: bottom;
+    cursor: default;
+  }
+
+  .timeline-row:hover .timeline-bar {
+    opacity: 0.75;
+  }
+
+  .timeline-bar {
+    width: 12px;
+    background: var(--accent, #6d4c41);
+    border-radius: 2px 2px 0 0;
+    min-height: 1px;
+    transition: height 0.5s ease, opacity 0.15s;
+  }
+
+  [data-theme="light"] .timeline-bar { background: var(--accent, #1976d2); }
+  [data-theme="principal"] .timeline-bar { background: var(--accent, #333333); }
+  [data-theme="dark"] .timeline-bar { background: var(--accent, #64b5f6); }
+
+  .timeline-label {
+    font-size: 0.55rem;
+    color: var(--muted);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    height: 38px;
+    overflow: hidden;
+  }
+
+  .timeline-row:nth-child(5n+1) .timeline-label {
+    font-weight: 600;
+    color: var(--text, #3e2723);
+  }
+
+  #chart-year {
+    display: flex;
+    align-items: flex-end;
+    min-height: 160px;
+    border-bottom: 2px solid var(--border, #c9b99a);
+    padding-bottom: 0;
+  }
+
+  .stats-error {
+    color: var(--danger, #c62828);
+    padding: 1rem;
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* Responsivo */
+  @media (max-width: 900px) {
+    .stats-charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .stats-summary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .stat-number {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const apiBase = (window.MACHADO_CONFIG?.apiBase || '/api/v1').replace(/\/$/, '');
+  const INITIAL_VISIBLE = 10;
+
+  async function loadStats() {
+    try {
+      const response = await fetch(`${apiBase}/pecas/estatisticas/`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      renderStats(data);
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error);
+      document.getElementById('stats-loading').innerHTML =
+        '<p class="stats-error">Erro ao carregar estatísticas. Tente novamente.</p>';
+    }
+  }
+
+  function safeText(v) {
+    if (v == null) return '';
+    return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function buildBarRows(items, labelKey, maxVal, limit) {
+    return items.map((item, i) => {
+      const hidden = limit && i >= limit ? ' bar-row--hidden' : '';
+      const pct = Math.max((item.total / maxVal) * 100, 1);
+      const label = safeText(item[labelKey] || '(sem nome)');
+      return `<div class="bar-row${hidden}">
+        <span class="bar-label" title="${label}">${label}</span>
+        <span class="bar-fill" style="width: ${pct}%"></span>
+        <span class="bar-value">${item.total}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function setupToggle(btnId, chartId, totalItems) {
+    if (totalItems <= INITIAL_VISIBLE) return;
+    const btn = document.getElementById(btnId);
+    btn.style.display = 'block';
+    let expanded = false;
+    btn.addEventListener('click', function() {
+      expanded = !expanded;
+      const rows = document.getElementById(chartId).querySelectorAll('.bar-row');
+      rows.forEach((row, i) => {
+        if (i >= INITIAL_VISIBLE) {
+          row.classList.toggle('bar-row--hidden', !expanded);
+        }
+      });
+      btn.textContent = expanded ? 'Mostrar menos ▴' : 'Mostrar todos ▾';
+      btn.setAttribute('aria-expanded', expanded);
+    });
+  }
+
+  function renderStats(data) {
+    document.getElementById('stats-loading').style.display = 'none';
+    document.getElementById('stats-content').style.display = 'block';
+
+    // Summary
+    document.getElementById('stat-total').textContent =
+      data.total_pecas.toLocaleString('pt-BR');
+    if (data.periodo) {
+      const p = data.periodo;
+      document.getElementById('stat-period').textContent =
+        `${p.primeiro_ano || '?'} – ${p.ultimo_ano || '?'}`;
+    }
+    document.getElementById('stat-genres').textContent =
+      data.por_genero ? data.por_genero.length : '—';
+    document.getElementById('stat-signatures').textContent =
+      data.por_assinatura ? data.por_assinatura.length + '+' : '—';
+
+    // Genre chart
+    if (data.por_genero && data.por_genero.length > 0) {
+      const maxGenre = Math.max(...data.por_genero.map(g => g.total));
+      document.getElementById('chart-genre').innerHTML =
+        buildBarRows(data.por_genero, 'genero__nome', maxGenre, INITIAL_VISIBLE);
+      setupToggle('btn-genre-more', 'chart-genre', data.por_genero.length);
+    }
+
+    // Year timeline
+    if (data.por_ano && data.por_ano.length > 0) {
+      const maxYear = Math.max(...data.por_ano.map(y => y.total));
+      const chartHeight = 140;
+      document.getElementById('chart-year').innerHTML = data.por_ano.map(y => {
+        const h = Math.max((y.total / maxYear) * chartHeight, 1);
+        return `
+          <div class="timeline-row" title="${y.ano_publicacao}: ${y.total} peças">
+            <div class="timeline-bar" style="height: ${h}px"></div>
+            <span class="timeline-label">${y.ano_publicacao}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Signature chart
+    if (data.por_assinatura && data.por_assinatura.length > 0) {
+      const maxSig = Math.max(...data.por_assinatura.map(s => s.total));
+      document.getElementById('chart-signature').innerHTML =
+        buildBarRows(data.por_assinatura, 'assinatura__nome', maxSig, INITIAL_VISIBLE);
+      setupToggle('btn-sig-more', 'chart-signature', data.por_assinatura.length);
+    }
+  }
+
+  loadStats();
+})();
+</script>
+{% endblock %}

@@ -1,41 +1,47 @@
 {% extends "base.html" %}
 
-{% block title %}Criado por - Banco de Dados Machado de Assis{% endblock %}
+{% block title %}Sobre — Banco de Dados Machado de Assis{% endblock %}
 
 {% block content %}
 <article class="page-content card">
-  <h1>Criado por</h1>
-  
-  <section>
-    <h2>Sobre o desenvolvimento</h2>
-    <p>Este projeto foi desenvolvido como uma iniciativa de preservação digital e disponibilização de informações sobre Machado de Assis, um dos maiores autores da literatura brasileira.</p>
-  </section>
+  <h1>Sobre o Projeto</h1>
 
   <section>
-    <h2>Objetivo</h2>
-    <p>O objetivo principal é criar uma ferramenta de pesquisa acessível, onde estudiosos e leitores possam explorar catalogicamente as obras, registros de publicação, edições e informações relacionadas à produção de Machado de Assis.</p>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+      incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+      exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+      dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+      mollit anim id est laborum.
+    </p>
+    <p>
+      Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis
+      et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
+      Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula.
+      Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula ut dictum pharetra,
+      nisi nunc fringilla magna, in commodo elit erat nec turpis. Ut pharetra augue nec augue.
+    </p>
+    <p>
+      Nam dui ligula, fringilla a, euismod sodales, sollicitudin vel, wisi. Morbi auctor
+      lorem non justo. Nam lacus libero, pretium at, lobortis vitae, ultricies et, tellus.
+      Donec aliquet, tortor sed accumsan bibendum, erat ligula aliquet magna, vitae ornare
+      odio metus a mi. Morbi ac orci et nisl hendrerit mollis. Suspendisse ut massa. Cras
+      nec ante. Pellentesque a nulla. Cum sociis natoque penatibus et magnis dis parturient
+      montes, nascetur ridiculus mus. Aliquam tincidunt urna.
+    </p>
+    <p>
+      Pellentesque cursus luctus mauris. Nulla malesuada porttitor diam. Donec felis erat,
+      congue non, volutpat at, tincidunt tristique, libero. Vivamus viverra fermentum felis.
+      Donec nonummy pellentesque ante. Phasellus adipiscing semper elit. Proin fermentum
+      massa ac quam. Sed diam turpis, molestie vitae, placerat a, molestie nec, leo.
+      Maecenas lacinia. Nam ipsum ligula, eleifend at, accumsan nec, suscipit a, ipsum.
+    </p>
   </section>
 
-  <section>
-    <h2>Metodologia</h2>
-    <p>Os dados foram compilados a partir de pesquisa acadêmica rigorosa, preservando informações sobre:</p>
-    <ul>
-      <li>Obras publicadas e peças literárias</li>
-      <li>Datas e locais de publicação</li>
-      <li>Assinaturas e pseudônimos</li>
-      <li>Gêneros literários</li>
-      <li>Instâncias e ocorrências</li>
-      <li>Mídias de publicação</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Evolução</h2>
-    <p>Este catálogo continua evoluindo. Melhorias, correções e novas informações são adicionadas regularmente. Se você encontrar erros ou tiver sugestões, este é um projeto vivo e aberto à colaboração.</p>
-  </section>
-
-  <div class="nav-links">
-    <a href="{% url 'catalog:home' %}" class="btn-secondary">← Voltar para Acervo</a>
-  </div>
+  <nav class="nav-links" aria-label="Navegação entre páginas">
+    <a href="{% url 'catalog:home' %}" class="btn-primary">← Voltar ao Acervo</a>
+    <a href="{% url 'catalog:stats' %}" class="btn-secondary">Estatísticas →</a>
+  </nav>
 </article>
 {% endblock %}

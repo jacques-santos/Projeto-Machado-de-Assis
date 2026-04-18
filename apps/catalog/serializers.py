@@ -50,6 +50,8 @@ class PecaListSerializer(serializers.ModelSerializer):
     genero = serializers.StringRelatedField()
     instancia = serializers.StringRelatedField()
     livro = serializers.StringRelatedField()
+    midia = serializers.StringRelatedField()
+    local_publicacao = serializers.StringRelatedField()
 
     class Meta:
         model = Peca
@@ -58,11 +60,19 @@ class PecaListSerializer(serializers.ModelSerializer):
             "ano_publicacao",
             "mes_publicacao",
             "data_publicacao",
+            "data_ordenacao",
             "nome_obra",
+            "nome_obra_simples",
             "assinatura",
             "instancia",
             "livro",
             "genero",
+            "midia",
+            "local_publicacao",
+            "fonte",
+            "dados_publicacao",
+            "observacoes",
+            "reproducoes_texto",
         ]
 
 

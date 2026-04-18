@@ -13,7 +13,7 @@ const state = {
   rows: [],
   total: 0,
   page: 1,
-  pageSize: 25,
+  pageSize: 250,
   nextUrl: null,
   previousUrl: null,
 
@@ -27,13 +27,14 @@ const state = {
   compact: false,
   onlyDated: false,
 
-  // Facet filters (server-side)
-  facetFilters: {
-    genero_id: '',
-    assinatura_id: '',
-    instancia_id: '',
-    livro_id: '',
-    midia_id: '',
+  // Nome da Peça header search
+  nomeObraSearch: '',
+
+  // Extra filters (dados adicionais)
+  extraFilters: {
+    livro_search: '',
+    local_publicacao_search: '',
+    fonte_search: '',
   },
 
   // Column filters (client-side for now, could be server-side)
@@ -44,10 +45,34 @@ const state = {
     data_publicacao: '',
     nome_obra: '',
     assinatura: '',
-    instancia: '',
-    livro: '',
+    midia: '',
     genero: '',
   },
+
+  // Autocomplete options
+  autocompleteData: {
+    assinatura: [],
+    instancia: [],
+    livro: [],
+    genero: [],
+    nome_obra: [],
+    midia: [],
+    local_publicacao: [],
+    fonte: [],
+    dados_publicacao: [],
+    observacoes: [],
+    reproducoes: [],
+  },
+
+  // Column filters widgets
+  columnFilterWidgets: {},
+  activeColumnFilters: {}, // { columnName: { selectedValues: [], sortOrder: null } }
+
+  // Facet filters
+  facetFilters: {},
+
+  // Focus tracking for modal accessibility
+  lastFocusedElement: null,
 };
 
 // ===== DOM ELEMENTS CACHE =====
@@ -56,12 +81,17 @@ const els = {
   resultsBody: document.getElementById('results-body'),
   resultsSummary: document.getElementById('results-summary'),
   loadingIndicator: document.getElementById('loading-indicator'),
-  pageIndicator: document.getElementById('page-indicator'),
   table: document.getElementById('results-table'),
 
   // Pagination
   prevPage: document.getElementById('prev-page'),
   nextPage: document.getElementById('next-page'),
+  paginationNumbers: document.getElementById('pagination-numbers'),
+
+  // Active filters bar
+  activeFiltersBar: document.getElementById('active-filters-bar'),
+  activeFiltersChips: document.getElementById('active-filters-chips'),
+  clearAllFiltersBtn: document.getElementById('clear-all-filters-btn'),
 
   // Controls
   pageSize: document.getElementById('page-size'),
@@ -74,12 +104,13 @@ const els = {
   toggleCompact: document.getElementById('toggle-compact'),
   toggleDatedOnly: document.getElementById('toggle-dated-only'),
 
-  // Facets
-  filterGenero: document.getElementById('filter-genero'),
-  filterAssinatura: document.getElementById('filter-assinatura'),
-  filterInstancia: document.getElementById('filter-instancia'),
+  // Nome da Peça header search
+  nomeObraSearch: document.getElementById('nome-obra-search'),
+
+  // Extra filters (dados adicionais)
   filterLivro: document.getElementById('filter-livro'),
-  filterMidia: document.getElementById('filter-midia'),
+  filterLocal: document.getElementById('filter-local'),
+  filterFonte: document.getElementById('filter-fonte'),
 
   // Modal
   detailModal: document.getElementById('detail-modal'),
@@ -92,21 +123,89 @@ const els = {
 // ===== CONFIGURATION =====
 const serverSortableFields = new Set([
   'id',
-  'ano_publicacao',
-  'mes_publicacao',
   'data_publicacao',
+  'data_ordenacao',
   'nome_obra',
+  'assinatura',
+  'genero',
+  'midia',
 ]);
+
+// Maps frontend sort key to actual API ordering field
+const sortFieldMapping = {
+  'data_publicacao': 'data_ordenacao',
+};
 
 // ===== UTILITY FUNCTIONS =====
 
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+/**
+ * Converte um valor para texto plano e escapa caracteres perigosos de HTML.
+ * Nota: Apenas faz escape, não faz unescape duplo.
+ */
+function safeText(value) {
+  if (value == null) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Converts URLs in already-escaped text into clickable links.
+ * Must be called AFTER safeText to avoid XSS.
+ */
+function linkifyUrls(escapedText) {
+  if (!escapedText) return '';
+  return escapedText.replace(
+    /(https?:\/\/[^\s"'&<>]+)/gi,
+    '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+  );
+}
+
+/**
+ * Remove tags HTML e converte entidades HTML comuns para caracteres normais.
+ * Exemplo: "&quot;Cleópatra&quot;" → "Cleópatra"
+ * Exemplo: "Escravo&nbsp;e&nbsp;Rainha" → "Escravo e Rainha"
+ */
+function openLinksInNewTab(html) {
+  if (!html) return '';
+  return String(html).replace(/<a\s/gi, '<a target="_blank" rel="noopener noreferrer" ');
+}
+
+function stripHtmlAndDecode(value) {
+  if (!value) return '';
+  
+  let text = String(value);
+  
+  // Remove tags HTML
+  text = text.replace(/<[^>]*>/g, '');
+  
+  // Decodifica entidades HTML comuns
+  const entities = {
+    '&quot;': '"',
+    '&apos;': "'",
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&nbsp;': ' ',
+    '&#39;': "'",
+    '&#34;': '"',
+  };
+  
+  Object.entries(entities).forEach(([entity, char]) => {
+    text = text.replace(new RegExp(entity, 'g'), char);
+  });
+  
+  // Remove espaços múltiplos e limpa
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  return text;
+}
+
+function stripHtml(value) {
+  return String(value ?? '').replace(/<[^>]*>/g, '').trim();
 }
 
 function normalizeText(value) {
@@ -120,12 +219,50 @@ function normalizeText(value) {
 function formatDate(value) {
   if (!value) return '—';
   
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
+  // Extract only the date part (YYYY-MM-DD) to avoid timezone offset
+  // shifting the date by -1 day when the browser is behind UTC.
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) {
     return String(value);
   }
   
-  return date.toLocaleDateString('pt-BR');
+  const [, year, month, day] = match;
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Exibe uma notificação toast temporária no canto superior da tela.
+ * @param {string} message - Mensagem a exibir
+ * @param {'info'|'warning'|'error'} type - Tipo do alerta
+ */
+function showToast(message, type = 'info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    container.setAttribute('aria-live', 'polite');
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.className = `toast toast--${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('toast--fade-out');
+    toast.addEventListener('transitionend', () => toast.remove());
+  }, 4000);
+}
+
+/**
+ * Destaca termos de busca em texto já escapado por safeText().
+ * Insere <mark> em torno de cada ocorrência.
+ */
+function highlightSearch(escapedText) {
+  if (!state.globalSearch || !escapedText) return escapedText;
+  const term = state.globalSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${term})`, 'gi');
+  return escapedText.replace(regex, '<mark>$1</mark>');
 }
 
 function formatMonth(month) {
@@ -138,6 +275,18 @@ function formatMonth(month) {
 }
 
 // ===== SORTING =====
+
+/**
+ * Debounce - Executa função apenas após N ms sin atividade
+ * Útil para reduzir requisições durante digitação
+ */
+function debounce(fn, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
 
 function cycleSort(sortKey) {
   if (state.sortKey !== sortKey) {
@@ -159,18 +308,17 @@ function getServerOrdering() {
   if (!state.sortKey || !state.sortDirection || !serverSortableFields.has(state.sortKey)) {
     return '';
   }
-  return state.sortDirection === 'desc' ? `-${state.sortKey}` : state.sortKey;
+  const apiField = sortFieldMapping[state.sortKey] || state.sortKey;
+  return state.sortDirection === 'desc' ? `-${apiField}` : apiField;
 }
 
 function updateSortIndicators() {
   document.querySelectorAll('.sort-btn').forEach((btn) => {
     const field = btn.dataset.sort;
     const indicator = btn.querySelector('.sort-indicator');
-    
-    if (field === state.sortKey) {
+    indicator.classList.remove('asc', 'desc');
+    if (field === state.sortKey && state.sortDirection) {
       indicator.classList.add(state.sortDirection);
-    } else {
-      indicator.classList.remove('asc', 'desc');
     }
   });
 }
@@ -186,19 +334,141 @@ function buildApiUrl() {
     url.searchParams.set('search', state.globalSearch);
   }
 
+  if (state.nomeObraSearch) {
+    url.searchParams.set('nome_obra_search', state.nomeObraSearch);
+  }
+
+  // Extra filters (dados adicionais)
+  Object.entries(state.extraFilters).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, value);
+  });
+
+  // Filtro "apenas com data" no servidor
+  if (state.onlyDated) {
+    url.searchParams.set('has_date', 'true');
+  }
+
   const ordering = getServerOrdering();
   if (ordering) {
     url.searchParams.set('ordering', ordering);
   }
 
-  // Add facet filters
-  Object.entries(state.facetFilters).forEach(([key, value]) => {
-    if (value) {
-      url.searchParams.set(key, value);
+  // Adicionar filtros de coluna como query parameters
+  // Enviar valores separados por vírgula: ?id=1001,1002,1003
+  Object.entries(state.activeColumnFilters).forEach(([columnName, filterData]) => {
+    // Range filters (ano_min/ano_max, data_min/data_max)
+    if (filterData.rangeMin) {
+      if (columnName === 'ano_publicacao') {
+        url.searchParams.set('ano_min', filterData.rangeMin);
+      } else if (columnName === 'data_publicacao') {
+        url.searchParams.set('data_min', filterData.rangeMin);
+      }
+    }
+    if (filterData.rangeMax) {
+      if (columnName === 'ano_publicacao') {
+        url.searchParams.set('ano_max', filterData.rangeMax);
+      } else if (columnName === 'data_publicacao') {
+        url.searchParams.set('data_max', filterData.rangeMax);
+      }
+    }
+
+    if (filterData.selectedValues) {
+      // Converter para array se for um Set
+      let values = filterData.selectedValues;
+      if (values instanceof Set) {
+        values = Array.from(values);
+      }
+      if (Array.isArray(values) && values.length > 0) {
+        // Skip sending selectedValues if ALL values are selected (no actual restriction)
+        const widget = state.columnFilterWidgets[columnName];
+        const totalValues = widget ? widget.allValues.length : 0;
+        if (totalValues > 0 && values.length >= totalValues) {
+          // All values selected — no restriction needed
+        } else {
+          // Mapear null para __blank__ e filtrar valores inválidos
+          const validValues = values
+            .filter(v => v !== 'None' && v !== '')
+            .map(v => v === null ? '__blank__' : v);
+          
+          if (validValues.length > 0) {
+            if (columnName === 'nome_obra') {
+              // nome_obra values may contain commas; use repeated params
+              validValues.forEach(v => url.searchParams.append(columnName, v));
+            } else {
+              url.searchParams.set(columnName, validValues.join(','));
+            }
+          }
+        }
+      }
     }
   });
 
   return url.toString();
+}
+
+/**
+ * Busca sugestões de autocomplete do servidor.
+ * @param {string} field - nome do campo (nome_obra, dados_publicacao, observacoes, etc.)
+ * @param {string} query - texto digitado pelo usuário (opcional)
+ * @param {number} limit - máximo de resultados
+ * @returns {Promise<string[]>}
+ */
+async function fetchAutocompleteSuggestions(field, query, limit = 200) {
+  try {
+    const url = new URL(`${apiBase}/pecas/autocomplete/`, window.location.origin);
+    url.searchParams.set('field', field);
+    if (query) url.searchParams.set('q', query);
+    url.searchParams.set('limit', String(limit));
+    const resp = await fetch(url.toString());
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return data.values || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Carrega todas as sugestões server-side para os campos de autocomplete.
+ * Chamado uma vez na inicialização; resultados ficam em state.autocompleteData.
+ * Para livro, local_publicacao e fonte, carrega também contagens via column_values.
+ */
+async function loadServerAutocompleteData() {
+  // Campos que usam autocomplete simples (só strings)
+  const simpleFields = ['nome_obra', 'dados_publicacao', 'observacoes', 'reproducoes'];
+  // Campos que precisam de contagens (usam column_values)
+  const countFields = ['fonte', 'livro', 'local_publicacao'];
+
+  const [simpleResults, ...countResults] = await Promise.all([
+    Promise.all(simpleFields.map((f) => fetchAutocompleteSuggestions(f, '', 1000))),
+    ...countFields.map((f) => fetchColumnValuesForAutocomplete(f)),
+  ]);
+
+  simpleFields.forEach((f, i) => {
+    state.autocompleteData[f] = simpleResults[i];
+  });
+  countFields.forEach((f, i) => {
+    state.autocompleteData[f] = countResults[i];
+  });
+}
+
+/**
+ * Busca valores de coluna com contagens para uso nos filtros da toolbar.
+ */
+async function fetchColumnValuesForAutocomplete(column) {
+  try {
+    const url = new URL(`${apiBase}/pecas/column_values/`, window.location.origin);
+    url.searchParams.set('column', column);
+    const resp = await fetch(url.toString());
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    // Retorna array de {value, count}, excluindo blanks
+    return (data.values || [])
+      .filter(v => !v.isBlank && v.value)
+      .map(v => ({ value: v.value, count: v.count }));
+  } catch {
+    return [];
+  }
 }
 
 async function fetchPecas() {
@@ -206,26 +476,144 @@ async function fetchPecas() {
     setLoading('Carregando peças...');
     
     const url = buildApiUrl();
-    const response = await fetch(url);
+    
+    // Fetch com timeout de 30 segundos
+    const controller = new AbortController();
+    let timeoutId;
+    let hasCompleted = false;
+    
+    const setupTimeout = () => {
+      timeoutId = setTimeout(() => {
+        if (!hasCompleted) {
+          controller.abort();
+        }
+      }, 30000);
+    };
+    
+    const clearRequestTimeout = () => {
+      hasCompleted = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+    
+    setupTimeout();
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      signal: controller.signal,
+    });
+    
+    clearRequestTimeout();
     
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error('Limite de requisições atingido. Aguarde alguns segundos e tente novamente.');
+      }
+      const errorData = await response.text();
+      console.error(`HTTP ${response.status}:`, errorData);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
-    state.rows = data.results || [];
-    state.total = data.count || 0;
+    
+    // Validar resposta
+    if (!data.results || !Array.isArray(data.results)) {
+      throw new Error('Resposta inválida da API (results não é array)');
+    }
+    
+    state.rows = data.results;
+    state.total = data.count || data.pagination?.count || 0;
     state.nextUrl = data.next;
     state.previousUrl = data.previous;
 
     updateResultsDisplay();
     updateTableDisplay();
     updatePaginationDisplay();
+    updateActiveFiltersBar();
+    saveStateToUrl();
+
+    return state.total;
+    
   } catch (error) {
     console.error('Erro ao buscar peças:', error);
+    
+    let errorMsg = error.message;
+    if (error.name === 'AbortError') {
+      errorMsg = 'Requisição expirou ou foi cancelada (timeout 30s)';
+    } else if (!navigator.onLine) {
+      errorMsg = 'Sem conexão com a internet';
+    } else if (error instanceof TypeError) {
+      errorMsg = 'Erro de conexão - verifique se o servidor está rodando';
+    }
+    
     setLoading('');
-    showErrorState(`Erro ao carregar dados: ${error.message}`);
+    showErrorState(`Erro ao carregar dados: ${errorMsg}`);
+    showToast(errorMsg, 'error');
   }
+}
+
+/**
+ * Aplica um filtro "Filtrar..." da barra de cima. Se retornar 0 resultados,
+ * limpa todos os outros filtros e reaplica somente o filtro atual.
+ * @param {string} currentKey - chave do filtro extra que acabou de ser aplicado
+ */
+async function applyToolbarFilterWithRetry(currentKey) {
+  const total = await fetchPecas();
+  if (total === 0) {
+    // Salvar apenas o valor do filtro que acabou de ser aplicado
+    const savedValue = state.extraFilters[currentKey];
+
+    // Limpar tudo
+    state.globalSearch = '';
+    state.sortKey = '';
+    state.sortDirection = '';
+    state.onlyDated = false;
+    state.nomeObraSearch = '';
+    state.extraFilters = {
+      livro_search: '',
+      local_publicacao_search: '',
+      fonte_search: '',
+    };
+    state.columnFilters = {
+      id: '', ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
+      nome_obra: '', assinatura: '', midia: '', genero: '',
+    };
+    state.activeColumnFilters = {};
+
+    // Restaurar apenas o filtro atual
+    state.extraFilters[currentKey] = savedValue;
+
+    // Atualizar UI
+    els.globalSearch.value = '';
+    els.toggleDatedOnly.checked = false;
+    if (els.nomeObraSearch) els.nomeObraSearch.value = '';
+    if (els.filterLivro) els.filterLivro.value = state.extraFilters.livro_search || '';
+    if (els.filterLocal) els.filterLocal.value = state.extraFilters.local_publicacao_search || '';
+    if (els.filterFonte) els.filterFonte.value = state.extraFilters.fonte_search || '';
+    document.querySelectorAll('[data-column-filter]').forEach((input) => { input.value = ''; });
+
+    // Resetar widgets de coluna
+    Object.values(state.columnFilterWidgets).forEach((widget) => {
+      if (widget) {
+        widget.filterState.selectedValues = new Set(widget.allValues.map(v => v.value));
+        widget.filterState.isActive = false;
+        widget.filterState.textFilters = [];
+        widget.filterState.sortOrder = null;
+        widget.filterState.rangeMin = null;
+        widget.filterState.rangeMax = null;
+        widget.createFilterIcon();
+      }
+    });
+    updateSortIndicators();
+
+    state.page = 1;
+    await fetchPecas();
+    showToast('Outros filtros foram limpos para exibir resultados.', 'info');
+  }
+  refreshAllColumnFilterWidgets();
 }
 
 async function fetchFacetas() {
@@ -254,13 +642,28 @@ async function fetchFacetas() {
 function setLoading(message) {
   els.loadingIndicator.textContent = message;
   els.loadingIndicator.style.display = message ? 'block' : 'none';
+  if (message && els.resultsBody) {
+    const skeletonRows = Array.from({length: 5}, () => `
+      <tr class="skeleton-row">
+        <td><span class="skeleton-cell"></span></td>
+        <td><span class="skeleton-cell"></span></td>
+        <td><span class="skeleton-cell"></span></td>
+        <td><span class="skeleton-cell"></span></td>
+        <td><span class="skeleton-cell skeleton-cell--wide"></span></td>
+        <td><span class="skeleton-cell"></span></td>
+        <td><span class="skeleton-cell"></span></td>
+        <td><span class="skeleton-cell"></span></td>
+      </tr>
+    `).join('');
+    els.resultsBody.innerHTML = skeletonRows;
+  }
 }
 
 function showErrorState(message) {
   els.resultsBody.innerHTML = `
     <tr>
-      <td colspan="9" class="error-state">
-        <p>${escapeHtml(message)}</p>
+      <td colspan="8" class="error-state">
+        <p>⚠️ ${safeText(message)}</p>
       </td>
     </tr>
   `;
@@ -271,23 +674,67 @@ function updateResultsDisplay() {
   
   if (state.total === 0) {
     els.resultsSummary.textContent = 'Nenhuma peça encontrada';
-    els.resultsBody.innerHTML = `
-      <tr>
-        <td colspan="9" class="empty-state">
-          <p>Nenhuma peça corresponde aos seus filtros</p>
-        </td>
-      </tr>
-    `;
+    els.resultsSummary.classList.add('empty');
     return;
   }
 
+  els.resultsSummary.classList.remove('empty');
   const start = (state.page - 1) * state.pageSize + 1;
   const end = Math.min(state.page * state.pageSize, state.total);
-  els.resultsSummary.textContent = `Mostrando ${start}-${end} de ${state.total} peças`;
+  
+  // Mostrar informações de forma clara
+  let summary = `Mostrando <strong>${start}–${end}</strong> de <strong>${state.total}</strong>`;
+  if (state.globalSearch) {
+    summary += ` (busca: "${safeText(state.globalSearch)}")`;
+  }
+  els.resultsSummary.innerHTML = summary;
+}
+
+/**
+ * Constrói uma sub-row com dados adicionais (campos de texto longos)
+ * Visível apenas quando "Dados adicionais" está ativado via CSS .show-extra
+ */
+function buildExtraDataRow(row) {
+  const fields = [
+    { label: 'Palavra-chave', value: row.instancia },
+    { label: 'Recolhidos em livro', value: row.livro },
+    { label: 'Local de Publicação', value: row.local_publicacao },
+    { label: 'Fonte', value: row.fonte, full: true },
+    { label: 'Dados da Publicação', value: row.dados_publicacao, full: true, html: true },
+    { label: 'Observações', value: row.observacoes, full: true, html: true },
+    { label: 'Reproduções', value: row.reproducoes_texto, full: true, html: true },
+  ].filter(f => f.value);
+
+  if (fields.length === 0) {
+    return `<tr class="extra-data-row"><td colspan="8" style="padding: 4px 10px !important; background: var(--light-bg); border-bottom: 2px solid var(--border-color);"><span style="font-size: 11px; color: var(--text-muted); font-style: italic;">Sem dados adicionais</span></td></tr>`;
+  }
+
+  const fieldsHtml = fields.map(f => `
+    <div class="${f.full ? 'extra-field-full' : 'extra-field'}">
+      <span class="extra-label">${f.label}</span>
+      <span class="extra-value">${f.html ? openLinksInNewTab(f.value) : safeText(stripHtmlAndDecode(f.value))}</span>
+    </div>
+  `).join('');
+
+  return `<tr class="extra-data-row"><td colspan="8"><div class="extra-data-content">${fieldsHtml}</div></td></tr>`;
 }
 
 function updateTableDisplay() {
   if (state.rows.length === 0) {
+    const hasFilters = state.globalSearch || state.onlyDated || Object.keys(state.activeColumnFilters).length > 0;
+    const suggestion = hasFilters
+      ? '<p>Tente ajustar os filtros, remover termos de busca ou <button type="button" class="link-btn" id="empty-clear-filters">limpar todos os filtros</button>.</p>'
+      : '<p>Nenhuma peça disponível no momento.</p>';
+    els.resultsBody.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-state">
+          <p>Nenhuma peça corresponde aos seus filtros</p>
+          ${suggestion}
+        </td>
+      </tr>
+    `;
+    const clearBtn = document.getElementById('empty-clear-filters');
+    if (clearBtn) clearBtn.addEventListener('click', handleClearFilters);
     return;
   }
 
@@ -295,36 +742,67 @@ function updateTableDisplay() {
   let filtered = applyClientFilters(state.rows);
 
   // Render rows
-  els.resultsBody.innerHTML = filtered.map((row) => `
-    <tr class="result-row" data-id="${row.id}">
-      <td class="col-id">${escapeHtml(row.id)}</td>
-      <td class="col-ano">${escapeHtml(row.ano_publicacao || '—')}</td>
+  els.resultsBody.innerHTML = filtered.map((row) => {
+    const mainRow = `
+    <tr class="result-row" data-id="${row.id}" tabindex="0" role="button" title="Clique ou pressione Enter para ver detalhes">
+      <td class="col-id">${highlightSearch(safeText(row.id))}</td>
+      <td class="col-ano">${highlightSearch(safeText(row.ano_publicacao || '—'))}</td>
       <td class="col-mes">${formatMonth(row.mes_publicacao)}</td>
       <td class="col-data">${formatDate(row.data_publicacao)}</td>
-      <td class="col-obra">${escapeHtml(row.nome_obra)}</td>
-      <td class="col-assinatura">${escapeHtml(row.assinatura || '—')}</td>
-      <td class="col-instancia">${escapeHtml(row.instancia || '—')}</td>
-      <td class="col-livro">${escapeHtml(row.livro || '—')}</td>
-      <td class="col-genero">${escapeHtml(row.genero || '—')}</td>
-    </tr>
-  `).join('');
+      <td class="col-obra">${highlightSearch(safeText(stripHtmlAndDecode(row.nome_obra)))}</td>
+      <td class="col-assinatura">${highlightSearch(safeText(row.assinatura || '—'))}</td>
+      <td class="col-midia">${highlightSearch(safeText(row.midia || '—'))}</td>
+      <td class="col-genero">${highlightSearch(safeText(row.genero || '—'))}</td>
+    </tr>`;
 
-  // Add row click handlers
+    const extraRow = buildExtraDataRow(row);
+    return mainRow + extraRow;
+  }).join('');
+
+  // Add row click and keyboard handlers
   document.querySelectorAll('.result-row').forEach((row) => {
-    row.addEventListener('click', () => {
-      const id = row.dataset.id;
-      showDetailModal(id);
+    const openDetail = () => {
+      state.lastFocusedElement = row;
+      showDetailModal(row.dataset.id);
+    };
+    row.addEventListener('click', openDetail);
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openDetail();
+      }
     });
+  });
+
+  // Update autocomplete data
+  updateAutocompleteData(filtered);
+}
+
+function updateAutocompleteData(rows) {
+  // Atualiza apenas os campos de filtro de coluna (dados da página atual).
+  // Os campos da barra de cima (nome_obra, midia, local_publicacao, fonte,
+  // dados_publicacao, observacoes, reproducoes) são carregados do servidor
+  // via loadServerAutocompleteData() e NÃO devem ser sobrescritos aqui.
+  const columnFields = ['assinatura', 'midia', 'genero'];
+  const uniqueValues = {};
+  columnFields.forEach((f) => { uniqueValues[f] = new Set(); });
+
+  rows.forEach((row) => {
+    if (row.assinatura) uniqueValues.assinatura.add(row.assinatura);
+    if (row.midia) uniqueValues.midia.add(row.midia);
+    if (row.genero) uniqueValues.genero.add(row.genero);
+  });
+
+  // Convert sets to sorted arrays
+  columnFields.forEach((key) => {
+    state.autocompleteData[key] = Array.from(uniqueValues[key]).sort();
   });
 }
 
 function applyClientFilters(rows) {
   let filtered = [...rows];
 
-  // Apply "only dated" toggle
-  if (state.onlyDated) {
-    filtered = filtered.filter((row) => Boolean(row.data_publicacao));
-  }
+  // "Apenas com data" agora é filtro server-side (has_date param)
 
   // Apply column filters
   Object.entries(state.columnFilters).forEach(([key, rawValue]) => {
@@ -337,14 +815,73 @@ function applyClientFilters(rows) {
         ano_publicacao: String(row.ano_publicacao || ''),
         mes_publicacao: String(row.mes_publicacao || ''),
         data_publicacao: formatDate(row.data_publicacao),
-        nome_obra: row.nome_obra,
+        nome_obra: stripHtmlAndDecode(row.nome_obra),
         assinatura: row.assinatura || '',
-        instancia: row.instancia || '',
-        livro: row.livro || '',
+        midia: row.midia || '',
         genero: row.genero || '',
       };
 
       return normalizeText(valueMap[key]).includes(expected);
+    });
+  });
+
+  // Apply column filter widgets (multiple values with OR logic)
+  Object.entries(state.activeColumnFilters).forEach(([columnName, filterData]) => {
+    if (!filterData.selectedValues || filterData.selectedValues.length === 0) {
+      return;
+    }
+
+    filtered = filtered.filter((row) => {
+      const valueMap = {
+        id: String(row.id),
+        ano_publicacao: String(row.ano_publicacao || ''),
+        mes_publicacao: String(row.mes_publicacao || ''),
+        data_publicacao: formatDate(row.data_publicacao),
+        nome_obra: stripHtmlAndDecode(row.nome_obra),
+        assinatura: row.assinatura || '',
+        midia: row.midia || '',
+        genero: row.genero || '',
+      };
+
+      const rowValue = String(valueMap[columnName] || '');
+      
+      // Lógica OR: se algum valor selecionado corresponder
+      return filterData.selectedValues.some((selectedValue) => {
+        // Tratar valor em branco
+        if (selectedValue === null || selectedValue === '__blank__') {
+          return !row[columnName] && row[columnName] !== 0;
+        }
+        selectedValue = String(selectedValue);
+        
+        // Aplicar filtros de texto se existirem
+        if (filterData.textFilters && filterData.textFilters.length > 0) {
+          return filterData.textFilters.some((textFilter) => {
+            const { type, value } = textFilter;
+            const lowerRow = rowValue.toLowerCase();
+            const lowerValue = value.toLowerCase();
+
+            switch (type) {
+              case 'contains':
+                return lowerRow.includes(lowerValue);
+              case 'not_contains':
+                return !lowerRow.includes(lowerValue);
+              case 'starts_with':
+                return lowerRow.startsWith(lowerValue);
+              case 'ends_with':
+                return lowerRow.endsWith(lowerValue);
+              case 'equals':
+                return lowerRow === lowerValue;
+              case 'not_equals':
+                return lowerRow !== lowerValue;
+              default:
+                return true;
+            }
+          });
+        }
+
+        // Lógica de valor múltiplo (OR)
+        return rowValue === selectedValue;
+      });
     });
   });
 
@@ -354,7 +891,6 @@ function applyClientFilters(rows) {
       const extractValue = (row) => {
         const map = {
           assinatura: row.assinatura || '',
-          instancia: row.instancia || '',
           livro: row.livro || '',
           genero: row.genero || '',
         };
@@ -374,9 +910,428 @@ function applyClientFilters(rows) {
 }
 
 function updatePaginationDisplay() {
-  els.pageIndicator.textContent = `Página ${state.page}`;
+  // Calculate total pages
+  const totalPages = Math.ceil(state.total / state.pageSize);
+  
+  // Disable previous/next buttons
   els.prevPage.disabled = !state.previousUrl;
   els.nextPage.disabled = !state.nextUrl;
+
+  // Generate page numbers (show 6 pages or less if total < 6)
+  const maxPageButtons = 6;
+  let startPage = 1;
+  let endPage = Math.min(maxPageButtons, totalPages);
+
+  // Adjust range to keep current page visible
+  if (state.page > endPage - 2) {
+    startPage = Math.max(1, state.page - (maxPageButtons - 3));
+    endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+  }
+
+  // Generate page buttons HTML
+  let paginationHTML = '';
+
+  // Page info indicator
+  if (totalPages > 0) {
+    paginationHTML += `<span class="pagination-info">Página ${state.page} de ${totalPages}</span>`;
+  }
+
+  // First page button if not visible
+  if (startPage > 1) {
+    paginationHTML += `
+      <button type="button" class="pagination-btn" data-page="1" title="Página 1">1</button>
+      <span class="pagination-ellipsis">…</span>
+    `;
+  }
+
+  // Add page buttons
+  for (let i = startPage; i <= endPage; i++) {
+    const isActive = i === state.page;
+    paginationHTML += `
+      <button 
+        type="button" 
+        class="pagination-btn ${isActive ? 'active' : ''}" 
+        data-page="${i}"
+        title="Página ${i}"
+      >
+        ${i}
+      </button>
+    `;
+  }
+
+  // Last page button if not visible
+  if (endPage < totalPages) {
+    paginationHTML += `<span class="pagination-ellipsis">…</span>`;
+    paginationHTML += `
+      <button type="button" class="pagination-btn" data-page="${totalPages}" title="Página ${totalPages}">${totalPages}</button>
+    `;
+  }
+
+  // Update pagination section
+  els.paginationNumbers.innerHTML = paginationHTML;
+
+  // Add click handlers to page buttons
+  document.querySelectorAll('.pagination-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const page = parseInt(btn.dataset.page, 10);
+      handlePageNumberClick(page);
+    });
+  });
+}
+
+function handlePageNumberClick(pageNumber) {
+  if (pageNumber !== state.page && pageNumber > 0) {
+    state.page = pageNumber;
+    saveStateToUrl();
+    fetchPecas().then(scrollToTable);
+  }
+}
+
+// ===== ACTIVE FILTERS BAR =====
+
+const columnLabels = {
+  id: 'Código',
+  ano_publicacao: 'Ano',
+  mes_publicacao: 'Mês',
+  data_publicacao: 'Data',
+  nome_obra: 'Título',
+  assinatura: 'Assinatura',
+  genero: 'Gênero',
+  livro: 'Livro',
+};
+
+function updateActiveFiltersBar() {
+  if (!els.activeFiltersBar || !els.activeFiltersChips) return;
+
+  const chips = [];
+
+  // Search filter chip
+  if (state.globalSearch) {
+    chips.push({
+      type: 'search',
+      label: 'Busca',
+      value: state.globalSearch,
+      onRemove: () => {
+        state.globalSearch = '';
+        els.globalSearch.value = '';
+        state.page = 1;
+        fetchPecas();
+        refreshAllColumnFilterWidgets();
+      },
+    });
+  }
+
+  // Column filter chips
+  Object.entries(state.activeColumnFilters).forEach(([columnName, filterData]) => {
+    if (!filterData.selectedValues || filterData.selectedValues.length === 0) {
+      // Pode ter filtro de range sem selectedValues restritivo
+      if (!filterData.rangeMin && !filterData.rangeMax) return;
+    }
+
+    const widget = state.columnFilterWidgets[columnName];
+    const totalValues = widget ? widget.allValues.length : 0;
+    const hasRange = filterData.rangeMin || filterData.rangeMax;
+    const hasValueFilter = totalValues > 0 && filterData.selectedValues && filterData.selectedValues.length < totalValues;
+
+    // Only show chip if filter is actually restricting results
+    if (hasValueFilter || hasRange) {
+      let chipValue = '';
+      
+      // Montar descrição do filtro com valores reais
+      if (hasRange) {
+        const label = columnLabels[columnName] || columnName;
+        if (columnName === 'ano_publicacao') {
+          if (filterData.rangeMin && filterData.rangeMax) {
+            chipValue = `${filterData.rangeMin} – ${filterData.rangeMax}`;
+          } else if (filterData.rangeMin) {
+            chipValue = `a partir de ${filterData.rangeMin}`;
+          } else {
+            chipValue = `até ${filterData.rangeMax}`;
+          }
+        } else if (columnName === 'data_publicacao') {
+          const fmtDate = (d) => {
+            if (!d) return '';
+            const parts = d.split('-');
+            return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d;
+          };
+          if (filterData.rangeMin && filterData.rangeMax) {
+            chipValue = `${fmtDate(filterData.rangeMin)} – ${fmtDate(filterData.rangeMax)}`;
+          } else if (filterData.rangeMin) {
+            chipValue = `a partir de ${fmtDate(filterData.rangeMin)}`;
+          } else {
+            chipValue = `até ${fmtDate(filterData.rangeMax)}`;
+          }
+        }
+        if (hasValueFilter) {
+          chipValue += ` + ${filterData.selectedValues.length} valor(es)`;
+        }
+      } else if (hasValueFilter) {
+        // Mostrar os valores selecionados (até 3, depois resumir)
+        const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const displayValues = filterData.selectedValues.slice(0, 3).map(v => {
+          if (v === null || v === '__blank__') return '(Em Branco)';
+          if (columnName === 'mes_publicacao') {
+            const num = parseInt(v, 10);
+            return (num >= 1 && num <= 12) ? monthNames[num - 1] : v;
+          }
+          if (columnName === 'data_publicacao') {
+            const date = new Date(v);
+            return !isNaN(date.getTime()) ? date.toLocaleDateString('pt-BR') : v;
+          }
+          return String(v);
+        });
+        chipValue = displayValues.join(', ');
+        if (filterData.selectedValues.length > 3) {
+          chipValue += ` (+${filterData.selectedValues.length - 3})`;
+        }
+      }
+      
+      chips.push({
+        type: 'column',
+        label: columnLabels[columnName] || columnName,
+        value: chipValue,
+        columnName: columnName,
+        onRemove: () => {
+          delete state.activeColumnFilters[columnName];
+          if (widget) {
+            widget.filterState.selectedValues = new Set(widget.allValues.map(v => v.value));
+            widget.filterState.isActive = false;
+            widget.filterState.rangeMin = null;
+            widget.filterState.rangeMax = null;
+            widget.createFilterIcon();
+          }
+          state.page = 1;
+          fetchPecas();
+          refreshAllColumnFilterWidgets(columnName);
+        },
+      });
+    }
+  });
+
+  // "Only dated" toggle chip
+  if (state.onlyDated) {
+    chips.push({
+      type: 'toggle',
+      label: 'Filtro',
+      value: 'Apenas com data',
+      onRemove: () => {
+        state.onlyDated = false;
+        els.toggleDatedOnly.checked = false;
+        state.page = 1;
+        saveStateToUrl();
+        fetchPecas();
+        refreshAllColumnFilterWidgets();
+      },
+    });
+  }
+
+  // Título search chip
+  if (state.nomeObraSearch) {
+    chips.push({
+      type: 'nome_obra_search',
+      label: 'Título',
+      value: state.nomeObraSearch,
+      onRemove: () => {
+        state.nomeObraSearch = '';
+        if (els.nomeObraSearch) els.nomeObraSearch.value = '';
+        state.page = 1;
+        saveStateToUrl();
+        fetchPecas();
+        refreshAllColumnFilterWidgets();
+      },
+    });
+  }
+
+  // Extra filters (dados adicionais) chips
+  const extraFilterLabels = {
+    livro_search: { label: 'Recolhidos em livro', el: els.filterLivro },
+    local_publicacao_search: { label: 'Local de Publicação', el: els.filterLocal },
+    fonte_search: { label: 'Fonte', el: els.filterFonte },
+  };
+  Object.entries(state.extraFilters).forEach(([key, value]) => {
+    if (value) {
+      const meta = extraFilterLabels[key];
+      chips.push({
+        type: 'extra_filter',
+        label: meta.label,
+        value: value,
+        onRemove: () => {
+          state.extraFilters[key] = '';
+          if (meta.el) meta.el.value = '';
+          state.page = 1;
+          saveStateToUrl();
+          fetchPecas();
+          refreshAllColumnFilterWidgets();
+        },
+      });
+    }
+  });
+
+  // Show/hide bar
+  if (chips.length === 0) {
+    els.activeFiltersBar.style.display = 'none';
+    return;
+  }
+
+  els.activeFiltersBar.style.display = 'flex';
+  els.activeFiltersChips.innerHTML = chips.map((chip, i) => `
+    <span class="filter-chip">
+      <span class="filter-chip-label">${safeText(chip.label)}:</span>
+      <span class="filter-chip-value">${safeText(chip.value)}</span>
+      <button class="filter-chip-remove" data-chip-index="${i}" aria-label="Remover filtro ${safeText(chip.label)}" title="Remover">×</button>
+    </span>
+  `).join('');
+
+  // Attach remove handlers
+  els.activeFiltersChips.querySelectorAll('.filter-chip-remove').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const index = parseInt(btn.dataset.chipIndex, 10);
+      if (chips[index] && chips[index].onRemove) {
+        chips[index].onRemove();
+      }
+    });
+  });
+}
+
+// ===== AUTOCOMPLETE DROPDOWN =====
+
+let _acActiveIndex = -1; // keyboard navigation index
+let _acGeneration = 0;   // generation counter to avoid stale blur closures
+
+function closeAutocomplete() {
+  const existing = document.querySelector('.autocomplete-dropdown');
+  if (existing) existing.remove();
+  _acActiveIndex = -1;
+}
+
+/**
+ * Highlights matched substring in text with <mark> tags.
+ */
+function highlightMatch(text, search) {
+  if (!search) return safeText(text);
+  const norm = normalizeText(search);
+  const normText = normalizeText(text);
+  const idx = normText.indexOf(norm);
+  if (idx === -1) return safeText(text);
+  // Map positions back to original text
+  const before = safeText(text.substring(0, idx));
+  const match = safeText(text.substring(idx, idx + norm.length));
+  const after = safeText(text.substring(idx + norm.length));
+  return `${before}<mark>${match}</mark>${after}`;
+}
+
+/**
+ * Generic autocomplete dropdown.
+ * @param {HTMLInputElement} inputElement
+ * @param {string[]|Array<{value: string, count: number}>} options - full list of options (strings or objects with counts)
+ * @param {function(string)} onSelect - callback when user picks a value
+ */
+function showAutocompleteDropdown(inputElement, options, onSelect) {
+  closeAutocomplete();
+
+  // Detect if options are objects with counts
+  const hasCountData = options.length > 0 && typeof options[0] === 'object' && options[0] !== null;
+
+  const filterValue = normalizeText(inputElement.value);
+
+  const filtered = filterValue === ''
+    ? options
+    : options.filter((opt) => {
+        const text = hasCountData ? opt.value : opt;
+        return normalizeText(text).includes(filterValue);
+      });
+
+  if (filtered.length === 0) return;
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'autocomplete-dropdown';
+  dropdown.style.minWidth = Math.max(inputElement.offsetWidth, 180) + 'px';
+
+  const rect = inputElement.getBoundingClientRect();
+  dropdown.style.top = rect.bottom + window.scrollY + 'px';
+  dropdown.style.left = rect.left + window.scrollX + 'px';
+
+  filtered.forEach((option, i) => {
+    const text = hasCountData ? option.value : option;
+    const count = hasCountData ? option.count : null;
+
+    const item = document.createElement('div');
+    item.className = 'autocomplete-item';
+    
+    let html = `<span class="autocomplete-text">${highlightMatch(text, inputElement.value)}</span>`;
+    if (count != null) {
+      html += `<span class="autocomplete-count">${count}</span>`;
+    }
+    item.innerHTML = html;
+    item.dataset.index = i;
+
+    item.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      inputElement.value = text;
+      closeAutocomplete();
+      if (onSelect) onSelect(text);
+    });
+
+    dropdown.appendChild(item);
+  });
+
+  document.body.appendChild(dropdown);
+  _acActiveIndex = -1;
+  const gen = ++_acGeneration;
+
+  // Keyboard navigation
+  const handleKey = (e) => {
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _acActiveIndex = Math.min(_acActiveIndex + 1, items.length - 1);
+      items.forEach((it, idx) => it.classList.toggle('is-active', idx === _acActiveIndex));
+      items[_acActiveIndex]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _acActiveIndex = Math.max(_acActiveIndex - 1, 0);
+      items.forEach((it, idx) => it.classList.toggle('is-active', idx === _acActiveIndex));
+      items[_acActiveIndex]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter' && _acActiveIndex >= 0) {
+      e.preventDefault();
+      const selected = filtered[_acActiveIndex];
+      const selectedText = hasCountData ? selected.value : selected;
+      inputElement.value = selectedText;
+      closeAutocomplete();
+      inputElement.removeEventListener('keydown', handleKey);
+      if (onSelect) onSelect(selectedText);
+    } else if (e.key === 'Escape') {
+      closeAutocomplete();
+      inputElement.removeEventListener('keydown', handleKey);
+    }
+  };
+
+  inputElement.addEventListener('keydown', handleKey);
+
+  // Close on outside click or blur
+  const closeHandler = (e) => {
+    if (!inputElement.contains(e.target) && !dropdown.contains(e.target)) {
+      closeAutocomplete();
+      document.removeEventListener('mousedown', closeHandler);
+      inputElement.removeEventListener('keydown', handleKey);
+    }
+  };
+  // Use setTimeout to avoid the current focus click triggering close
+  setTimeout(() => document.addEventListener('mousedown', closeHandler), 0);
+
+  inputElement.addEventListener('blur', () => {
+    // Small delay to allow mousedown on item; only close if same generation
+    setTimeout(() => {
+      if (_acGeneration === gen) {
+        closeAutocomplete();
+        inputElement.removeEventListener('keydown', handleKey);
+        document.removeEventListener('mousedown', closeHandler);
+      }
+    }, 150);
+  }, { once: true });
 }
 
 function updateFacetDisplay(facetName, items) {
@@ -405,7 +1360,7 @@ function updateFacetDisplay(facetName, items) {
           ${isChecked ? 'checked' : ''}
         />
         <label for="${fieldId}">
-          <span>${escapeHtml(item[fieldName])}</span>
+          <span>${safeText(item[fieldName])}</span>
           <span class="facet-count">(${item.total})</span>
         </label>
       </div>
@@ -435,57 +1390,84 @@ function handleClearFilters() {
   state.showExtra = false;
   state.compact = false;
   state.onlyDated = false;
-  state.facetFilters = {
-    genero_id: '',
-    assinatura_id: '',
-    instancia_id: '',
-    livro_id: '',
-    midia_id: '',
+  state.nomeObraSearch = '';
+  state.extraFilters = {
+    livro_search: '',
+    local_publicacao_search: '',
+    fonte_search: '',
   };
   state.columnFilters = {
-    id: '',
-    ano_publicacao: '',
-    mes_publicacao: '',
-    data_publicacao: '',
-    nome_obra: '',
-    assinatura: '',
-    instancia: '',
-    livro: '',
-    genero: '',
+    id: '', ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
+    nome_obra: '', assinatura: '', midia: '', genero: '',
   };
+  state.activeColumnFilters = {};
 
   // Update UI
   els.globalSearch.value = '';
   els.toggleExtra.checked = false;
   els.toggleCompact.checked = false;
   els.toggleDatedOnly.checked = false;
+  if (els.nomeObraSearch) els.nomeObraSearch.value = '';
+  // Clear extra filter inputs
+  if (els.filterLivro) els.filterLivro.value = '';
+  if (els.filterLocal) els.filterLocal.value = '';
+  if (els.filterFonte) els.filterFonte.value = '';
+  els.resultsSummary.textContent = 'Nenhuma busca realizada ainda';
+  els.resultsSummary.classList.add('empty');
   
   document.querySelectorAll('[data-column-filter]').forEach((input) => {
     input.value = '';
   });
-  
-  document.querySelectorAll('[data-facet]').forEach((checkbox) => {
-    checkbox.checked = false;
+
+  // Resetar classes visuais (compacto, dados adicionais)
+  applyToggleClasses();
+
+  // Resetar filtros visuais dos widgets de coluna
+  Object.values(state.columnFilterWidgets).forEach((widget) => {
+    if (widget) {
+      widget.filterState.selectedValues = new Set(widget.allValues.map(v => v.value));
+      widget.filterState.isActive = false;
+      widget.filterState.textFilters = [];
+      widget.filterState.sortOrder = null;
+      widget.createFilterIcon();
+    }
   });
 
   updateSortIndicators();
   saveStateToUrl();
   fetchPecas();
   fetchFacetas();
+  refreshAllColumnFilterWidgets(); // Recarregar todos os valores de filtro
 }
 
 function handlePageSizeChange() {
-  state.pageSize = parseInt(els.pageSize.value, 10);
+  const raw = els.pageSize.value;
+  const newSize = raw === 'all' ? 100000 : parseInt(raw, 10);
+  if (newSize > 500) {
+    const pageSizeWarning = document.getElementById('page-size-warning');
+    if (pageSizeWarning) {
+      const label = raw === 'all' ? 'Todos os itens' : `${newSize} itens`;
+      pageSizeWarning.textContent = `\u26a0 ${label} pode tornar a p\u00e1gina lenta em dispositivos modestos`;
+      pageSizeWarning.style.display = 'block';
+      setTimeout(() => { pageSizeWarning.style.display = 'none'; }, 5000);
+    }
+  }
+  state.pageSize = newSize;
   state.page = 1;
   saveStateToUrl();
   fetchPecas();
+}
+
+function scrollToTable() {
+  const table = document.querySelector('.table-container');
+  if (table) table.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function handlePrevPage() {
   if (state.page > 1) {
     state.page--;
     saveStateToUrl();
-    fetchPecas();
+    fetchPecas().then(scrollToTable);
   }
 }
 
@@ -493,7 +1475,7 @@ function handleNextPage() {
   if (state.nextUrl) {
     state.page++;
     saveStateToUrl();
-    fetchPecas();
+    fetchPecas().then(scrollToTable);
   }
 }
 
@@ -502,15 +1484,39 @@ function handleToggleChange(e) {
   
   if (id === 'toggle-extra') {
     state.showExtra = e.target.checked;
+    applyToggleClasses();
+    updateActiveFiltersBar();
+    return;
   } else if (id === 'toggle-compact') {
     state.compact = e.target.checked;
+    applyToggleClasses();
+    return;
   } else if (id === 'toggle-dated-only') {
     state.onlyDated = e.target.checked;
   }
 
+  // "Apenas com data" faz requisição ao servidor
+  state.page = 1;
   saveStateToUrl();
-  updateTableDisplay();
+  fetchPecas();
+  refreshAllColumnFilterWidgets(); // Atualizar opções dos filtros
 }
+
+/**
+ * Aplica classes CSS para toggles visuais (compacto e dados adicionais)
+ */
+function applyToggleClasses() {
+  const table = els.table;
+  if (!table) return;
+  
+  // Modo compacto
+  table.classList.toggle('compact-mode', state.compact);
+  
+  // Dados adicionais - mostra/esconde colunas extras
+  table.classList.toggle('show-extra', state.showExtra);
+}
+
+
 
 function handleFacetChange(e) {
   const { facet, facetId } = e.target.dataset;
@@ -531,7 +1537,13 @@ function handleColumnFilterChange(e) {
   const { columnFilter } = e.target.dataset;
   state.columnFilters[columnFilter] = e.target.value;
   
-  // Debounce update on client filters
+  // Show autocomplete dropdown for specific fields
+  const autocompleteFields = ['assinatura', 'instancia', 'livro', 'genero'];
+  if (autocompleteFields.includes(columnFilter) && e.target.value.length > 0) {
+    showAutocompleteDropdown(e.target, columnFilter);
+  }
+  
+  // Update table display
   updateTableDisplay();
 }
 
@@ -552,110 +1564,70 @@ function showDetailModal(id) {
   const row = state.rows.find((r) => r.id == id);
   if (!row) return;
 
-  els.detailTitle.textContent = escapeHtml(row.nome_obra);
+  if (!state.lastFocusedElement) {
+    state.lastFocusedElement = document.activeElement;
+  }
+
+  els.detailTitle.textContent = `Peça #${row.id} — ${stripHtmlAndDecode(row.nome_obra)}`;
   
-  const html = `
-    <div class="detail-grid">
+  // Build fields array, only include non-empty optional fields
+  const fields = [
+    { label: 'Código', value: safeText(row.id), always: true },
+    { label: 'Título', value: safeText(stripHtmlAndDecode(row.nome_obra)), always: true },
+    { label: 'Ano de Publicação', value: row.ano_publicacao ? String(row.ano_publicacao) : null },
+    { label: 'Mês de Publicação', value: row.mes_publicacao ? formatMonth(row.mes_publicacao) : null },
+    { label: 'Data de Publicação', value: row.data_publicacao ? formatDate(row.data_publicacao) : null },
+    { label: 'Gênero', value: row.genero ? safeText(row.genero) : null },
+    { label: 'Assinatura', value: row.assinatura ? safeText(row.assinatura) : null },
+    { label: 'Palavra-chave', value: row.instancia ? safeText(row.instancia) : null },
+    { label: 'Recolhidos em livro', value: row.livro ? safeText(row.livro) : null },
+    { label: 'Mídia', value: row.midia ? safeText(row.midia) : null },
+    { label: 'Local de Publicação', value: row.local_publicacao ? safeText(row.local_publicacao) : null },
+    { label: 'Fonte', value: row.fonte },
+  ];
+
+  const gridFields = fields
+    .filter(f => f.always || f.value)
+    .map(f => `
       <div class="detail-field">
-        <span class="label">Código</span>
-        <div class="value">${escapeHtml(row.id)}</div>
+        <span class="detail-label">${f.label}</span>
+        <div class="value">${f.value}</div>
       </div>
+    `).join('');
 
+  // Long text fields (full-width, only if present)
+  const longFields = [    
+    { label: 'Dados da Publicação', value: row.dados_publicacao, html: true },
+    { label: 'Observações', value: row.observacoes, html: true },
+    { label: 'Reproduções', value: row.reproducoes_texto, html: true },
+  ]
+    .filter(f => f.value)
+    .map(f => `
       <div class="detail-field">
-        <span class="label">Nome da Obra</span>
-        <div class="value">${escapeHtml(row.nome_obra)}</div>
+        <span class="detail-label">${f.label}</span>
+        <div class="value">${f.html ? openLinksInNewTab(f.value) : linkifyUrls(safeText(stripHtmlAndDecode(f.value)))}</div>
       </div>
+    `).join('');
 
-      <div class="detail-field">
-        <span class="label">Nome Simples</span>
-        <div class="value ${!row.nome_obra_simples ? 'empty' : ''}">
-          ${row.nome_obra_simples ? escapeHtml(row.nome_obra_simples) : 'Não informado'}
-        </div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Ano de Publicação</span>
-        <div class="value">${row.ano_publicacao || '—'}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Mês de Publicação</span>
-        <div class="value">${formatMonth(row.mes_publicacao)}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Data de Publicação</span>
-        <div class="value">${formatDate(row.data_publicacao)}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Gênero</span>
-        <div class="value ${!row.genero ? 'empty' : ''}">${escapeHtml(row.genero) || 'Não informado'}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Assinatura</span>
-        <div class="value ${!row.assinatura ? 'empty' : ''}">${escapeHtml(row.assinatura) || 'Não informado'}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Instância</span>
-        <div class="value ${!row.instancia ? 'empty' : ''}">${escapeHtml(row.instancia) || 'Não informado'}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Livro</span>
-        <div class="value ${!row.livro ? 'empty' : ''}">${escapeHtml(row.livro) || 'Não informado'}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Mídia</span>
-        <div class="value ${!row.midia ? 'empty' : ''}">${escapeHtml(row.midia) || 'Não informado'}</div>
-      </div>
-
-      <div class="detail-field">
-        <span class="label">Local de Publicação</span>
-        <div class="value ${!row.local_publicacao ? 'empty' : ''}">${escapeHtml(row.local_publicacao) || 'Não informado'}</div>
-      </div>
-    </div>
-
-    ${row.fonte ? `
-      <div class="detail-field" style="grid-column: 1 / -1;">
-        <span class="label">Fonte</span>
-        <div class="value">${escapeHtml(row.fonte)}</div>
-      </div>
-    ` : ''}
-
-    ${row.dados_publicacao ? `
-      <div class="detail-field" style="grid-column: 1 / -1;">
-        <span class="label">Dados da Publicação</span>
-        <div class="value">${escapeHtml(row.dados_publicacao)}</div>
-      </div>
-    ` : ''}
-
-    ${row.observacoes ? `
-      <div class="detail-field" style="grid-column: 1 / -1;">
-        <span class="label">Observações</span>
-        <div class="value">${escapeHtml(row.observacoes)}</div>
-      </div>
-    ` : ''}
-
-    ${row.reproducoes_texto ? `
-      <div class="detail-field" style="grid-column: 1 / -1;">
-        <span class="label">Reproduções</span>
-        <div class="value">${escapeHtml(row.reproducoes_texto)}</div>
-      </div>
-    ` : ''}
-  `;
+  const html = `<div class="detail-grid">${gridFields}${longFields}</div>`;
 
   els.detailContent.innerHTML = html;
   els.detailModal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  els.modalOverlay.setAttribute('aria-hidden', 'false');
+  // Definir foco no botão de fechar do modal
+  setTimeout(() => els.closeModal.focus(), 0);
 }
 
 function closeDetailModal() {
   els.detailModal.style.display = 'none';
   document.body.style.overflow = '';
+  els.modalOverlay.setAttribute('aria-hidden', 'true');
+  // Retornar foco ao elemento que abriu o modal
+  if (state.lastFocusedElement) {
+    state.lastFocusedElement.focus();
+    state.lastFocusedElement = null;
+  }
 }
 
 function handleModalOverlayClick(e) {
@@ -667,6 +1639,29 @@ function handleModalOverlayClick(e) {
 function handleKeyDown(e) {
   if (e.key === 'Escape') {
     closeDetailModal();
+    return;
+  }
+
+  // Focus trap: keep Tab within the open modal
+  if (e.key === 'Tab' && els.detailModal.style.display !== 'none') {
+    const focusable = els.detailModal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   }
 }
 
@@ -677,14 +1672,33 @@ function saveStateToUrl() {
 
   if (state.globalSearch) params.set('search', state.globalSearch);
   if (state.page > 1) params.set('page', state.page);
-  if (state.pageSize !== 25) params.set('page_size', state.pageSize);
+  if (state.pageSize !== 250) params.set('page_size', state.pageSize);
   if (state.sortKey) {
     params.set('sort', state.sortKey);
     params.set('sort_dir', state.sortDirection);
   }
+  if (state.onlyDated) params.set('dated', '1');
+  if (state.nomeObraSearch) params.set('nome_obra_search', state.nomeObraSearch);
 
-  Object.entries(state.facetFilters).forEach(([key, value]) => {
+  // Persist extra filters in URL
+  Object.entries(state.extraFilters).forEach(([key, value]) => {
     if (value) params.set(key, value);
+  });
+
+  // Persist column filters in URL
+  Object.entries(state.activeColumnFilters).forEach(([col, data]) => {
+    if (data.selectedValues && data.selectedValues.length > 0) {
+      const values = (Array.isArray(data.selectedValues) ? data.selectedValues : [data.selectedValues])
+        .map(v => v === null ? '__blank__' : v);
+      if (col === 'nome_obra') {
+        // nome_obra values may contain commas; use repeated params
+        values.forEach(v => params.append(`f_${col}`, v));
+      } else {
+        params.set(`f_${col}`, values.join(','));
+      }
+    }
+    if (data.rangeMin) params.set(`f_${col}_min`, data.rangeMin);
+    if (data.rangeMax) params.set(`f_${col}_max`, data.rangeMax);
   });
 
   const newUrl = params.toString() 
@@ -700,48 +1714,230 @@ function loadStateFromUrl() {
   // Load basic state
   state.globalSearch = params.get('search') || '';
   state.page = parseInt(params.get('page') || '1', 10);
-  state.pageSize = parseInt(params.get('page_size') || '25', 10);
+  state.pageSize = parseInt(params.get('page_size') || '250', 10);
   state.sortKey = params.get('sort') || '';
   state.sortDirection = params.get('sort_dir') || '';
+  state.onlyDated = params.get('dated') === '1';
+  state.nomeObraSearch = params.get('nome_obra_search') || '';
 
-  // Load facet filters
-  state.facetFilters.genero_id = params.get('genero_id') || '';
-  state.facetFilters.assinatura_id = params.get('assinatura_id') || '';
-  state.facetFilters.instancia_id = params.get('instancia_id') || '';
-  state.facetFilters.livro_id = params.get('livro_id') || '';
-  state.facetFilters.midia_id = params.get('midia_id') || '';
+  // Load extra filters from URL
+  Object.keys(state.extraFilters).forEach(key => {
+    state.extraFilters[key] = params.get(key) || '';
+  });
+
+  // Load column filters from URL
+  // For nome_obra, use getAll to handle repeated params (values may contain commas)
+  const nomeObraValues = params.getAll('f_nome_obra');
+  if (nomeObraValues.length > 0) {
+    state.activeColumnFilters['nome_obra'] = {
+      selectedValues: nomeObraValues.map(v => v === '__blank__' ? null : v),
+      rangeMin: null,
+      rangeMax: null,
+    };
+  }
+
+  params.forEach((value, key) => {
+    if (key.startsWith('f_') && !key.endsWith('_min') && !key.endsWith('_max')) {
+      const col = key.slice(2);
+      if (col === 'nome_obra') return; // Already handled above
+      if (!state.activeColumnFilters[col]) {
+        state.activeColumnFilters[col] = { selectedValues: [], rangeMin: null, rangeMax: null };
+      }
+      state.activeColumnFilters[col].selectedValues = value.split(',').map(v => v === '__blank__' ? null : v);
+    }
+    if (key.endsWith('_min') && key.startsWith('f_')) {
+      const col = key.slice(2, -4);
+      if (!state.activeColumnFilters[col]) {
+        state.activeColumnFilters[col] = { selectedValues: [], rangeMin: null, rangeMax: null };
+      }
+      state.activeColumnFilters[col].rangeMin = value;
+    }
+    if (key.endsWith('_max') && key.startsWith('f_')) {
+      const col = key.slice(2, -4);
+      if (!state.activeColumnFilters[col]) {
+        state.activeColumnFilters[col] = { selectedValues: [], rangeMin: null, rangeMax: null };
+      }
+      state.activeColumnFilters[col].rangeMax = value;
+    }
+  });
 
   // Update UI to reflect state
   els.globalSearch.value = state.globalSearch;
-  els.pageSize.value = state.pageSize;
+  els.pageSize.value = state.pageSize >= 100000 ? 'all' : state.pageSize;
+  els.toggleDatedOnly.checked = state.onlyDated;
+  if (els.nomeObraSearch) els.nomeObraSearch.value = state.nomeObraSearch;
+  // Restore extra filter inputs
+  if (els.filterLivro) els.filterLivro.value = state.extraFilters.livro_search;
+  if (els.filterLocal) els.filterLocal.value = state.extraFilters.local_publicacao_search;
+  if (els.filterFonte) els.filterFonte.value = state.extraFilters.fonte_search;
   updateSortIndicators();
+
+
 }
 
 // ===== INITIALIZATION =====
 
 function initializeEventListeners() {
-  // Search
-  els.applySearch.addEventListener('click', handleSearch);
+  // Debounced search - aguarda 500ms sem digitação antes de fazer requisição
+  const debouncedSearch = debounce(() => {
+    state.page = 1;  // Voltar à primeira página ao buscar
+    fetchPecas();
+    refreshAllColumnFilterWidgets(); // Atualizar opções dos filtros com a nova busca
+  }, 500);
+  
+  // Search - atualizar estado e fazer requisição com debounce
+  els.globalSearch.addEventListener('input', (e) => {
+    state.globalSearch = e.target.value;
+    debouncedSearch();
+  });
+  
+  els.applySearch.addEventListener('click', () => {
+    state.page = 1;
+    fetchPecas();
+    refreshAllColumnFilterWidgets();
+  });
+  
   els.globalSearch.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleSearch();
+    if (e.key === 'Enter') {
+      state.page = 1;
+      fetchPecas();
+      refreshAllColumnFilterWidgets();
+    }
   });
 
   // Clear and page size
   els.clearFilters.addEventListener('click', handleClearFilters);
+  if (els.clearAllFiltersBtn) {
+    els.clearAllFiltersBtn.addEventListener('click', handleClearFilters);
+  }
   els.pageSize.addEventListener('change', handlePageSizeChange);
+
+  // Nome da Peça header search
+  if (els.nomeObraSearch) {
+    const nomeObraOnSelect = (selected) => {
+      state.nomeObraSearch = selected;
+      state.page = 1;
+      saveStateToUrl();
+      fetchPecas();
+      refreshAllColumnFilterWidgets();
+    };
+
+    const showNomeObraAC = () => {
+      showAutocompleteDropdown(els.nomeObraSearch, state.autocompleteData.nome_obra || [], nomeObraOnSelect);
+    };
+
+    const debouncedNomeObraAC = debounce(showNomeObraAC, 200);
+    els.nomeObraSearch.addEventListener('input', debouncedNomeObraAC);
+    els.nomeObraSearch.addEventListener('focus', showNomeObraAC);
+    els.nomeObraSearch.addEventListener('click', showNomeObraAC);
+
+    els.nomeObraSearch.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        closeAutocomplete();
+        state.nomeObraSearch = els.nomeObraSearch.value.trim();
+        state.page = 1;
+        saveStateToUrl();
+        fetchPecas();
+        refreshAllColumnFilterWidgets();
+      }
+    });
+
+    els.nomeObraSearch.addEventListener('blur', () => {
+      const val = els.nomeObraSearch.value.trim();
+      if (val !== state.nomeObraSearch) {
+        state.nomeObraSearch = val;
+        state.page = 1;
+        saveStateToUrl();
+        fetchPecas();
+        refreshAllColumnFilterWidgets();
+      }
+    });
+  }
 
   // Pagination
   els.prevPage.addEventListener('click', handlePrevPage);
   els.nextPage.addEventListener('click', handleNextPage);
+
+  // Extra filters (dados adicionais) — trigger on Enter + autocomplete
+  const extraFilterMapping = [
+    { el: els.filterLivro, key: 'livro_search', acField: 'livro' },
+    { el: els.filterLocal, key: 'local_publicacao_search', acField: 'local_publicacao' },
+    { el: els.filterFonte, key: 'fonte_search', acField: 'fonte' },
+  ];
+  extraFilterMapping.forEach(({ el, key, acField }) => {
+    if (!el) return;
+
+    const onSelect = (selected) => {
+      state.extraFilters[key] = selected;
+      state.page = 1;
+      saveStateToUrl();
+      applyToolbarFilterWithRetry(key);
+    };
+
+    const showAC = () => {
+      showAutocompleteDropdown(el, state.autocompleteData[acField] || [], onSelect);
+    };
+
+    const debouncedAC = debounce(showAC, 200);
+    el.addEventListener('input', () => {
+      if (el.value.trim() === '') {
+        // Quando o texto é apagado, fechar autocomplete e limpar filtro automaticamente
+        closeAutocomplete();
+        if (state.extraFilters[key] !== '') {
+          state.extraFilters[key] = '';
+          state.page = 1;
+          saveStateToUrl();
+          applyToolbarFilterWithRetry(key);
+        }
+      } else {
+        debouncedAC();
+      }
+    });
+    el.addEventListener('focus', showAC);
+    el.addEventListener('click', showAC);
+
+    el.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        closeAutocomplete();
+        state.extraFilters[key] = el.value.trim();
+        state.page = 1;
+        saveStateToUrl();
+        applyToolbarFilterWithRetry(key);
+      }
+    });
+  });
 
   // Toggles
   els.toggleExtra.addEventListener('change', handleToggleChange);
   els.toggleCompact.addEventListener('change', handleToggleChange);
   els.toggleDatedOnly.addEventListener('change', handleToggleChange);
 
-  // Column filters
+
+  // Column filters (debounced)
+  const debouncedColumnFilter = debounce(handleColumnFilterChange, 300);
   document.querySelectorAll('[data-column-filter]').forEach((input) => {
-    input.addEventListener('input', handleColumnFilterChange);
+    input.addEventListener('input', debouncedColumnFilter);
+    
+    // Add autocomplete for specific fields
+    const autocompleteFields = ['assinatura', 'instancia', 'livro', 'genero'];
+    if (autocompleteFields.includes(input.dataset.columnFilter)) {
+      const fieldName = input.dataset.columnFilter;
+      const showAC = () => {
+        showAutocompleteDropdown(
+          input,
+          state.autocompleteData[fieldName] || [],
+          (selected) => {
+            input.value = selected;
+            state.columnFilters[fieldName] = selected;
+            updateTableDisplay();
+          }
+        );
+      };
+      input.addEventListener('focus', showAC);
+      input.addEventListener('click', showAC);
+    }
   });
 
   // Sort buttons
@@ -753,6 +1949,203 @@ function initializeEventListeners() {
   els.closeModal.addEventListener('click', closeDetailModal);
   els.modalOverlay.addEventListener('click', handleModalOverlayClick);
   document.addEventListener('keydown', handleKeyDown);
+
+  // Export CSV
+  const exportBtn = document.getElementById('export-csv');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportCSV);
+  }
+}
+
+// ===== COLUMN FILTER WIDGETS =====
+
+/**
+ * Constrói os parâmetros de filtros ativos para enviar ao endpoint column_values.
+ * Exclui o filtro da coluna especificada (para não restringir os valores dela mesma).
+ * @param {string} excludeColumn - Nome da coluna a excluir dos filtros
+ * @returns {Object} Objeto com parâmetros de filtro como chave-valor
+ */
+function buildFilterParamsForColumn(excludeColumn) {
+  const params = {};
+  
+  // Busca global
+  if (state.globalSearch) {
+    params.search = state.globalSearch;
+  }
+  
+  // Filtro "apenas com data"
+  if (state.onlyDated) {
+    params.has_date = 'true';
+  }
+  
+  // Filtros de coluna ativos (excluindo a coluna solicitada)
+  Object.entries(state.activeColumnFilters).forEach(([columnName, filterData]) => {
+    if (columnName === excludeColumn) return;
+    
+    // Range filters
+    if (filterData.rangeMin) {
+      if (columnName === 'ano_publicacao') params.ano_min = filterData.rangeMin;
+      else if (columnName === 'data_publicacao') params.data_min = filterData.rangeMin;
+    }
+    if (filterData.rangeMax) {
+      if (columnName === 'ano_publicacao') params.ano_max = filterData.rangeMax;
+      else if (columnName === 'data_publicacao') params.data_max = filterData.rangeMax;
+    }
+    
+    if (filterData.selectedValues) {
+      let values = filterData.selectedValues;
+      if (values instanceof Set) values = Array.from(values);
+      if (Array.isArray(values) && values.length > 0) {
+        const widget = state.columnFilterWidgets[columnName];
+        const totalValues = widget ? widget.allValues.length : 0;
+        if (totalValues > 0 && values.length >= totalValues) {
+          return; // Todos os valores selecionados — sem restrição
+        }
+        const validValues = values
+          .filter(v => v !== 'None' && v !== '')
+          .map(v => v === null ? '__blank__' : v);
+        if (validValues.length > 0) {
+          if (columnName === 'nome_obra') {
+            params[columnName] = validValues; // Array para parâmetros repetidos
+          } else {
+            params[columnName] = validValues.join(',');
+          }
+        }
+      }
+    }
+  });
+  
+  return params;
+}
+
+/**
+ * Recarrega os valores de todos os widgets de filtro de coluna (exceto o especificado).
+ * Chamado após aplicar ou remover um filtro para atualizar as opções disponíveis.
+ * @param {string} [exceptColumn] - Coluna a pular (a que acabou de ser filtrada)
+ */
+function refreshAllColumnFilterWidgets(exceptColumn) {
+  Object.entries(state.columnFilterWidgets).forEach(([colName, widget]) => {
+    if (colName === exceptColumn) return;
+    if (widget) {
+      widget.loadColumnValues();
+    }
+  });
+}
+
+function initializeColumnFilterWidgets() {
+  // Colunas para aplicar filtro
+  const textColumns = [
+    { name: 'id', label: 'Código', headerSelector: '[data-sort="id"]' },
+    { name: 'ano_publicacao', label: 'Ano', thSelector: '.col-ano', columnType: 'year' },
+    { name: 'mes_publicacao', label: 'Mês', thSelector: '.col-mes', columnType: 'month' },
+    { name: 'data_publicacao', label: 'Data', headerSelector: '[data-sort="data_publicacao"]', columnType: 'date' },
+    { name: 'assinatura', label: 'Assinatura', headerSelector: '[data-sort="assinatura"]' },
+    { name: 'genero', label: 'Gênero', headerSelector: '[data-sort="genero"]' },
+    { name: 'midia', label: 'Mídia', headerSelector: '[data-sort="midia"]' },
+  ];
+
+  textColumns.forEach((col) => {
+    let headerTh;
+    if (col.thSelector) {
+      // Direct th selector (for columns without sort buttons)
+      headerTh = document.querySelector(`th${col.thSelector}`);
+    } else {
+      const headerBtn = document.querySelector(col.headerSelector);
+      if (!headerBtn) return;
+      headerTh = headerBtn.closest('th');
+    }
+    if (!headerTh) return;
+
+    state.columnFilterWidgets[col.name] = new FilterColumnWidget({
+      apiBase: apiBase,
+      columnName: col.name,
+      columnLabel: col.label,
+      headerElement: headerTh,
+      resourcePath: 'pecas',
+      columnType: col.columnType || 'default',
+      getActiveFilters: (excludeColumn) => buildFilterParamsForColumn(excludeColumn),
+      onFilterApply: (filterData) => {
+        applyColumnFilter(filterData);
+      },
+      onFilterClear: (filterData) => {
+        clearColumnFilter(filterData);
+      },
+    });
+  });
+}
+
+function applyColumnFilter(filterData) {
+  const { columnName, selectedValues, sortOrder, textFilters, rangeMin, rangeMax } = filterData;
+
+  state.activeColumnFilters[columnName] = {
+    selectedValues: selectedValues,
+    sortOrder: sortOrder,
+    textFilters: textFilters,
+    rangeMin: rangeMin || null,
+    rangeMax: rangeMax || null,
+  };
+
+  state.page = 1;
+  saveStateToUrl();
+  fetchPecas(); // Faz requisição à API com os novos filtros
+  refreshAllColumnFilterWidgets(columnName); // Atualiza opções dos outros filtros
+}
+
+function clearColumnFilter(filterData) {
+  const { columnName } = filterData;
+  delete state.activeColumnFilters[columnName];
+
+  state.page = 1;
+  saveStateToUrl();
+  fetchPecas(); // Faz requisição à API com os filtros removidos
+  refreshAllColumnFilterWidgets(columnName); // Atualiza opções dos outros filtros
+}
+
+// ===== CSV EXPORT =====
+
+function exportCSV() {
+  const params = new URLSearchParams();
+  if (state.globalSearch) params.set('search', state.globalSearch);
+  const ordering = getServerOrdering();
+  if (ordering) params.set('ordering', ordering);
+  if (state.onlyDated) params.set('has_date', 'true');
+
+  Object.entries(state.activeColumnFilters).forEach(([columnName, filterData]) => {
+    if (filterData.rangeMin) {
+      if (columnName === 'ano_publicacao') params.set('ano_min', filterData.rangeMin);
+      if (columnName === 'data_publicacao') params.set('data_min', filterData.rangeMin);
+    }
+    if (filterData.rangeMax) {
+      if (columnName === 'ano_publicacao') params.set('ano_max', filterData.rangeMax);
+      if (columnName === 'data_publicacao') params.set('data_max', filterData.rangeMax);
+    }
+    if (filterData.selectedValues) {
+      let values = filterData.selectedValues;
+      if (values instanceof Set) values = Array.from(values);
+      if (Array.isArray(values) && values.length > 0) {
+        // Skip if all values are selected (no restriction)
+        const widget = state.columnFilterWidgets[columnName];
+        const totalValues = widget ? widget.allValues.length : 0;
+        if (totalValues > 0 && values.length >= totalValues) {
+          // All values selected — no restriction needed
+        } else {
+          const validValues = values
+            .filter(v => v !== 'None' && v !== '')
+            .map(v => v === null ? '__blank__' : v);
+          if (validValues.length > 0) {
+            if (columnName === 'nome_obra') {
+              validValues.forEach(v => params.append(columnName, v));
+            } else {
+              params.set(columnName, validValues.join(','));
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const url = `${apiBase}/pecas/export_csv/?${params.toString()}`;
+  window.open(url, '_blank');
 }
 
 async function initialize() {
@@ -764,10 +2157,17 @@ async function initialize() {
   // Initialize event listeners
   initializeEventListeners();
 
+  // Initialize column filter widgets
+  initializeColumnFilterWidgets();
+
+  // Aplicar classes visuais iniciais (compacto, dados adicionais)
+  applyToggleClasses();
+
   // Fetch initial data
   await Promise.all([
     fetchPecas(),
     fetchFacetas(),
+    loadServerAutocompleteData(),
   ]);
 }
 

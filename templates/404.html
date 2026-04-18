@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Página não encontrada — Banco de Dados Machado de Assis{% endblock %}
+
+{% block content %}
+<article class="page-content card" style="text-align: center; padding: 3rem 1.5rem;">
+  <h1 style="font-size: 3rem; margin-bottom: 0.5rem; color: var(--muted, #795548);">404</h1>
+  <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">
+    A página que você procura não foi encontrada no acervo.
+  </p>
+  <p style="color: var(--muted, #795548); font-style: italic; margin-bottom: 2rem;">
+    "Não tive filhos, não transmiti a nenhuma criatura o legado da nossa miséria."
+    <br>— Machado de Assis, <em>Memórias Póstumas de Brás Cubas</em>
+  </p>
+  <nav class="nav-links" aria-label="Navegação">
+    <a href="{% url 'catalog:home' %}" class="btn-primary">← Voltar ao Acervo</a>
+  </nav>
+</article>
+{% endblock %}

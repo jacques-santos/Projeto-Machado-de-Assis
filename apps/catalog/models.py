@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 
 class BaseNomeModel(models.Model):
@@ -206,6 +207,11 @@ class Peca(models.Model):
         blank=True,
         db_column="anoassinatura"
     )
+    data_ordenacao = models.DateField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
     trial446 = models.CharField(max_length=1, null=True, blank=True)
 
     class Meta:
@@ -214,14 +220,49 @@ class Peca(models.Model):
         verbose_name_plural = "Peças"
         ordering = ["-ano_publicacao", "nome_obra"]
         indexes = [
+            # Índices existentes
             models.Index(fields=["ano_publicacao"]),
             models.Index(fields=["mes_publicacao"]),
             models.Index(fields=["data_publicacao"]),
-            models.Index(fields=["nome_obra"]),
+            
+            # Novos índices para otimização
+            models.Index(fields=["nome_obra"]),  # Campo mais buscado
+            models.Index(fields=["assinatura"]),  # FK usado em filtros
+            models.Index(fields=["genero"]),      # FK para facetas
+            models.Index(fields=["instancia"]),   # FK para facetas
+            models.Index(fields=["livro"]),       # FK para facetas
+            
+            # Índices compostos para filtros comuns
+            models.Index(
+                fields=["ano_publicacao", "nome_obra"],
+                name="idx_ano_obra",
+            ),
+            models.Index(
+                fields=["genero", "ano_publicacao"],
+                name="idx_genero_ano",
+            ),
+            models.Index(
+                fields=["assinatura", "ano_publicacao"],
+                name="idx_assinatura_ano",
+            ),
         ]
 
     def __str__(self) -> str:
         return self.nome_obra
+
+    def _calcular_data_ordenacao(self):
+        """Calcula data_ordenacao a partir dos campos de data disponíveis."""
+        if self.data_publicacao:
+            dt = self.data_publicacao
+            return dt.date() if hasattr(dt, 'date') else dt
+        if self.ano_publicacao:
+            mes = self.mes_publicacao or 1
+            return datetime.date(self.ano_publicacao, mes, 1)
+        return None
+
+    def save(self, *args, **kwargs):
+        self.data_ordenacao = self._calcular_data_ordenacao()
+        super().save(*args, **kwargs)
 
 
 class Referencia(models.Model):

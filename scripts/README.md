@@ -13,9 +13,6 @@
 - **`manage.ps1`** (PowerShell): Wrapper para o Django management
   - Uso: `.\manage.ps1 <comando>`
 
-- **`check_columns.py`** (Python): Verifica e valida colunas do banco de dados
-  - Uso: `python scripts/check_columns.py`
-
 ## Referência
 
 Para executar comandos Django diretamente:

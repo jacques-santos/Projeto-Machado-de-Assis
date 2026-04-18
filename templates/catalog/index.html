@@ -4,42 +4,69 @@
 {% block title %}Acervo - Banco de Dados Machado de Assis{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/catalog.css' %}" />
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20260417m" />
 {% endblock %}
 
 {% block content %}
-<!-- Barra de busca e controles -->
-<section class="toolbar card">
+
+<!-- TOOLBAR: Busca e Controles Principais -->
+<section class="toolbar" role="search" aria-label="Ferramentas de busca e filtros">
+  <!-- Linha 1: Busca Global e Itens por Página -->
   <div class="toolbar__row">
     <label class="field field--grow">
-      <span>Busca geral</span>
+      <span>Busca no acervo</span>
       <input 
         id="global-search" 
         type="text" 
-        placeholder="Ex.: crônica, teatro, Machado de Assis" 
-        aria-label="Busca geral no acervo"
+        placeholder="Busque por código, ano, título, assinatura, gênero, palavra-chave, livro, mídia..." 
+        aria-label="Busca abrangente no acervo"
+        aria-describedby="search-description"
       />
+      <span id="search-description" style="display: none;">Digite para buscar por código, ano, data, título, assinatura, gênero, palavra-chave, livro ou mídia</span>
     </label>
 
     <label class="field">
-      <span>Itens por página</span>
-      <select id="page-size" aria-label="Quantidade de itens por página">
-        <option value="25">25</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
+      <span>Resultados por página</span>
+      <select id="page-size" aria-label="Quantidade de resultados por página">
+        <option value="25">25 itens</option>
+        <option value="50">50 itens</option>
+        <option value="100">100 itens</option>
+        <option value="250" selected>250 itens</option>
+        <option value="500">500 itens</option>
+        <option value="1000">1.000 itens</option>
+        <option value="all">Todos os itens</option>
       </select>
     </label>
 
     <div class="toolbar__actions">
-      <button id="apply-search" type="button" class="btn-primary">Buscar</button>
-      <button id="clear-filters" type="button" class="btn-secondary">Limpar filtros</button>
+      <button id="apply-search" type="button" class="btn-primary" aria-label="Executar busca">Buscar</button>
+      <!-- <button id="export-csv" type="button" class="btn-secondary" title="Exportar resultados filtrados em CSV" aria-label="Exportar CSV">📁 Exportar CSV</button> -->
+      <button id="clear-filters" type="button" class="btn-secondary" title="Limpar todos os filtros, buscas e ordenações" aria-label="Limpar todos os filtros e buscas">Limpar Filtros</button>
     </div>
   </div>
+  <div id="page-size-warning" class="page-size-warning" style="display: none;" role="alert"></div>
 
+  <!-- Linha 2: Filtros de Dados Adicionais -->
+  <div class="toolbar__row toolbar__row--filters" role="group" aria-label="Filtros de dados adicionais">
+    <label class="field field--sm">
+      <span>Recolhidos em livro</span>
+      <input id="filter-livro" type="text" placeholder="Filtrar..." aria-label="Filtrar por livro" />
+    </label>
+    <label class="field field--sm">
+      <span>Local de Publicação</span>
+      <input id="filter-local" type="text" placeholder="Filtrar..." aria-label="Filtrar por local de publicação" />
+    </label>
+    <label class="field field--sm">
+      <span>Fonte</span>
+      <input id="filter-fonte" type="text" placeholder="Filtrar..." aria-label="Filtrar por fonte" />
+    </label>
+  </div>
+
+  <!-- Linha 3: Opções Secundárias -->
   <div class="toolbar__row toolbar__row--compact">
     <label class="toggle">
-      <input id="toggle-extra" type="checkbox" />
-      <span>Mostrar dados adicionais</span>
+      <input id="toggle-extra" type="checkbox" aria-label="Mostrar dados adicionais" />
+      <span>Dados adicionais</span>
     </label>
     <label class="toggle">
       <input id="toggle-compact" type="checkbox" />
@@ -47,160 +74,121 @@
     </label>
     <label class="toggle">
       <input id="toggle-dated-only" type="checkbox" />
-      <span>Somente com data</span>
+      <span>Apenas com data</span>
     </label>
+
   </div>
 </section>
 
-<!-- Filtros por faceta (lateral) -->
-<div class="content-grid">
-  <section class="sidebar card">
-    <h3>Filtrar por</h3>
+<!-- RESULTADOS: Informações sobre a Busca -->
+<section class="results-header card" role="status" aria-live="polite" aria-label="Resumo de resultados">
+  <div id="loading-indicator" class="loading-text" style="display: none;" role="status" aria-busy="true" aria-label="Carregando dados">
+    Carregando peças...
+  </div>
+  <div id="results-summary" class="results-summary empty" aria-live="assertive">
+    Nenhuma busca realizada ainda
+  </div>
+</section>
 
-    <div class="facet">
-      <h4>Gênero</h4>
-      <div id="filter-genero" class="facet-items">
-        <p class="loading-text">Carregando...</p>
-      </div>
-    </div>
+<!-- FILTROS ATIVOS: Chips de filtros aplicados -->
+<section id="active-filters-bar" class="active-filters-bar card" style="display: none;" role="status" aria-label="Filtros ativos" aria-live="polite">
+  <span class="active-filters-label">Filtros ativos:</span>
+  <div id="active-filters-chips" class="active-filters-chips"></div>
+  <button id="clear-all-filters-btn" type="button" class="btn-clear-all" aria-label="Remover todos os filtros">Limpar todos</button>
+</section>
 
-    <div class="facet">
-      <h4>Assinatura</h4>
-      <div id="filter-assinatura" class="facet-items">
-        <p class="loading-text">Carregando...</p>
-      </div>
-    </div>
+<!-- TABELA: Listagem de Peças -->
+<section class="table-container card" role="region" aria-label="Tabela de resultados de peças">
+  <table class="results-table" id="results-table" role="table">
+    <thead role="rowgroup">
+      <tr role="row">
+        <th class="col-id" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="id" title="Clique para ordenar por código" aria-label="Ordenar por código">
+            Código
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th class="col-ano" role="columnheader" scope="col">
+          Ano
+        </th>
+        <th class="col-mes" role="columnheader" scope="col">
+          Mês
+        </th>
+        <th class="col-data" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="data_publicacao" title="Clique para ordenar por data completa" aria-label="Ordenar por data">
+            Data
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th class="col-obra" role="columnheader" scope="col">
+          <div class="th-with-search">
+            <button class="sort-btn" data-sort="nome_obra" title="Clique para ordenar por título" aria-label="Ordenar por título">
+              Título
+              <span class="sort-indicator" aria-hidden="true"></span>
+            </button>
+            <input
+              id="nome-obra-search"
+              type="text"
+              class="header-search-input"
+              placeholder="Pesquisar título"
+              title="Pesquisar por título (pressione Enter)"
+              aria-label="Pesquisar por título"
+            />
+          </div>
+        </th>
+        <th class="col-assinatura" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="assinatura" title="Clique para ordenar por assinatura" aria-label="Ordenar por assinatura">
+            Assinatura
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th class="col-midia" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="midia" title="Clique para ordenar por mídia" aria-label="Ordenar por mídia">
+            Mídia
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th class="col-genero" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="genero" title="Clique para ordenar por gênero" aria-label="Ordenar por gênero">
+            Gênero
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody id="results-body" role="rowgroup">
+      <tr role="row">
+        <td colspan="8" class="empty-state">
+          <div class="loading-text" aria-busy="true">Carregando acervo...</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
 
-    <div class="facet">
-      <h4>Instância</h4>
-      <div id="filter-instancia" class="facet-items">
-        <p class="loading-text">Carregando...</p>
-      </div>
-    </div>
+<!-- PAGINAÇÃO: Navegação entre Páginas -->
+<section class="pagination card" role="navigation" aria-label="Paginação de resultados">
+  <button id="prev-page" type="button" class="btn-secondary" title="Ir para página anterior" aria-label="Página anterior">
+    ← Anterior
+  </button>
+  <div class="pagination-numbers" id="pagination-numbers" role="list">
+    <!-- Números de páginas serão inseridos aqui pelo JavaScript -->
+  </div>
+  <button id="next-page" type="button" class="btn-secondary" title="Ir para próxima página" aria-label="Próxima página">
+    Próxima →
+  </button>
+</section>
 
-    <div class="facet">
-      <h4>Livro</h4>
-      <div id="filter-livro" class="facet-items">
-        <p class="loading-text">Carregando...</p>
-      </div>
-    </div>
-
-    <div class="facet">
-      <h4>Mídia</h4>
-      <div id="filter-midia" class="facet-items">
-        <p class="loading-text">Carregando...</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tabela de resultados -->
-  <section class="main">
-    <div class="results-header card">
-      <div id="loading-indicator" class="loading-text" style="display: none;">Carregando...</div>
-      <div id="results-summary" class="results-summary">
-        Nenhum filtro aplicado ainda
-      </div>
-    </div>
-
-    <div class="table-container card">
-      <table class="results-table" id="results-table">
-        <thead>
-          <tr>
-            <th class="col-id">
-              <button class="sort-btn" data-sort="id" title="Ordenar por código">
-                Código
-                <span class="sort-indicator"></span>
-              </button>
-            </th>
-            <th class="col-ano">
-              <button class="sort-btn" data-sort="ano_publicacao" title="Ordenar por ano">
-                Ano
-                <span class="sort-indicator"></span>
-              </button>
-            </th>
-            <th class="col-mes">
-              <button class="sort-btn" data-sort="mes_publicacao" title="Ordenar por mês">
-                Mês
-                <span class="sort-indicator"></span>
-              </button>
-            </th>
-            <th class="col-data">
-              <button class="sort-btn" data-sort="data_publicacao" title="Ordenar por data">
-                Data
-                <span class="sort-indicator"></span>
-              </button>
-            </th>
-            <th class="col-obra">
-              <button class="sort-btn" data-sort="nome_obra" title="Ordenar por nome">
-                Nome da Peça
-                <span class="sort-indicator"></span>
-              </button>
-            </th>
-            <th class="col-assinatura">Assinatura</th>
-            <th class="col-instancia">Instância</th>
-            <th class="col-livro">Livro</th>
-            <th class="col-genero">Gênero</th>
-          </tr>
-          <!-- Linha de filtros por coluna -->
-          <tr class="filters-row">
-            <td>
-              <input type="text" class="column-filter" data-column-filter="id" placeholder="Código" />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="ano_publicacao" placeholder="Ano" />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="mes_publicacao" placeholder="Mês" />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="data_publicacao" placeholder="Data" />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="nome_obra" placeholder="Nome..." />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="assinatura" placeholder="Assin..." />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="instancia" placeholder="Inst..." />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="livro" placeholder="Livro..." />
-            </td>
-            <td>
-              <input type="text" class="column-filter" data-column-filter="genero" placeholder="Gênero..." />
-            </td>
-          </tr>
-        </thead>
-        <tbody id="results-body">
-          <tr>
-            <td colspan="9" class="empty-state">
-              <p>Carregando dados...</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Paginação -->
-    <div class="pagination card">
-      <button id="prev-page" type="button" class="btn-secondary">← Anterior</button>
-      <span id="page-indicator" class="page-indicator">Página 1</span>
-      <button id="next-page" type="button" class="btn-secondary">Próxima →</button>
-    </div>
-  </section>
-</div>
-
-<!-- Modal de detalhe -->
-<div id="detail-modal" class="modal" style="display: none;">
-  <div class="modal-overlay"></div>
+<!-- MODAL: Detalhes da Peça -->
+<div id="detail-modal" class="modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+  <div class="modal-overlay" tabindex="-1"></div>
   <div class="modal-content">
     <div class="modal-header">
       <h2 id="detail-title">Detalhes da Peça</h2>
-      <button id="close-modal" type="button" class="close-btn" aria-label="Fechar modal">×</button>
+      <button id="close-modal" type="button" class="close-btn" aria-label="Fechar detalhes da peça">×</button>
     </div>
-    <div id="detail-content" class="modal-body">
-      <!-- Conteúdo detalhado será inserido aqui pelo JS -->
+    <div id="detail-content" class="modal-body" role="region" aria-label="Conteúdo detalhado da peça">
+      <!-- Conteúdo detalhado será inserido aqui pelo JavaScript -->
     </div>
   </div>
 </div>
@@ -211,8 +199,9 @@
 <script>
   // Configuração da API
   window.MACHADO_CONFIG = {
-    apiBase: '{% url "api-root" %}'
+    apiBase: '/api/v1'
   };
 </script>
-<script src="{% static 'js/catalog.js' %}"></script>
+<script src="{% static 'js/filter-column-widget.js' %}?v=20260417k"></script>
+<script src="{% static 'js/catalog.js' %}?v=20260417m"></script>
 {% endblock %}

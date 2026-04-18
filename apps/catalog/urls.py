@@ -12,6 +12,8 @@ from .views import (
     PecaViewSet,
 )
 
+app_name = 'v1'
+
 router = DefaultRouter()
 router.register(r"pecas", PecaViewSet, basename="peca")
 router.register(r"assinaturas", AssinaturaViewSet, basename="assinatura")
