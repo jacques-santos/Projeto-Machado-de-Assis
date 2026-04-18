@@ -150,6 +150,7 @@ TINYMCE_DEFAULT_CONFIG = {
                "bullist numlist outdent indent | link | "
                "removeformat | code",
     "language": "pt_BR",
+    "entity_encoding": "raw",
 }
 
 REST_FRAMEWORK = {

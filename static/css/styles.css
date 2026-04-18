@@ -811,6 +811,7 @@ a:hover {
 .col-obra { flex: 2; min-width: 150px; }
 .col-assinatura { width: 100px; }
 .col-instancia { width: 100px; }
+.col-local { width: 110px; }
 .col-midia { width: 120px; }
 .col-genero { width: 100px; }
 
@@ -1307,6 +1308,7 @@ a:hover {
   .col-obra { min-width: 100px; }
   .col-assinatura { width: 80px; }
   .col-instancia { width: 80px; }
+  .col-local { width: 90px; }
   .col-midia { width: 100px; }
   .col-genero { width: 80px; }
   

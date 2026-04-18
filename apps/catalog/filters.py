@@ -29,6 +29,7 @@ class PecaFilterService:
         'instancia': 'instancia__nome',
         'livro': 'livro__titulo',
         'midia': 'midia__nome',
+        'local_publicacao': 'local_publicacao__nome',
     }
     
     ALLOWED_COLUMNS = {
@@ -138,6 +139,8 @@ class PecaFilterService:
                     livro__titulo__icontains=search
                 ) | Q(
                     midia__nome__icontains=search
+                ) | Q(
+                    imagens__legenda__icontains=search
                 )
                 # Busca numérica: id, ano, mês
                 try:
@@ -149,7 +152,7 @@ class PecaFilterService:
                     pass
                 # Busca por data (string parcial, ex: "1870-03")
                 search_query |= Q(data_publicacao__icontains=search)
-                queryset = queryset.filter(search_query)
+                queryset = queryset.filter(search_query).distinct()
                 filters_applied['search'] = search
         
         # Filtro por nome_obra (multi-valor): ?nome_obra=valor1&nome_obra=valor2
@@ -251,17 +254,18 @@ class PecaFilterService:
                 pass
         
         # Filtro por range de data: ?data_min=1850-01-01&data_max=1900-12-31
+        # Usa data_ordenacao para incluir registros que só têm ano/mês (sem data_publicacao completa)
         data_min = params.get('data_min')
         data_max = params.get('data_max')
         if data_min:
             try:
-                queryset = queryset.filter(data_publicacao__gte=data_min)
+                queryset = queryset.filter(data_ordenacao__gte=data_min)
                 filters_applied['data_min'] = data_min
             except (ValueError, TypeError):
                 pass
         if data_max:
             try:
-                queryset = queryset.filter(data_publicacao__lte=data_max)
+                queryset = queryset.filter(data_ordenacao__lte=data_max)
                 filters_applied['data_max'] = data_max
             except (ValueError, TypeError):
                 pass
@@ -362,10 +366,11 @@ class PecaFilterService:
         # Adicionar "Em Branco" se houver valores null
         blank_count = queryset.filter(**{f"{field}__isnull": True}).count()
         if blank_count > 0:
+            blank_display = '(Em branco)' if column == 'data_publicacao' else '(Em branco)'
             result.append({
                 'value': None,
                 'isBlank': True,
-                'display': '(Em Branco)',
+                'display': blank_display,
                 'count': blank_count,
             })
         

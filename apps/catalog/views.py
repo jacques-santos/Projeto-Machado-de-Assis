@@ -124,6 +124,7 @@ class PecaViewSet(viewsets.ReadOnlyModelViewSet):
             "midia",
             "livro",
         )
+        .prefetch_related("imagens")
         .all()
     )
     # search is handled by PecaFilterService.apply_filters (supports text + numeric + date)
@@ -138,6 +139,7 @@ class PecaViewSet(viewsets.ReadOnlyModelViewSet):
         "assinatura",
         "genero",
         "instancia",
+        "local_publicacao",
         "midia",
     ]
     ordering = ["-data_ordenacao", "nome_obra"]

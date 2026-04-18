@@ -33,8 +33,6 @@ const state = {
   // Extra filters (dados adicionais)
   extraFilters: {
     livro_search: '',
-    local_publicacao_search: '',
-    fonte_search: '',
   },
 
   // Column filters (client-side for now, could be server-side)
@@ -45,6 +43,7 @@ const state = {
     data_publicacao: '',
     nome_obra: '',
     assinatura: '',
+    local_publicacao: '',
     midia: '',
     genero: '',
   },
@@ -109,8 +108,6 @@ const els = {
 
   // Extra filters (dados adicionais)
   filterLivro: document.getElementById('filter-livro'),
-  filterLocal: document.getElementById('filter-local'),
-  filterFonte: document.getElementById('filter-fonte'),
 
   // Modal
   detailModal: document.getElementById('detail-modal'),
@@ -127,6 +124,7 @@ const serverSortableFields = new Set([
   'data_ordenacao',
   'nome_obra',
   'assinatura',
+  'local_publicacao',
   'genero',
   'midia',
 ]);
@@ -174,6 +172,9 @@ function openLinksInNewTab(html) {
   return String(html).replace(/<a\s/gi, '<a target="_blank" rel="noopener noreferrer" ');
 }
 
+/** Reusable textarea element for decoding HTML entities via the browser engine. */
+const _decodeArea = document.createElement('textarea');
+
 function stripHtmlAndDecode(value) {
   if (!value) return '';
   
@@ -182,21 +183,10 @@ function stripHtmlAndDecode(value) {
   // Remove tags HTML
   text = text.replace(/<[^>]*>/g, '');
   
-  // Decodifica entidades HTML comuns
-  const entities = {
-    '&quot;': '"',
-    '&apos;': "'",
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&nbsp;': ' ',
-    '&#39;': "'",
-    '&#34;': '"',
-  };
-  
-  Object.entries(entities).forEach(([entity, char]) => {
-    text = text.replace(new RegExp(entity, 'g'), char);
-  });
+  // Decodifica TODAS as entidades HTML (&Agrave;, &Ecirc;, &#39; etc.)
+  // usando o parser nativo do browser
+  _decodeArea.innerHTML = text;
+  text = _decodeArea.value;
   
   // Remove espaços múltiplos e limpa
   text = text.replace(/\s+/g, ' ').trim();
@@ -601,12 +591,10 @@ async function applyToolbarFilterWithRetry(currentKey) {
     state.nomeObraSearch = '';
     state.extraFilters = {
       livro_search: '',
-      local_publicacao_search: '',
-      fonte_search: '',
     };
     state.columnFilters = {
       id: '', ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
-      nome_obra: '', assinatura: '', midia: '', genero: '',
+      nome_obra: '', assinatura: '', local_publicacao: '', midia: '', genero: '',
     };
     state.activeColumnFilters = {};
 
@@ -618,8 +606,6 @@ async function applyToolbarFilterWithRetry(currentKey) {
     els.toggleDatedOnly.checked = false;
     if (els.nomeObraSearch) els.nomeObraSearch.value = '';
     if (els.filterLivro) els.filterLivro.value = state.extraFilters.livro_search || '';
-    if (els.filterLocal) els.filterLocal.value = state.extraFilters.local_publicacao_search || '';
-    if (els.filterFonte) els.filterFonte.value = state.extraFilters.fonte_search || '';
     document.querySelectorAll('[data-column-filter]').forEach((input) => { input.value = ''; });
 
     // Resetar widgets de coluna
@@ -631,9 +617,12 @@ async function applyToolbarFilterWithRetry(currentKey) {
         widget.filterState.sortOrder = null;
         widget.filterState.rangeMin = null;
         widget.filterState.rangeMax = null;
-        widget.createFilterIcon();
+        if (!widget.hideFilterIcon) widget.createFilterIcon();
       }
     });
+    // Resetar badge do filtro de livros
+    const _lb = document.getElementById('livro-filter-badge');
+    if (_lb) _lb.style.display = 'none';
     updateSortIndicators();
 
     state.page = 1;
@@ -680,6 +669,7 @@ function setLoading(message) {
         <td><span class="skeleton-cell"></span></td>
         <td><span class="skeleton-cell"></span></td>
         <td><span class="skeleton-cell"></span></td>
+        <td><span class="skeleton-cell"></span></td>
       </tr>
     `).join('');
     els.resultsBody.innerHTML = skeletonRows;
@@ -689,7 +679,7 @@ function setLoading(message) {
 function showErrorState(message) {
   els.resultsBody.innerHTML = `
     <tr>
-      <td colspan="8" class="error-state">
+      <td colspan="9" class="error-state">
         <p>⚠️ ${safeText(message)}</p>
       </td>
     </tr>
@@ -724,16 +714,30 @@ function updateResultsDisplay() {
 function buildExtraDataRow(row) {
   const fields = [
     { label: 'Palavra-chave', value: row.instancia },
-    { label: 'Recolhidos em livro', value: row.livro },
-    { label: 'Local de Publicação', value: row.local_publicacao },
+    { label: 'Livros', value: row.livro },
     { label: 'Fonte', value: row.fonte, full: true },
     { label: 'Dados da Publicação', value: row.dados_publicacao, full: true, html: true },
     { label: 'Observações', value: row.observacoes, full: true, html: true },
     { label: 'Reproduções', value: row.reproducoes_texto, full: true, html: true },
   ].filter(f => f.value);
 
-  if (fields.length === 0) {
-    return `<tr class="extra-data-row"><td colspan="8" style="padding: 4px 10px !important; background: var(--light-bg); border-bottom: 2px solid var(--border-color);"><span style="font-size: 11px; color: var(--text-muted); font-style: italic;">Sem dados adicionais</span></td></tr>`;
+  const hasImages = row.imagens && row.imagens.length > 0;
+
+  if (fields.length === 0 && !hasImages) {
+    return `<tr class="extra-data-row"><td colspan="9" style="padding: 4px 10px !important; background: var(--light-bg); border-bottom: 2px solid var(--border-color);"><span style="font-size: 11px; color: var(--text-muted); font-style: italic;">Sem dados adicionais</span></td></tr>`;
+  }
+
+  let imagesHtml = '';
+  if (hasImages) {
+    const thumbs = row.imagens.map(img => {
+      const legendaAttr = img.legenda ? ` title="${safeText(img.legenda)}"` : '';
+      return `<img src="${safeText(img.imagem)}" alt="${safeText(img.legenda || 'Imagem da peça')}" class="extra-thumb" data-full-src="${safeText(img.imagem)}" data-legenda="${safeText(img.legenda || '')}"${legendaAttr} loading="lazy" />`;
+    }).join('');
+    imagesHtml = `
+      <div class="extra-field-full extra-images-row">
+        <span class="extra-label">Imagens</span>
+        <div class="extra-thumbs">${thumbs}</div>
+      </div>`;
   }
 
   const fieldsHtml = fields.map(f => `
@@ -743,7 +747,7 @@ function buildExtraDataRow(row) {
     </div>
   `).join('');
 
-  return `<tr class="extra-data-row"><td colspan="8"><div class="extra-data-content">${fieldsHtml}</div></td></tr>`;
+  return `<tr class="extra-data-row"><td colspan="9"><div class="extra-data-content">${imagesHtml}${fieldsHtml}</div></td></tr>`;
 }
 
 function updateTableDisplay() {
@@ -754,7 +758,7 @@ function updateTableDisplay() {
       : '<p>Nenhum título disponível no momento.</p>';
     els.resultsBody.innerHTML = `
       <tr>
-        <td colspan="8" class="empty-state">
+        <td colspan="9" class="empty-state">
           <p>Nenhum título corresponde aos seus filtros</p>
           ${suggestion}
         </td>
@@ -778,8 +782,9 @@ function updateTableDisplay() {
       <td class="col-data">${formatDate(row.data_publicacao)}</td>
       <td class="col-obra">${highlightSearch(safeText(stripHtmlAndDecode(row.nome_obra)))}</td>
       <td class="col-assinatura">${highlightSearch(safeText(row.assinatura || '—'))}</td>
-      <td class="col-midia">${highlightSearch(safeText(row.midia || '—'))}</td>
+      <td class="col-local">${highlightSearch(safeText(row.local_publicacao || '—'))}</td>
       <td class="col-genero">${highlightSearch(safeText(row.genero || '—'))}</td>
+      <td class="col-midia">${highlightSearch(safeText(row.midia || '—'))}</td>
     </tr>`;
 
     const extraRow = buildExtraDataRow(row);
@@ -810,12 +815,13 @@ function updateAutocompleteData(rows) {
   // Os campos da barra de cima (nome_obra, midia, local_publicacao, fonte,
   // dados_publicacao, observacoes, reproducoes) são carregados do servidor
   // via loadServerAutocompleteData() e NÃO devem ser sobrescritos aqui.
-  const columnFields = ['assinatura', 'midia', 'genero'];
+  const columnFields = ['assinatura', 'local_publicacao', 'genero', 'midia'];
   const uniqueValues = {};
   columnFields.forEach((f) => { uniqueValues[f] = new Set(); });
 
   rows.forEach((row) => {
     if (row.assinatura) uniqueValues.assinatura.add(row.assinatura);
+    if (row.local_publicacao) uniqueValues.local_publicacao.add(row.local_publicacao);
     if (row.midia) uniqueValues.midia.add(row.midia);
     if (row.genero) uniqueValues.genero.add(row.genero);
   });
@@ -844,6 +850,7 @@ function applyClientFilters(rows) {
         data_publicacao: formatDate(row.data_publicacao),
         nome_obra: stripHtmlAndDecode(row.nome_obra),
         assinatura: row.assinatura || '',
+        local_publicacao: row.local_publicacao || '',
         midia: row.midia || '',
         genero: row.genero || '',
       };
@@ -873,8 +880,12 @@ function applyClientFilters(rows) {
         data_publicacao: String(row.data_publicacao || '').split(/[ T]/)[0],
         nome_obra: stripHtmlAndDecode(row.nome_obra),
         assinatura: row.assinatura || '',
+        local_publicacao: row.local_publicacao || '',
         midia: row.midia || '',
         genero: row.genero || '',
+        livro: row.livro || '',
+        instancia: row.instancia || '',
+        fonte: row.fonte || '',
       };
 
       const rowValue = String(valueMap[columnName] || '');
@@ -1030,6 +1041,7 @@ const columnLabels = {
   data_publicacao: 'Data',
   nome_obra: 'Título',
   assinatura: 'Assinatura',
+  local_publicacao: 'Local de Publicação',
   genero: 'Gênero',
   livro: 'Livro',
 };
@@ -1103,7 +1115,7 @@ function updateActiveFiltersBar() {
         // Mostrar os valores selecionados (até 3, depois resumir)
         const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         const displayValues = filterData.selectedValues.slice(0, 3).map(v => {
-          if (v === null || v === '__blank__') return '(Em Branco)';
+          if (v === null || v === '__blank__') return columnName === 'data_publicacao' ? '(Data Desconhecida)' : '(Em Branco)';
           if (columnName === 'mes_publicacao') {
             const num = parseInt(v, 10);
             return (num >= 1 && num <= 12) ? monthNames[num - 1] : v;
@@ -1133,7 +1145,13 @@ function updateActiveFiltersBar() {
             widget.filterState.isActive = false;
             widget.filterState.rangeMin = null;
             widget.filterState.rangeMax = null;
-            widget.createFilterIcon();
+            if (!widget.hideFilterIcon) widget.createFilterIcon();
+          }
+          // Atualizar badge e input do livro se necessário
+          if (columnName === 'livro') {
+            const lb = document.getElementById('livro-filter-badge');
+            if (lb) lb.style.display = 'none';
+            if (els.filterLivro) els.filterLivro.value = '';
           }
           state.page = 1;
           fetchPecas();
@@ -1179,9 +1197,7 @@ function updateActiveFiltersBar() {
 
   // Extra filters (dados adicionais) chips
   const extraFilterLabels = {
-    livro_search: { label: 'Recolhidos em livro', el: els.filterLivro },
-    local_publicacao_search: { label: 'Local de Publicação', el: els.filterLocal },
-    fonte_search: { label: 'Fonte', el: els.filterFonte },
+    livro_search: { label: 'Livros', el: els.filterLivro },
   };
   Object.entries(state.extraFilters).forEach(([key, value]) => {
     if (value) {
@@ -1428,12 +1444,10 @@ function handleClearFilters() {
   state.nomeObraSearch = '';
   state.extraFilters = {
     livro_search: '',
-    local_publicacao_search: '',
-    fonte_search: '',
   };
   state.columnFilters = {
     id: '', ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
-    nome_obra: '', assinatura: '', midia: '', genero: '',
+    nome_obra: '', assinatura: '', local_publicacao: '', midia: '', genero: '',
   };
   state.activeColumnFilters = {};
 
@@ -1445,8 +1459,6 @@ function handleClearFilters() {
   if (els.nomeObraSearch) els.nomeObraSearch.value = '';
   // Clear extra filter inputs
   if (els.filterLivro) els.filterLivro.value = '';
-  if (els.filterLocal) els.filterLocal.value = '';
-  if (els.filterFonte) els.filterFonte.value = '';
   els.resultsSummary.textContent = 'Nenhuma busca realizada ainda';
   els.resultsSummary.classList.add('empty');
   
@@ -1464,9 +1476,16 @@ function handleClearFilters() {
       widget.filterState.isActive = false;
       widget.filterState.textFilters = [];
       widget.filterState.sortOrder = null;
-      widget.createFilterIcon();
+      widget.filterState.rangeMin = null;
+      widget.filterState.rangeMax = null;
+      if (!widget.hideFilterIcon) widget.createFilterIcon();
     }
   });
+
+  // Resetar badge e input do filtro de livros
+  const livroBadge = document.getElementById('livro-filter-badge');
+  if (livroBadge) livroBadge.style.display = 'none';
+  if (els.filterLivro) els.filterLivro.value = '';
 
   updateSortIndicators();
   saveStateToUrl();
@@ -1615,7 +1634,7 @@ function showDetailModal(id) {
     { label: 'Gênero', value: row.genero ? safeText(row.genero) : null },
     { label: 'Assinatura', value: row.assinatura ? safeText(row.assinatura) : null },
     { label: 'Palavra-chave', value: row.instancia ? safeText(row.instancia) : null },
-    { label: 'Recolhidos em livro', value: row.livro ? safeText(row.livro) : null },
+    { label: 'Livros', value: row.livro ? safeText(row.livro) : null },
     { label: 'Mídia', value: row.midia ? safeText(row.midia) : null },
     { label: 'Local de Publicação', value: row.local_publicacao ? safeText(row.local_publicacao) : null },
     { label: 'Fonte', value: row.fonte },
@@ -1646,7 +1665,21 @@ function showDetailModal(id) {
 
   const html = `<div class="detail-grid">${gridFields}${longFields}</div>`;
 
-  els.detailContent.innerHTML = html;
+  // Build images gallery for the top of the modal
+  let imagesHtml = '';
+  if (row.imagens && row.imagens.length > 0) {
+    const gallery = row.imagens.map(img => {
+      const legenda = img.legenda ? `<span class="gallery-legenda">${safeText(img.legenda)}</span>` : '';
+      return `
+        <figure class="gallery-item" data-full-src="${safeText(img.imagem)}" data-legenda="${safeText(img.legenda || '')}">
+          <img src="${safeText(img.imagem)}" alt="${safeText(img.legenda || 'Imagem da peça')}" loading="lazy" />
+          ${legenda}
+        </figure>`;
+    }).join('');
+    imagesHtml = `<div class="detail-gallery">${gallery}</div>`;
+  }
+
+  els.detailContent.innerHTML = imagesHtml + html;
   els.detailModal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
   els.modalOverlay.setAttribute('aria-hidden', 'false');
@@ -1803,8 +1836,6 @@ function loadStateFromUrl() {
   if (els.nomeObraSearch) els.nomeObraSearch.value = state.nomeObraSearch;
   // Restore extra filter inputs
   if (els.filterLivro) els.filterLivro.value = state.extraFilters.livro_search;
-  if (els.filterLocal) els.filterLocal.value = state.extraFilters.local_publicacao_search;
-  if (els.filterFonte) els.filterFonte.value = state.extraFilters.fonte_search;
   updateSortIndicators();
 
 
@@ -1894,56 +1925,6 @@ function initializeEventListeners() {
   els.prevPage.addEventListener('click', handlePrevPage);
   els.nextPage.addEventListener('click', handleNextPage);
 
-  // Extra filters (dados adicionais) — trigger on Enter + autocomplete
-  const extraFilterMapping = [
-    { el: els.filterLivro, key: 'livro_search', acField: 'livro' },
-    { el: els.filterLocal, key: 'local_publicacao_search', acField: 'local_publicacao' },
-    { el: els.filterFonte, key: 'fonte_search', acField: 'fonte' },
-  ];
-  extraFilterMapping.forEach(({ el, key, acField }) => {
-    if (!el) return;
-
-    const onSelect = (selected) => {
-      state.extraFilters[key] = selected;
-      state.page = 1;
-      saveStateToUrl();
-      applyToolbarFilterWithRetry(key);
-    };
-
-    const showAC = () => {
-      showAutocompleteDropdown(el, state.autocompleteData[acField] || [], onSelect);
-    };
-
-    const debouncedAC = debounce(showAC, 200);
-    el.addEventListener('input', () => {
-      if (el.value.trim() === '') {
-        // Quando o texto é apagado, fechar autocomplete e limpar filtro automaticamente
-        closeAutocomplete();
-        if (state.extraFilters[key] !== '') {
-          state.extraFilters[key] = '';
-          state.page = 1;
-          saveStateToUrl();
-          applyToolbarFilterWithRetry(key);
-        }
-      } else {
-        debouncedAC();
-      }
-    });
-    el.addEventListener('focus', showAC);
-    el.addEventListener('click', showAC);
-
-    el.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        closeAutocomplete();
-        state.extraFilters[key] = el.value.trim();
-        state.page = 1;
-        saveStateToUrl();
-        applyToolbarFilterWithRetry(key);
-      }
-    });
-  });
-
   // Toggles
   els.toggleExtra.addEventListener('change', handleToggleChange);
   els.toggleCompact.addEventListener('change', handleToggleChange);
@@ -2000,6 +1981,10 @@ function initializeEventListeners() {
       toggleToolbarBtn.setAttribute('aria-expanded', String(!collapsed));
       toggleToolbarBtn.title = collapsed ? 'Mostrar painel de busca' : 'Ocultar painel de busca';
       toggleToolbarBtn.setAttribute('aria-label', toggleToolbarBtn.title);
+      if (collapsed && els.table) {
+        els.table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        els.table.focus({ preventScroll: true });
+      }
     });
   }
 }
@@ -2087,6 +2072,7 @@ function initializeColumnFilterWidgets() {
     { name: 'mes_publicacao', label: 'Mês', thSelector: '.col-mes', columnType: 'month' },
     { name: 'data_publicacao', label: 'Data', headerSelector: '[data-sort="data_publicacao"]', columnType: 'date' },
     { name: 'assinatura', label: 'Assinatura', headerSelector: '[data-sort="assinatura"]' },
+    { name: 'local_publicacao', label: 'Local de Publicação', headerSelector: '[data-sort="local_publicacao"]' },
     { name: 'genero', label: 'Gênero', headerSelector: '[data-sort="genero"]' },
     { name: 'midia', label: 'Mídia', headerSelector: '[data-sort="midia"]' },
   ];
@@ -2119,6 +2105,69 @@ function initializeColumnFilterWidgets() {
       },
     });
   });
+
+  // Livro filter — clicking the input opens the column filter widget
+  const livroField = document.querySelector('.field--livro');
+  if (livroField) {
+    const livroWidget = new FilterColumnWidget({
+      apiBase: apiBase,
+      columnName: 'livro',
+      columnLabel: 'Livros',
+      headerElement: livroField,
+      resourcePath: 'pecas',
+      columnType: 'default',
+      hideFilterIcon: true,
+      hideSearch: true,
+      getActiveFilters: (excludeColumn) => buildFilterParamsForColumn(excludeColumn),
+      onFilterApply: (filterData) => {
+        applyColumnFilter(filterData);
+        updateLivroBadge();
+      },
+      onFilterClear: (filterData) => {
+        clearColumnFilter(filterData);
+        updateLivroBadge();
+        const inp = document.getElementById('filter-livro');
+        if (inp) inp.value = '';
+      },
+    });
+    state.columnFilterWidgets['livro'] = livroWidget;
+
+    const livroInput = document.getElementById('filter-livro');
+    const livroBadge = document.getElementById('livro-filter-badge');
+
+    function updateLivroBadge() {
+      if (livroBadge) {
+        const active = livroWidget.filterState.isActive;
+        livroBadge.style.display = active ? 'inline-flex' : 'none';
+      }
+    }
+
+    if (livroInput) {
+      // Click opens the dropdown
+      livroInput.addEventListener('click', () => {
+        livroWidget.toggleDropdown();
+      });
+      // Typing filters the values list inside the dropdown
+      let livroInputDebounceTimer = null;
+      livroInput.addEventListener('input', () => {
+        // Abrir dropdown apenas se não estiver aberto
+        const isOpen = livroWidget.dropdown && livroWidget.dropdown.parentElement;
+        if (!isOpen) {
+          livroWidget.openDropdown();
+        }
+        // Debounce para evitar piscar ao digitar rápido
+        clearTimeout(livroInputDebounceTimer);
+        livroInputDebounceTimer = setTimeout(() => {
+          livroWidget.filterValuesList(livroInput.value);
+        }, 150);
+      });
+    }
+    if (livroBadge) {
+      livroBadge.addEventListener('click', () => {
+        livroWidget.toggleDropdown();
+      });
+    }
+  }
 }
 
 function applyColumnFilter(filterData) {
@@ -2195,6 +2244,189 @@ function exportCSV() {
   window.open(url, '_blank');
 }
 
+// ===== IMAGE LIGHTBOX WITH ZOOM & PAN =====
+
+const lightbox = {
+  el: null,
+  img: null,
+  caption: null,
+  overlay: null,
+  closeBtn: null,
+  wrap: null,
+  scale: 1,
+  minScale: 1,
+  maxScale: 5,
+  translateX: 0,
+  translateY: 0,
+  isDragging: false,
+  dragStartX: 0,
+  dragStartY: 0,
+  lastTranslateX: 0,
+  lastTranslateY: 0,
+
+  init() {
+    this.el = document.getElementById('image-lightbox');
+    this.img = document.getElementById('lightbox-img');
+    this.caption = document.getElementById('lightbox-caption');
+    this.overlay = this.el.querySelector('.lightbox-overlay');
+    this.closeBtn = document.getElementById('lightbox-close');
+    this.wrap = this.el.querySelector('.lightbox-img-wrap');
+
+    this.closeBtn.addEventListener('click', () => this.close());
+    this.overlay.addEventListener('click', () => this.close());
+
+    // Zoom with mouse wheel
+    this.wrap.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.15 : 0.15;
+      this.zoom(delta, e.clientX, e.clientY);
+    }, { passive: false });
+
+    // Pan with mouse drag
+    this.wrap.addEventListener('mousedown', (e) => {
+      if (this.scale <= 1) return;
+      e.preventDefault();
+      this.isDragging = true;
+      this.dragStartX = e.clientX;
+      this.dragStartY = e.clientY;
+      this.lastTranslateX = this.translateX;
+      this.lastTranslateY = this.translateY;
+      this.wrap.classList.add('dragging');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.isDragging) return;
+      this.translateX = this.lastTranslateX + (e.clientX - this.dragStartX);
+      this.translateY = this.lastTranslateY + (e.clientY - this.dragStartY);
+      this.applyTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      this.isDragging = false;
+      this.wrap.classList.remove('dragging');
+    });
+
+    // Touch pinch zoom
+    let lastTouchDist = 0;
+    this.wrap.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        lastTouchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      } else if (e.touches.length === 1 && this.scale > 1) {
+        this.isDragging = true;
+        this.dragStartX = e.touches[0].clientX;
+        this.dragStartY = e.touches[0].clientY;
+        this.lastTranslateX = this.translateX;
+        this.lastTranslateY = this.translateY;
+      }
+    }, { passive: true });
+
+    this.wrap.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const delta = (dist - lastTouchDist) * 0.005;
+        lastTouchDist = dist;
+        const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        this.zoom(delta, cx, cy);
+      } else if (e.touches.length === 1 && this.isDragging) {
+        e.preventDefault();
+        this.translateX = this.lastTranslateX + (e.touches[0].clientX - this.dragStartX);
+        this.translateY = this.lastTranslateY + (e.touches[0].clientY - this.dragStartY);
+        this.applyTransform();
+      }
+    }, { passive: false });
+
+    this.wrap.addEventListener('touchend', () => {
+      this.isDragging = false;
+      lastTouchDist = 0;
+    });
+
+    // Double-click to reset zoom
+    this.wrap.addEventListener('dblclick', () => {
+      this.scale = 1;
+      this.translateX = 0;
+      this.translateY = 0;
+      this.applyTransform();
+    });
+
+    // Keyboard: Escape closes lightbox
+    document.addEventListener('keydown', (e) => {
+      if (this.el.style.display !== 'none' && e.key === 'Escape') {
+        e.stopPropagation();
+        this.close();
+      }
+    }, true);
+  },
+
+  zoom(delta, cx, cy) {
+    const prev = this.scale;
+    this.scale = Math.min(this.maxScale, Math.max(this.minScale, this.scale + delta));
+    if (this.scale === prev) return;
+
+    // Adjust translate so zoom centers on cursor
+    const ratio = this.scale / prev;
+    const rect = this.wrap.getBoundingClientRect();
+    const ox = cx - rect.left - rect.width / 2;
+    const oy = cy - rect.top - rect.height / 2;
+    this.translateX = ox - ratio * (ox - this.translateX);
+    this.translateY = oy - ratio * (oy - this.translateY);
+
+    this.applyTransform();
+  },
+
+  applyTransform() {
+    this.img.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+  },
+
+  open(src, legendaText) {
+    this.img.src = src;
+    this.img.alt = legendaText || 'Imagem ampliada';
+    this.caption.textContent = legendaText || '';
+    this.scale = 1;
+    this.translateX = 0;
+    this.translateY = 0;
+    this.applyTransform();
+    this.el.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    this.closeBtn.focus();
+  },
+
+  close() {
+    this.el.style.display = 'none';
+    // Only restore body overflow if the detail modal is also closed
+    if (els.detailModal.style.display === 'none') {
+      document.body.style.overflow = '';
+    }
+  },
+};
+
+/**
+ * Delegated click handler for image thumbnails and gallery items.
+ * Handles clicks in both the extra-data rows and the detail modal.
+ */
+document.addEventListener('click', (e) => {
+  // Extra row thumbnail
+  const thumb = e.target.closest('.extra-thumb');
+  if (thumb) {
+    e.stopPropagation();
+    lightbox.open(thumb.dataset.fullSrc, thumb.dataset.legenda);
+    return;
+  }
+  // Detail modal gallery item
+  const galleryItem = e.target.closest('.gallery-item');
+  if (galleryItem) {
+    e.stopPropagation();
+    lightbox.open(galleryItem.dataset.fullSrc, galleryItem.dataset.legenda);
+  }
+});
+
 async function initialize() {
   console.log('Iniciando aplicação de catálogo...');
   
@@ -2203,6 +2435,9 @@ async function initialize() {
 
   // Initialize event listeners
   initializeEventListeners();
+
+  // Initialize lightbox
+  lightbox.init();
 
   // Initialize column filter widgets
   initializeColumnFilterWidgets();

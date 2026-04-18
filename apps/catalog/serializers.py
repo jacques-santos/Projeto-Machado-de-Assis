@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Assinatura, Genero, Instancia, Livro, LocalPublicacao, Midia, Peca, Referencia
+from .models import Assinatura, Genero, ImagemPeca, Instancia, Livro, LocalPublicacao, Midia, Peca, Referencia
 
 
 class AssinaturaSerializer(serializers.ModelSerializer):
@@ -45,6 +45,12 @@ class ReferenciaSerializer(serializers.ModelSerializer):
         fields = ["id", "tipo", "descricao"]
 
 
+class ImagemPecaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagemPeca
+        fields = ["id", "imagem", "legenda", "ordem"]
+
+
 class PecaListSerializer(serializers.ModelSerializer):
     assinatura = serializers.StringRelatedField()
     genero = serializers.StringRelatedField()
@@ -52,6 +58,7 @@ class PecaListSerializer(serializers.ModelSerializer):
     livro = serializers.StringRelatedField()
     midia = serializers.StringRelatedField()
     local_publicacao = serializers.StringRelatedField()
+    imagens = ImagemPecaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Peca
@@ -73,6 +80,7 @@ class PecaListSerializer(serializers.ModelSerializer):
             "dados_publicacao",
             "observacoes",
             "reproducoes_texto",
+            "imagens",
         ]
 
 
@@ -106,6 +114,7 @@ class PecaDetailSerializer(serializers.ModelSerializer):
     local_publicacao = LocalPublicacaoSerializer(read_only=True)
     midia = MidiaSerializer(read_only=True)
     livro = LivroSerializer(read_only=True)
+    imagens = ImagemPecaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Peca

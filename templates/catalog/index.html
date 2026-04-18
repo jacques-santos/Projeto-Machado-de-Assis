@@ -20,7 +20,7 @@
   <!-- Linha 1: Busca Global e Itens por Página -->
   <div class="toolbar__row">
     <label class="field field--grow">
-      <span>Busca no acervo</span>
+      <span>Busca no banco de dados</span>
       <input 
         id="global-search" 
         type="text" 
@@ -54,18 +54,13 @@
 
   <!-- Linha 2: Filtros de Dados Adicionais -->
   <div class="toolbar__row toolbar__row--filters" role="group" aria-label="Filtros de dados adicionais">
-    <label class="field field--sm">
-      <span>Recolhidos em livro</span>
-      <input id="filter-livro" type="text" placeholder="Filtrar..." aria-label="Filtrar por livro" />
-    </label>
-    <label class="field field--sm">
-      <span>Local de Publicação</span>
-      <input id="filter-local" type="text" placeholder="Filtrar..." aria-label="Filtrar por local de publicação" />
-    </label>
-    <label class="field field--sm">
-      <span>Fonte</span>
-      <input id="filter-fonte" type="text" placeholder="Filtrar..." aria-label="Filtrar por fonte" />
-    </label>
+    <div class="field field--sm field--livro">
+      <span>Livros</span>
+      <div class="livro-input-wrap">
+        <input id="filter-livro" type="text" placeholder="Filtrar..." aria-label="Filtrar por livro" />
+        <span id="livro-filter-badge" class="filter-badge" style="display:none;" title="Filtro de livros ativo">✓</span>
+      </div>
+    </div>
   </div>
 
   <!-- Linha 3: Opções Secundárias -->
@@ -81,6 +76,10 @@
     <label class="toggle">
       <input id="toggle-dated-only" type="checkbox" />
       <span>Apenas com data</span>
+    </label>
+    <label class="toggle">
+      <input id="toggle-biographical" type="checkbox" />
+      <span>Dados biográficos</span>
     </label>
 
   </div>
@@ -106,7 +105,7 @@
 
 <!-- TABELA: Listagem de Títulos -->
 <section class="table-container card" role="region" aria-label="Tabela de resultados de títulos">
-  <table class="results-table" id="results-table" role="table">
+  <table class="results-table" id="results-table" role="table" tabindex="-1">
     <thead role="rowgroup">
       <tr role="row">
         <th class="col-id" role="columnheader" scope="col">
@@ -149,9 +148,9 @@
             <span class="sort-indicator" aria-hidden="true"></span>
           </button>
         </th>
-        <th class="col-midia" role="columnheader" scope="col">
-          <button class="sort-btn" data-sort="midia" title="Clique para ordenar por mídia" aria-label="Ordenar por mídia">
-            Mídia
+        <th class="col-local" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="local_publicacao" title="Clique para ordenar por local de publicação" aria-label="Ordenar por local de publicação">
+            Local de Publicação
             <span class="sort-indicator" aria-hidden="true"></span>
           </button>
         </th>
@@ -161,11 +160,17 @@
             <span class="sort-indicator" aria-hidden="true"></span>
           </button>
         </th>
+        <th class="col-midia" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="midia" title="Clique para ordenar por mídia" aria-label="Ordenar por mídia">
+            Mídia
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
       </tr>
     </thead>
     <tbody id="results-body" role="rowgroup">
       <tr role="row">
-        <td colspan="8" class="empty-state">
+        <td colspan="9" class="empty-state">
           <div class="loading-text" aria-busy="true">Carregando acervo...</div>
         </td>
       </tr>
@@ -197,6 +202,19 @@
     <div id="detail-content" class="modal-body" role="region" aria-label="Conteúdo detalhado do título">
       <!-- Conteúdo detalhado será inserido aqui pelo JavaScript -->
     </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX: Visualização ampliada de imagem -->
+<div id="image-lightbox" class="lightbox" style="display: none;" role="dialog" aria-modal="true" aria-label="Visualização ampliada da imagem">
+  <div class="lightbox-overlay"></div>
+  <div class="lightbox-container">
+    <button id="lightbox-close" type="button" class="lightbox-close-btn" aria-label="Fechar visualização da imagem">&times;</button>
+    <div class="lightbox-img-wrap">
+      <img id="lightbox-img" src="" alt="" />
+    </div>
+    <p id="lightbox-caption" class="lightbox-caption"></p>
+    <p class="lightbox-hint">Use a roda do mouse ou pinça para dar zoom. Arraste para mover.</p>
   </div>
 </div>
 

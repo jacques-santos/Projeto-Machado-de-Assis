@@ -3,23 +3,12 @@ Utilidades centralizadas para sanitização e processamento de dados.
 Usadas em backend e exportadas para frontend para garantir consistência.
 """
 
+import html as html_mod
 import re
 from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)
-
-# Mapa de entidades HTML comuns
-ENTITY_MAP = {
-    '&quot;': '"',
-    '&apos;': "'",
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&nbsp;': ' ',
-    '&#39;': "'",
-    '&#34;': '"',
-}
 
 
 def sanitize_html_value(value: Optional[str]) -> Optional[str]:
@@ -53,9 +42,8 @@ def sanitize_html_value(value: Optional[str]) -> Optional[str]:
     # Remove tags HTML (<div>, <font>, etc)
     text = re.sub(r'<[^>]*>', '', text)
     
-    # Decodifica entidades HTML comuns
-    for entity, char in ENTITY_MAP.items():
-        text = text.replace(entity, char)
+    # Decodifica TODAS as entidades HTML (&Agrave;, &Ecirc;, &#39; etc.)
+    text = html_mod.unescape(text)
     
     # Normaliza espaços múltiplos
     text = re.sub(r'\s+', ' ', text).strip()

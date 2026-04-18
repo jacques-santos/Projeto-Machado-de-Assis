@@ -166,6 +166,38 @@ body {
   font-size: 12px;
 }
 
+/* Livros field */
+.field--livro {
+  max-width: 340px;
+}
+
+.livro-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.livro-input-wrap input {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  background-color: #e6c200;
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
 .toolbar__row--filters {
   flex-wrap: wrap;
   gap: 8px;
@@ -514,6 +546,7 @@ button {
 .col-obra { width: auto; min-width: 260px; }
 .col-assinatura { width: 120px; }
 .col-instancia { width: 120px; }
+.col-local { width: 130px; }
 .col-midia { width: 120px; }
 .col-genero { width: 100px; }
 
@@ -1354,6 +1387,7 @@ button {
   .col-obra { min-width: 150px; }
   .col-assinatura { width: 100px; }
   .col-instancia { width: 100px; }
+  .col-local { width: 110px; }
   .col-midia { width: 100px; }
   .col-genero { width: 90px; }
 
@@ -2341,6 +2375,7 @@ a:not(.btn):not([role="tab"]):not(.navbtn):visited {
   .col-obra { min-width: 130px; }
   .col-assinatura { width: 80px; }
   .col-instancia { width: 80px; }
+  .col-local { width: 90px; }
   .col-midia { width: 80px; }
   .col-genero { width: 70px; }
 
@@ -2559,4 +2594,160 @@ a:not(.btn):not([role="tab"]):not(.navbtn):visited {
   text-decoration: underline;
   font: inherit;
   padding: 0;
+}
+
+/* ===== IMAGE THUMBNAILS (EXTRA DATA ROW) ===== */
+.extra-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.extra-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.extra-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+/* ===== IMAGE GALLERY (DETAIL MODAL) ===== */
+.detail-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.gallery-item {
+  margin: 0;
+  cursor: pointer;
+  text-align: center;
+  flex: 0 0 auto;
+  max-width: 160px;
+  transition: transform 0.15s;
+}
+
+.gallery-item:hover {
+  transform: scale(1.03);
+}
+
+.gallery-item img {
+  max-width: 160px;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+  display: block;
+}
+
+.gallery-legenda {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ===== LIGHTBOX ===== */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.lightbox-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.lightbox-container {
+  position: relative;
+  z-index: 2001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+.lightbox-close-btn {
+  position: absolute;
+  top: -40px;
+  right: -8px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 4px 10px;
+  line-height: 1;
+  z-index: 2002;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.lightbox-close-btn:hover {
+  opacity: 1;
+}
+
+.lightbox-img-wrap {
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  max-width: 90vw;
+  max-height: 80vh;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.lightbox-img-wrap.dragging {
+  cursor: grabbing;
+}
+
+.lightbox-img-wrap img {
+  display: block;
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  transition: transform 0.1s ease-out;
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+.lightbox-caption {
+  color: #fff;
+  font-size: 14px;
+  margin: 10px 0 0 0;
+  text-align: center;
+  max-width: 600px;
+  word-break: break-word;
+}
+
+.lightbox-caption:empty {
+  display: none;
+}
+
+.lightbox-hint {
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  margin: 6px 0 0 0;
+  text-align: center;
 }

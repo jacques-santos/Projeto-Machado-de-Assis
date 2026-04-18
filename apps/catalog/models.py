@@ -285,3 +285,22 @@ class Referencia(models.Model):
 
     def __str__(self) -> str:
         return f"{self.tipo or 'referência'}"
+
+
+class ImagemPeca(models.Model):
+    peca = models.ForeignKey(
+        Peca,
+        on_delete=models.CASCADE,
+        related_name="imagens",
+    )
+    imagem = models.ImageField(upload_to="pecas/%Y/%m/")
+    legenda = models.CharField(max_length=255, blank=True)
+    ordem = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Imagem"
+        verbose_name_plural = "Imagens"
+        ordering = ["ordem", "id"]
+
+    def __str__(self) -> str:
+        return f"Imagem {self.id} - {self.peca}"

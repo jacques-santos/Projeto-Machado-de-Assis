@@ -22,6 +22,8 @@ class FilterColumnWidget {
     this.resourcePath = options.resourcePath || 'pecas'; // e.g., 'pecas', 'usuarios'
     this.columnType = options.columnType || 'default'; // 'default', 'year', 'month', 'date'
     this.getActiveFilters = options.getActiveFilters || (() => ({})); // função para obter filtros ativos
+    this.hideFilterIcon = options.hideFilterIcon || false;
+    this.hideSearch = options.hideSearch || false;
 
     // Estado do filtro
     this.filterState = {
@@ -44,11 +46,16 @@ class FilterColumnWidget {
   }
 
   init() {
-    this.createFilterIcon();
+    if (!this.hideFilterIcon) {
+      this.createFilterIcon();
+    }
     this.loadColumnValues();
   }
 
   createFilterIcon() {
+    // When hideFilterIcon is set, don't create the icon at all
+    if (this.hideFilterIcon) return;
+
     // Remover ícone anterior se existir
     const existing = this.headerElement.querySelector('.filter-icon');
     if (existing) existing.remove();
@@ -151,6 +158,10 @@ class FilterColumnWidget {
           valuesList.innerHTML = this.getValuesListHTML();
           this.reattachValueCheckboxEvents();
           this.updateSelectAllCheckbox();
+          // Reaplicar filtro de busca se houver termo ativo
+          if (this.currentSearchTerm) {
+            this.filterValuesList(this.currentSearchTerm);
+          }
         }
       }
     } catch (error) {
@@ -183,10 +194,10 @@ class FilterColumnWidget {
   toggleDropdown() {
     if (this.dropdown && this.dropdown.parentElement) {
       this.closeDropdown();
-      this.filterIcon.setAttribute('aria-expanded', 'false');
+      if (this.filterIcon) this.filterIcon.setAttribute('aria-expanded', 'false');
     } else {
       this.openDropdown();
-      this.filterIcon.setAttribute('aria-expanded', 'true');
+      if (this.filterIcon) this.filterIcon.setAttribute('aria-expanded', 'true');
     }
   }
 
@@ -231,7 +242,7 @@ class FilterColumnWidget {
     const closeOnEscape = (e) => {
       if (e.key === 'Escape') {
         this.closeDropdown();
-        this.filterIcon.focus();
+        if (this.filterIcon) this.filterIcon.focus();
         document.removeEventListener('keydown', closeOnEscape);
       }
     };
@@ -239,9 +250,10 @@ class FilterColumnWidget {
 
     // Fechar ao clicar fora
     const closeOnClickOutside = (e) => {
-      if (this.dropdown && this.filterIcon && 
+      if (this.dropdown && 
           !this.dropdown.contains(e.target) && 
-          !this.filterIcon.contains(e.target)) {
+          !(this.filterIcon && this.filterIcon.contains(e.target)) &&
+          !this.headerElement.contains(e.target)) {
         this.closeDropdown();
         document.removeEventListener('click', closeOnClickOutside);
       }
@@ -434,7 +446,7 @@ class FilterColumnWidget {
         ${rangeSection}
 
         <!-- Busca -->
-        <div class="filter-search-container">
+        <div class="filter-search-container" ${this.hideSearch ? 'style="display:none"' : ''}>
           <input type="text" class="filter-search filter-dropdown-input" placeholder="Pesquisar..." 
                  aria-label="Pesquisar valores em ${this.columnLabel}">
         </div>
@@ -583,7 +595,9 @@ class FilterColumnWidget {
         this.filterValuesList(e.target.value);
       }, 150);
     });
-    searchInput.focus();
+    if (!this.hideSearch) {
+      searchInput.focus();
+    }
 
     // Checkbox "Selecionar Tudo"
     const selectAllCheckbox = this.dropdown.querySelector('.select-all-checkbox');
@@ -700,7 +714,7 @@ class FilterColumnWidget {
       rangeMax: null,
     };
 
-    this.createFilterIcon();
+    if (!this.hideFilterIcon) this.createFilterIcon();
     this.closeDropdown();
 
     this.onFilterClear({
@@ -723,13 +737,9 @@ class FilterColumnWidget {
       finalSelectedValues = Array.from(this.filterState.selectedValues);
     }
 
-    // Determinar se o filtro está ativo (comparar com a lista relevante)
-    const totalValuesToCompare = this.currentSearchTerm 
-      ? this.getVisibleValues().length
-      : this.allValues.length;
-
+    // Determinar se o filtro está ativo (sempre comparar com o total de valores)
     const hasRange = this.filterState.rangeMin || this.filterState.rangeMax;
-    this.filterState.isActive = finalSelectedValues.length < totalValuesToCompare || hasRange;
+    this.filterState.isActive = finalSelectedValues.length < this.allValues.length || hasRange;
 
     // Para colunas de data:
     // - Se o usuário selecionou um subconjunto de datas (via pesquisa ou desmarcando manualmente),
@@ -755,7 +765,7 @@ class FilterColumnWidget {
       }
     }
 
-    this.createFilterIcon();
+    if (!this.hideFilterIcon) this.createFilterIcon();
     this.closeDropdown();
 
     this.onFilterApply({
@@ -818,7 +828,7 @@ class FilterColumnWidget {
    */
   getCleanDisplayValue(value) {
     if (value === 'None' || value === null || value === undefined) {
-      return '(Em Branco)';
+      return this.columnType === 'date' ? '(Data Desconhecida)' : '(Em Branco)';
     }
     
     // Para coluna de mês, exibir nome do mês

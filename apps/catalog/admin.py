@@ -3,7 +3,22 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from tinymce.widgets import TinyMCE
 
-from .models import Assinatura, Genero, Instancia, Livro, LocalPublicacao, Midia, Peca, Referencia
+from .models import Assinatura, Genero, ImagemPeca, Instancia, Livro, LocalPublicacao, Midia, Peca, Referencia
+
+
+class ImagemPecaInline(admin.TabularInline):
+    model = ImagemPeca
+    extra = 1
+    fields = ("imagem", "legenda", "ordem", "preview")
+    readonly_fields = ("preview",)
+
+    @admin.display(description="Preview")
+    def preview(self, obj):
+        if obj.imagem:
+            return mark_safe(
+                f'<img src="{obj.imagem.url}" style="max-height:100px;" />'
+            )
+        return "-"
 
 
 class PecaAdminForm(forms.ModelForm):
@@ -32,6 +47,7 @@ class PecaAdminForm(forms.ModelForm):
 @admin.register(Peca)
 class PecaAdmin(admin.ModelAdmin):
     form = PecaAdminForm
+    inlines = [ImagemPecaInline]
     list_display = (
         "id",
         "nome_obra_html",
