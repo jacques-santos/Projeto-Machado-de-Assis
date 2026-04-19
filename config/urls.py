@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from apps.catalog.frontend_views import AboutView, CatalogHomeView, StatsView
+from apps.catalog.frontend_views import AboutView, CatalogHomeView, LinhaDoTempoView, StatsView
 
 def api_root(request):
     return JsonResponse({
@@ -26,6 +26,7 @@ frontend_patterns = [
     path("", CatalogHomeView.as_view(), name="home"),
     path("sobre/", AboutView.as_view(), name="about"),
     path("estatisticas/", StatsView.as_view(), name="stats"),
+    path("linha-do-tempo/", LinhaDoTempoView.as_view(), name="linha-do-tempo"),
 ]
 
 # API patterns (all grouped under api namespace)

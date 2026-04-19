@@ -25,7 +25,7 @@
         id="global-search" 
         type="text" 
         placeholder="Busque por código, ano, título, assinatura, gênero, palavra-chave, livro, mídia..." 
-        aria-label="Busca abrangente no acervo"
+        aria-label="Busca abrangente no banco de dados"
         aria-describedby="search-description"
       />
       <span id="search-description" style="display: none;">Digite para buscar por código, ano, data, título, assinatura, gênero, palavra-chave, livro ou mídia</span>
@@ -55,7 +55,7 @@
   <!-- Linha 2: Filtros de Dados Adicionais -->
   <div class="toolbar__row toolbar__row--filters" role="group" aria-label="Filtros de dados adicionais">
     <div class="field field--sm field--livro">
-      <span>Livros</span>
+      <span>Publicado em livro</span>
       <div class="livro-input-wrap">
         <input id="filter-livro" type="text" placeholder="Filtrar..." aria-label="Filtrar por livro" />
         <span id="livro-filter-badge" class="filter-badge" style="display:none;" title="Filtro de livros ativo">✓</span>
@@ -171,7 +171,7 @@
     <tbody id="results-body" role="rowgroup">
       <tr role="row">
         <td colspan="9" class="empty-state">
-          <div class="loading-text" aria-busy="true">Carregando acervo...</div>
+          <div class="loading-text" aria-busy="true">Carregando banco de dados...</div>
         </td>
       </tr>
     </tbody>

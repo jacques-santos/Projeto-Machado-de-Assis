@@ -138,7 +138,7 @@ a:focus-visible,
 **Implementado:**
 ```html
 <label class="field field--grow">
-  <span>Busca no acervo</span>
+  <span>Busca no banco de dados</span>
   <input 
     id="global-search" 
     type="text"

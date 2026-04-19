@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <meta name="description" content="Catálogo digital de obras de Machado de Assis — busca, filtros e estatísticas do acervo literário." />
+  <meta name="description" content="Catálogo digital de obras de Machado de Assis — busca, filtros e estatísticas do banco de dados literário." />
   <title>{% block title %}Banco de Dados Machado de Assis{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}" />
   <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260417d" />
@@ -27,8 +27,9 @@
     </div>
 
     <nav class="topnav" aria-label="Navegação principal">
-      <a href="{% url 'catalog:home' %}" class="navbtn {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'catalog-home' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'catalog-home' %}page{% else %}false{% endif %}">Acervo</a>
+      <a href="{% url 'catalog:home' %}" class="navbtn {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'catalog-home' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'catalog-home' %}page{% else %}false{% endif %}">Banco de Dados</a>
       <a href="{% url 'catalog:stats' %}" class="navbtn {% if request.resolver_match.url_name == 'stats' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'stats' %}page{% else %}false{% endif %}">Estatísticas</a>
+      <a href="{% url 'catalog:linha-do-tempo' %}" class="navbtn {% if request.resolver_match.url_name == 'linha-do-tempo' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'linha-do-tempo' %}page{% else %}false{% endif %}">Linha do Tempo</a>
       <a href="{% url 'catalog:about' %}" class="navbtn {% if request.resolver_match.url_name == 'about' %}is-active{% endif %}" aria-current="{% if request.resolver_match.url_name == 'about' %}page{% else %}false{% endif %}">Sobre</a>
       <div class="theme-selector" id="theme-selector">
         <button class="navbtn theme-selector__toggle" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Escolher tema visual" title="Escolher tema visual" id="theme-toggle">Temas</button>

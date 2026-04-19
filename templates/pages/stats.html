@@ -5,7 +5,7 @@
 
 {% block content %}
 <article class="page-content card">
-  <h1>Estatísticas do Acervo</h1>
+  <h1>Estatísticas do banco de dados</h1>
 
   <div id="stats-loading" class="loading-text" role="status" aria-busy="true">
     Carregando estatísticas...
@@ -16,7 +16,7 @@
     <section class="stats-summary" id="stats-summary">
       <div class="stat-card">
         <span class="stat-number" id="stat-total">—</span>
-        <span class="stat-label">Títulos no acervo</span>
+        <span class="stat-label">Títulos no banco de dados</span>
       </div>
       <div class="stat-card">
         <span class="stat-number" id="stat-period">—</span>
@@ -61,7 +61,7 @@
   </div>
 
   <nav class="nav-links" aria-label="Navegação entre páginas">
-    <a href="{% url 'catalog:home' %}" class="btn-primary">← Voltar ao Acervo</a>
+    <a href="{% url 'catalog:home' %}" class="btn-primary">← Voltar ao Banco de Dados</a>
     <a href="{% url 'catalog:about' %}" class="btn-secondary">Sobre o Projeto</a>
   </nav>
 </article>

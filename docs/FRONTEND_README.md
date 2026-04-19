@@ -86,7 +86,7 @@ Click any table row to open a detailed view showing:
 
 ### Navigation
 
-- **Acervo** - Current catalog page
+- **Banco de Dados** - Current catalog page
 - **Créditos** - Project credits and information  
 - **Criado por** - Project development background
 - **Admin** - Link to Django admin interface

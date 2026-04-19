@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+
+{% block title %}Linha do Tempo — Banco de Dados Machado de Assis{% endblock %}
+
+{% block content %}
+
+<article class="page-content card" style="padding: 1.25rem 1.5rem; max-width: 100%;">
+<div class="tl-header">
+  <div>
+    <h1 class="tl-title">Machado de Assis</h1>
+    <p class="tl-subtitle">Uma vida em publicações · 1839–1908</p>
+  </div>
+  <div class="tl-legend" aria-label="Legenda">
+    <span class="tl-legend-item" data-kind="bio"><span class="tl-legend-dot tl-legend-dot--bio"></span>Biografia</span>
+    <span class="tl-legend-item" data-kind="marco"><span class="tl-legend-dot tl-legend-dot--marco"></span>Marco</span>
+    <span class="tl-legend-item" data-kind="romance"><span class="tl-legend-dot tl-legend-dot--romance"></span>Romance</span>
+    <span class="tl-legend-item" data-kind="conto"><span class="tl-legend-dot tl-legend-dot--conto"></span>Contos</span>
+    <span class="tl-legend-item" data-kind="poesia"><span class="tl-legend-dot tl-legend-dot--poesia"></span>Poesia</span>
+  </div>
+</div>
+
+<div id="tl-wrap" class="tl-wrap" tabindex="0" role="region" aria-label="Linha do tempo interativa de Machado de Assis" aria-roledescription="linha do tempo">
+
+  <div class="tl-fade tl-fade--left"></div>
+  <div class="tl-fade tl-fade--right"></div>
+
+  <div id="tl-scroll" class="tl-scroll">
+    <div id="tl-inner" class="tl-inner">
+      <svg id="tl-svg" class="tl-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="tl-events" class="tl-events"></div>
+    </div>
+  </div>
+
+  <div class="tl-controls">
+    <div class="tl-readout">
+      <span class="tl-readout__label">Ano em vista:</span>
+      <span id="tl-year-value" class="tl-readout__value">1839</span>
+      <span class="tl-readout__sep">·</span>
+      <span id="tl-counter" class="tl-readout__counter">1 de 18</span>
+    </div>
+    <div class="tl-nav">
+      <button id="tl-prev" class="btn-secondary tl-nav-btn" aria-label="Evento anterior">← Anterior</button>
+      <button id="tl-next" class="btn-secondary tl-nav-btn" aria-label="Próximo evento">Próximo →</button>
+    </div>
+  </div>
+</div>
+
+<p class="tl-hint" id="drag-hint">Arraste horizontalmente ou use as setas ← → do teclado para navegar</p>
+
+<nav style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 1.5rem;">
+  <a href="{% url 'catalog:home' %}" class="btn-primary">← Voltar ao Banco de Dados</a>
+  <a href="{% url 'catalog:about' %}" class="btn-secondary">Sobre o Projeto</a>
+</nav>
+</article>
+
+<style>
+  /* Header */
+  .tl-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0.5rem 0 0.5rem;
+  }
+  .tl-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .tl-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 4px 0 0;
+  }
+
+  /* Legend */
+  .tl-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .tl-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: default;
+  }
+  .tl-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .tl-legend-dot--bio     { background: #2C2C2A; border-color: #B4B2A9; }
+  .tl-legend-dot--marco   { background: #4A1B0C; border-color: #D85A30; }
+  .tl-legend-dot--romance { background: #085041; border-color: #5DCAA5; }
+  .tl-legend-dot--conto   { background: #3C3489; border-color: #AFA9EC; }
+  .tl-legend-dot--poesia  { background: #633806; border-color: #EF9F27; }
+
+  /* Wrap */
+  .tl-wrap {
+    position: relative;
+    width: 100%;
+    border-radius: 6px;
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    user-select: none;
+    outline: none;
+  }
+  .tl-wrap:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  /* Edge fades */
+  .tl-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 48px;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .tl-fade--left  { left: 0;  background: linear-gradient(to right, var(--light-bg), transparent); }
+  .tl-fade--right { right: 0; background: linear-gradient(to left, var(--light-bg), transparent); }
+
+  /* Scroll area */
+  .tl-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: grab;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .tl-scroll::-webkit-scrollbar { height: 6px; }
+  .tl-scroll::-webkit-scrollbar-track { background: transparent; }
+  .tl-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .tl-scroll.grabbing { cursor: grabbing; }
+
+  .tl-inner {
+    position: relative;
+    height: 400px;
+    padding: 0 48px;
+  }
+  .tl-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    display: block;
+  }
+  .tl-events {
+    position: relative;
+    height: 100%;
+  }
+
+  /* Dots */
+  .tl-dot {
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  }
+  .tl-dot:hover {
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.08);
+  }
+  .tl-dot.active {
+    transform: translate(-50%, -50%) scale(1.5);
+    box-shadow: 0 0 0 6px rgba(0,0,0,0.1);
+  }
+
+  /* Cards */
+  .tl-card {
+    transition: opacity 0.25s ease, transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    opacity: 0.7;
+  }
+  .tl-card:hover {
+    opacity: 0.9;
+    border-color: var(--border) !important;
+  }
+  .tl-card.active {
+    opacity: 1;
+    border-color: var(--accent) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateX(-50%) scale(1.03);
+  }
+
+  /* Connectors */
+  .tl-connector { transition: opacity 0.25s ease; }
+  .tl-tick { font-variant-numeric: tabular-nums; }
+
+  /* Controls bar */
+  .tl-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .tl-readout {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tl-readout__value {
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .tl-readout__sep { color: var(--border); }
+  .tl-readout__counter {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+
+  .tl-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tl-nav-btn {
+    padding: 0.4rem 0.9rem !important;
+    min-width: auto !important;
+    font-size: 13px !important;
+  }
+
+  /* Hint */
+  .tl-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 8px 0 0;
+    transition: opacity 0.5s ease;
+  }
+</style>
+
+<script>
+(function(){
+  const events = [
+    { year: 1839, date: "21 jun 1839", title: "Nascimento", work: "Morro do Livramento, Rio de Janeiro", kind: "bio", note: "Filho de pai mulato alfaiate e mãe açoriana. Ambos pobres, livres." },
+    { year: 1855, date: "1855", title: "Estreia na imprensa", work: "Soneto \"À Ilma. Sra. D. P. J. A.\"", kind: "poesia", note: "Publicado no periódico \"Marmota\", marca seus primeiros versos impressos aos 15 anos." },
+    { year: 1858, date: "1858", title: "Primeiros contos", work: "\"Três tesouros perdidos\"", kind: "conto", note: "Publicação no \"A Marmota\". Começa a colaborar regularmente com jornais do Rio." },
+    { year: 1864, date: "1864", title: "Estreia em livro", work: "Crisálidas (poesia)", kind: "poesia", note: "Sua primeira coletânea de poemas, ainda de tom romântico e influência parnasiana." },
+    { year: 1870, date: "1870", title: "Contos Fluminenses", work: "Coletânea de contos", kind: "conto", note: "Primeiro livro de contos, reunindo textos publicados no \"Jornal das Famílias\"." },
+    { year: 1872, date: "1872", title: "Ressurreição", work: "Primeiro romance", kind: "romance", note: "Inaugura sua fase romântica na prosa longa. Ambientado no Rio de Janeiro." },
+    { year: 1874, date: "1874", title: "A Mão e a Luva", work: "Romance", kind: "romance", note: "Segundo romance, publicado originalmente em folhetim no \"O Globo\"." },
+    { year: 1876, date: "1876", title: "Helena", work: "Romance", kind: "romance", note: "Romance em folhetim no \"O Globo\", explora drama familiar e identidade." },
+    { year: 1878, date: "1878", title: "Iaiá Garcia", work: "Romance", kind: "romance", note: "Fecha sua primeira fase. Narrativa sobre classe social e sentimento no Segundo Reinado." },
+    { year: 1881, date: "1881", title: "Memórias Póstumas de Brás Cubas", work: "Romance — virada modernista", kind: "marco", note: "Narrador defunto, capítulos curtos, ironia radical. Inaugura a maturidade machadiana e o realismo no Brasil." },
+    { year: 1882, date: "1882", title: "Papéis Avulsos", work: "Contos", kind: "conto", note: "Inclui \"O Alienista\", uma das novelas mais comentadas da literatura brasileira." },
+    { year: 1884, date: "1884", title: "Histórias sem Data", work: "Contos", kind: "conto", note: "Nova coletânea, consolidando seu domínio do conto curto e irônico." },
+    { year: 1891, date: "1891", title: "Quincas Borba", work: "Romance", kind: "romance", note: "Retoma o filósofo do \"Humanitismo\". Rubião herda a fortuna e enlouquece lentamente." },
+    { year: 1896, date: "1896", title: "Funda a ABL", work: "Academia Brasileira de Letras", kind: "marco", note: "Primeiro presidente da Academia Brasileira de Letras, cargo que manteve até sua morte." },
+    { year: 1899, date: "1899", title: "Dom Casmurro", work: "Romance", kind: "marco", note: "A dúvida sobre Capitu. Talvez o romance mais lido e discutido da língua portuguesa." },
+    { year: 1904, date: "1904", title: "Esaú e Jacó", work: "Romance", kind: "romance", note: "Gêmeos rivais no fim do Império e início da República. Narrador Aires observa tudo." },
+    { year: 1906, date: "1906", title: "Relíquias de Casa Velha", work: "Contos", kind: "conto", note: "Inclui \"Missa do Galo\" e \"Pai contra Mãe\". Últimos contos publicados em vida." },
+    { year: 1908, date: "1908", title: "Memorial de Aires / Morte", work: "Último romance · † 29 set 1908", kind: "bio", note: "Publicado no ano de sua morte, no Rio. Diário melancólico do conselheiro Aires." }
+  ];
+
+  const kindStyles = {
+    bio:     { fill: "#2C2C2A", ring: "#B4B2A9", label: "biografia",    tag: "#F1EFE8", tagText: "#2C2C2A" },
+    marco:   { fill: "#4A1B0C", ring: "#D85A30", label: "marco",         tag: "#FAECE7", tagText: "#4A1B0C" },
+    romance: { fill: "#085041", ring: "#5DCAA5", label: "romance",       tag: "#E1F5EE", tagText: "#04342C" },
+    conto:   { fill: "#3C3489", ring: "#AFA9EC", label: "contos",        tag: "#EEEDFE", tagText: "#26215C" },
+    poesia:  { fill: "#633806", ring: "#EF9F27", label: "poesia",        tag: "#FAEEDA", tagText: "#412402" }
+  };
+
+  const yearMin = 1835;
+  const yearMax = 1910;
+  const pxPerYear = 78;
+  const leftPad = 48;
+  const totalWidth = (yearMax - yearMin) * pxPerYear + leftPad * 2;
+  const axisY = 200;
+
+  const inner = document.getElementById("tl-inner");
+  inner.style.width = totalWidth + "px";
+
+  const svg = document.getElementById("tl-svg");
+  svg.setAttribute("width", totalWidth);
+  svg.setAttribute("height", 400);
+  svg.setAttribute("viewBox", "0 0 " + totalWidth + " 400");
+
+  const yearToX = y => leftPad + (y - yearMin) * pxPerYear;
+
+  let svgHTML = "";
+
+  svgHTML += '<line x1="' + leftPad + '" y1="' + axisY + '" x2="' + (totalWidth - leftPad) + '" y2="' + axisY + '" stroke="var(--border, #B4B2A9)" stroke-width="1.5" />';
+
+  for (let y = 1840; y <= 1910; y += 5) {
+    const x = yearToX(y);
+    const major = (y % 10 === 0);
+    svgHTML += '<line x1="' + x + '" y1="' + (axisY - (major ? 7 : 4)) + '" x2="' + x + '" y2="' + (axisY + (major ? 7 : 4)) + '" stroke="' + (major ? "var(--muted, #888780)" : "var(--border, #B4B2A9)") + '" stroke-width="1" />';
+    if (major) {
+      svgHTML += '<text class="tl-tick" x="' + x + '" y="' + (axisY + 24) + '" text-anchor="middle" font-size="11" fill="var(--muted, #5F5E5A)" font-family="inherit">' + y + '</text>';
+    }
+  }
+
+  const placements = [];
+  events.forEach((ev, i) => {
+    const above = (i % 2 === 0);
+    const x = yearToX(ev.year);
+    placements.push({ x, above });
+    const connectorStart = above ? axisY - 8 : axisY + 8;
+    const connectorEnd   = above ? axisY - 55 : axisY + 55;
+    const style = kindStyles[ev.kind];
+    svgHTML += '<line class="tl-connector" data-idx="' + i + '" x1="' + x + '" y1="' + connectorStart + '" x2="' + x + '" y2="' + connectorEnd + '" stroke="' + style.ring + '" stroke-width="1" stroke-dasharray="2 3" opacity="0.5" />';
+  });
+
+  svg.innerHTML = svgHTML;
+
+  const container = document.getElementById("tl-events");
+  container.style.width = totalWidth + "px";
+
+  events.forEach((ev, i) => {
+    const { x, above } = placements[i];
+    const style = kindStyles[ev.kind];
+
+    const dot = document.createElement("div");
+    dot.className = "tl-dot";
+    dot.dataset.idx = i;
+    dot.title = ev.title + " (" + ev.year + ")";
+    dot.style.cssText = [
+      "position:absolute",
+      "left:" + x + "px",
+      "top:" + axisY + "px",
+      "width:14px",
+      "height:14px",
+      "border-radius:50%",
+      "background:" + style.fill,
+      "border:2px solid " + style.ring,
+      "transform:translate(-50%,-50%)",
+      "cursor:pointer",
+      "z-index:2"
+    ].join(";");
+    container.appendChild(dot);
+
+    const card = document.createElement("div");
+    card.className = "tl-card";
+    card.dataset.idx = i;
+    const cardHeight = 130;
+    const cardOffset = 62;
+    const cardTop = above ? (axisY - cardOffset - cardHeight) : (axisY + cardOffset);
+    card.style.cssText = [
+      "position:absolute",
+      "left:" + x + "px",
+      "top:" + cardTop + "px",
+      "transform:translateX(-50%)",
+      "width:230px",
+      "background:var(--card)",
+      "border:1px solid var(--border)",
+      "border-radius:6px",
+      "padding:12px 14px",
+      "box-sizing:border-box",
+      "z-index:1",
+      "cursor:pointer"
+    ].join(";");
+
+    card.innerHTML = [
+      '<div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">',
+        '<span style="font-size:10px; font-weight:500; color:' + style.tagText + '; background:' + style.tag + '; padding:2px 7px; border-radius:4px; text-transform:lowercase; letter-spacing:0.02em;">' + style.label + '</span>',
+        '<span style="font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums;">' + ev.date + '</span>',
+      '</div>',
+      '<div style="font-size:14px; font-weight:600; color:var(--text); line-height:1.3; margin-bottom:3px;">' + ev.title + '</div>',
+      '<div style="font-size:12px; color:var(--muted); font-style:italic; margin-bottom:8px; line-height:1.4;">' + ev.work + '</div>',
+      '<div style="font-size:12px; color:var(--text-secondary, var(--muted)); line-height:1.5;">' + ev.note + '</div>'
+    ].join("");
+    container.appendChild(card);
+  });
+
+  const scroller = document.getElementById("tl-scroll");
+  const yearValue = document.getElementById("tl-year-value");
+  const counter = document.getElementById("tl-counter");
+  const hint = document.getElementById("drag-hint");
+
+  let isDown = false, startX = 0, scrollLeftStart = 0, hasDragged = false;
+
+  scroller.addEventListener("mousedown", e => {
+    isDown = true; hasDragged = false;
+    scroller.classList.add("grabbing");
+    startX = e.pageX - scroller.offsetLeft;
+    scrollLeftStart = scroller.scrollLeft;
+  });
+  scroller.addEventListener("mouseleave", () => { isDown = false; scroller.classList.remove("grabbing"); });
+  scroller.addEventListener("mouseup", () => { isDown = false; scroller.classList.remove("grabbing"); });
+  scroller.addEventListener("mousemove", e => {
+    if (!isDown) return;
+    const x = e.pageX - scroller.offsetLeft;
+    const walk = (x - startX);
+    if (Math.abs(walk) > 4) hasDragged = true;
+    scroller.scrollLeft = scrollLeftStart - walk;
+  });
+
+  let touchStartX = 0, touchScrollStart = 0;
+  scroller.addEventListener("touchstart", e => { touchStartX = e.touches[0].pageX; touchScrollStart = scroller.scrollLeft; }, { passive: true });
+  scroller.addEventListener("touchmove", e => { scroller.scrollLeft = touchScrollStart - (e.touches[0].pageX - touchStartX); }, { passive: true });
+
+  function updateCounter(idx) {
+    counter.textContent = (idx + 1) + " de " + events.length;
+  }
+
+  function updateYearReadout() {
+    const viewportCenter = scroller.scrollLeft + scroller.clientWidth / 2;
+    const year = Math.round(yearMin + (viewportCenter - leftPad) / pxPerYear);
+    yearValue.textContent = Math.max(yearMin, Math.min(yearMax, year));
+
+    let closestIdx = 0, closestDist = Infinity;
+    events.forEach((ev, i) => {
+      const d = Math.abs(yearToX(ev.year) - viewportCenter);
+      if (d < closestDist) { closestDist = d; closestIdx = i; }
+    });
+    setActive(closestIdx, false);
+  }
+
+  function setActive(idx, scroll) {
+    currentIdx = idx;
+    updateCounter(idx);
+
+    document.querySelectorAll(".tl-dot").forEach(d => {
+      const isActive = parseInt(d.dataset.idx) === idx;
+      d.classList.toggle("active", isActive);
+      if (isActive) {
+        d.style.background = kindStyles[events[idx].kind].ring;
+        d.style.borderColor = kindStyles[events[idx].kind].fill;
+      } else {
+        d.style.background = kindStyles[events[parseInt(d.dataset.idx)].kind].fill;
+        d.style.borderColor = kindStyles[events[parseInt(d.dataset.idx)].kind].ring;
+      }
+    });
+    document.querySelectorAll(".tl-connector").forEach(c => {
+      c.style.opacity = parseInt(c.dataset.idx) === idx ? "1" : "0.35";
+      c.setAttribute("stroke-width", parseInt(c.dataset.idx) === idx ? "2" : "1");
+    });
+    document.querySelectorAll(".tl-card").forEach(c => {
+      const isActive = parseInt(c.dataset.idx) === idx;
+      c.classList.toggle("active", isActive);
+    });
+
+    // Update prev/next button states
+    document.getElementById("tl-prev").disabled = idx === 0;
+    document.getElementById("tl-next").disabled = idx === events.length - 1;
+
+    if (scroll) {
+      const targetX = yearToX(events[idx].year) - scroller.clientWidth / 2;
+      scroller.scrollTo({ left: targetX, behavior: "smooth" });
+    }
+  }
+
+  let currentIdx = 0;
+  scroller.addEventListener("scroll", () => {
+    updateYearReadout();
+    if (hint) hint.style.opacity = "0.4";
+  });
+
+  document.querySelectorAll(".tl-dot, .tl-card").forEach(el => {
+    el.addEventListener("click", e => {
+      if (hasDragged) { e.preventDefault(); return; }
+      const idx = parseInt(el.dataset.idx);
+      currentIdx = idx;
+      setActive(idx, true);
+    });
+  });
+
+  document.getElementById("tl-prev").addEventListener("click", () => {
+    currentIdx = Math.max(0, currentIdx - 1);
+    setActive(currentIdx, true);
+  });
+  document.getElementById("tl-next").addEventListener("click", () => {
+    currentIdx = Math.min(events.length - 1, currentIdx + 1);
+    setActive(currentIdx, true);
+  });
+
+  // Keyboard navigation
+  document.getElementById("tl-wrap").addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      currentIdx = Math.max(0, currentIdx - 1);
+      setActive(currentIdx, true);
+    } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      currentIdx = Math.min(events.length - 1, currentIdx + 1);
+      setActive(currentIdx, true);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      currentIdx = 0;
+      setActive(currentIdx, true);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      currentIdx = events.length - 1;
+      setActive(currentIdx, true);
+    }
+  });
+
+  // Legend filtering
+  document.querySelectorAll(".tl-legend-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const kind = item.dataset.kind;
+      const firstOfKind = events.findIndex(ev => ev.kind === kind);
+      if (firstOfKind !== -1) {
+        currentIdx = firstOfKind;
+        setActive(currentIdx, true);
+      }
+    });
+    item.style.cursor = "pointer";
+  });
+
+  setTimeout(() => { updateYearReadout(); setActive(0, false); }, 50);
+})();
+</script>
+{% endblock %}

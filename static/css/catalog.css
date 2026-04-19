@@ -401,7 +401,7 @@ button {
   margin-bottom: 0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   margin-top: 0;
-  max-height: calc(100vh - 120px);
+  max-height: calc(67vh - 120px);
 }
 
 .results-table {

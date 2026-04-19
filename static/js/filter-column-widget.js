@@ -24,6 +24,7 @@ class FilterColumnWidget {
     this.getActiveFilters = options.getActiveFilters || (() => ({})); // função para obter filtros ativos
     this.hideFilterIcon = options.hideFilterIcon || false;
     this.hideSearch = options.hideSearch || false;
+    this.excludeBlanks = options.excludeBlanks || false;
 
     // Estado do filtro
     this.filterState = {
@@ -122,7 +123,10 @@ class FilterColumnWidget {
       }
 
       const data = await response.json();
-      const newValues = data.values || [];
+      let newValues = data.values || [];
+      if (this.excludeBlanks) {
+        newValues = newValues.filter(v => v.value !== null && v.value !== '');
+      }
       
       // Preservar seleções existentes que ainda estão disponíveis nos novos valores
       const previouslySelected = new Set(this.filterState.selectedValues);

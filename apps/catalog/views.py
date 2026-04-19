@@ -478,7 +478,7 @@ class PecaViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"])
     def estatisticas(self, request):
-        """Retorna estatísticas agregadas do acervo."""
+        """Retorna estatísticas agregadas do banco de dados."""
         from django.db.models import Min, Max
 
         try:

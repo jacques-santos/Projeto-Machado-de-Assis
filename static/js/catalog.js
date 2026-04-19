@@ -2118,6 +2118,7 @@ function initializeColumnFilterWidgets() {
       columnType: 'default',
       hideFilterIcon: true,
       hideSearch: true,
+      excludeBlanks: true,
       getActiveFilters: (excludeColumn) => buildFilterParamsForColumn(excludeColumn),
       onFilterApply: (filterData) => {
         applyColumnFilter(filterData);

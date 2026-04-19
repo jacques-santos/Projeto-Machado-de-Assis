@@ -78,7 +78,7 @@ Total: ~300 linhas adicionadas
     <nav class="topnav" aria-label="Navegação principal">
       <a href="..." 
 +        aria-current="{% if request.resolver_match.url_name == 'home' %}page{% else %}false{% endif %}"
-      >Acervo</a>
+      >Banco de Dados</a>
     </nav>
   </header>
 ```
@@ -105,12 +105,12 @@ Total: ~300 linhas adicionadas
 +   <section class="toolbar" role="search" aria-label="Ferramentas de busca e filtros">
     <div class="toolbar__row">
       <label class="field field--grow">
-        <span>Busca no acervo</span>
+        <span>Busca no banco de dados</span>
         <input 
           id="global-search" 
           type="text" 
           placeholder="..." 
-          aria-label="Busca abrangente no acervo"
+          aria-label="Busca abrangente no banco de dados"
 +         aria-describedby="search-description"
         />
 +       <span id="search-description" style="display: none;">

@@ -7,7 +7,7 @@ class CatalogHomeView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = 'Acervo'
+        context['page_title'] = 'Banco de Dados'
         return context
 
 
@@ -19,3 +19,8 @@ class AboutView(TemplateView):
 class StatsView(TemplateView):
     """View para a página de Estatísticas"""
     template_name = 'pages/stats.html'
+
+
+class LinhaDoTempoView(TemplateView):
+    """View para a página Linha do Tempo"""
+    template_name = 'pages/linha_do_tempo_machado_de_assis.html'
