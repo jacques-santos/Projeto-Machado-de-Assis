@@ -6,9 +6,12 @@ Fornece logs JSON em produção e verbosos em desenvolvimento.
 import os
 from pathlib import Path
 
-# Criar diretório de logs se não existir
-LOGS_DIR = Path(__file__).resolve().parent.parent.parent / "logs"
-LOGS_DIR.mkdir(exist_ok=True)
+DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
+
+# Handlers de arquivo apenas em desenvolvimento (Render não tem disco persistente)
+if DEBUG:
+    LOGS_DIR = Path(__file__).resolve().parent.parent / "logs"
+    LOGS_DIR.mkdir(exist_ok=True)
 
 LOGGING = {
     "version": 1,
@@ -46,52 +49,59 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
-        "file": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOGS_DIR / "django.log",
-            "maxBytes": 10_485_760,  # 10MB
-            "backupCount": 5,
-            "formatter": "verbose",
-        },
-        "api_file": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOGS_DIR / "api.log",
-            "maxBytes": 10_485_760,  # 10MB
-            "backupCount": 5,
-            "formatter": "verbose",
-        },
-        "error_file": {
-            "level": "ERROR",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOGS_DIR / "errors.log",
-            "maxBytes": 10_485_760,  # 10MB
-            "backupCount": 10,
-            "formatter": "verbose",
-        },
     },
-    
-    "loggers": {
-        "django": {
-            "handlers": ["console", "file", "error_file"],
-            "level": os.getenv("LOG_LEVEL", "INFO"),
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": ["console", "file"],
-            "level": "WARNING",
-            "propagate": False,
-        },
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "WARNING",  # Avoid logging all SQL
-            "propagate": False,
-        },
-        "apps.catalog": {
-            "handlers": ["console", "api_file", "error_file"],
-            "level": os.getenv("LOG_LEVEL", "INFO"),
-            "propagate": False,
-        },
+}
+
+# Adicionar file handlers apenas em desenvolvimento
+if DEBUG:
+    LOGGING["handlers"]["file"] = {
+        "level": "INFO",
+        "class": "logging.handlers.RotatingFileHandler",
+        "filename": LOGS_DIR / "django.log",
+        "maxBytes": 10_485_760,
+        "backupCount": 5,
+        "formatter": "verbose",
+    }
+    LOGGING["handlers"]["api_file"] = {
+        "level": "INFO",
+        "class": "logging.handlers.RotatingFileHandler",
+        "filename": LOGS_DIR / "api.log",
+        "maxBytes": 10_485_760,
+        "backupCount": 5,
+        "formatter": "verbose",
+    }
+    LOGGING["handlers"]["error_file"] = {
+        "level": "ERROR",
+        "class": "logging.handlers.RotatingFileHandler",
+        "filename": LOGS_DIR / "errors.log",
+        "maxBytes": 10_485_760,
+        "backupCount": 10,
+        "formatter": "verbose",
+    }
+
+# Loggers
+_dev_handlers = ["console", "file", "error_file"] if DEBUG else ["console"]
+_api_handlers = ["console", "api_file", "error_file"] if DEBUG else ["console"]
+
+LOGGING["loggers"] = {
+    "django": {
+        "handlers": _dev_handlers,
+        "level": os.getenv("LOG_LEVEL", "INFO"),
+        "propagate": False,
+    },
+    "django.request": {
+        "handlers": ["console", "file"] if DEBUG else ["console"],
+        "level": "WARNING",
+        "propagate": False,
+    },
+    "django.db.backends": {
+        "handlers": ["console"],
+        "level": "WARNING",
+        "propagate": False,
+    },
+    "apps.catalog": {
+        "handlers": _api_handlers,
+        "level": os.getenv("LOG_LEVEL", "INFO"),
+        "propagate": False,
     },
 }

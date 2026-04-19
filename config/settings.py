@@ -192,10 +192,10 @@ SPECTACULAR_SETTINGS = {
 }
 
 # ===== CACHING =====
-REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
+REDIS_URL = os.getenv("REDIS_URL", "")
 
-# Usar Redis se disponível (produção), senão usar LocMemCache (desenvolvimento/testes)
-if os.getenv("USE_REDIS_CACHE", "false").lower() == "true" or not DEBUG:
+# Usar Redis se configurado, senão usar LocMemCache
+if REDIS_URL:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -205,14 +205,13 @@ if os.getenv("USE_REDIS_CACHE", "false").lower() == "true" or not DEBUG:
                 "SOCKET_CONNECT_TIMEOUT": 5,
                 "SOCKET_TIMEOUT": 5,
                 "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-                "IGNORE_EXCEPTIONS": True,  # Não quebrar se Redis indisponível
+                "IGNORE_EXCEPTIONS": True,
             },
             "KEY_PREFIX": "machado",
-            "TIMEOUT": 3600,  # 1 hora padrão
+            "TIMEOUT": 3600,
         }
     }
 else:
-    # Usar cache em memória para desenvolvimento/testes
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
