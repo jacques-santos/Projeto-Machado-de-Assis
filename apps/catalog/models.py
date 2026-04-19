@@ -1,8 +1,59 @@
 from django.db import models
+from django.utils import timezone
 import datetime
 
 
-class BaseNomeModel(models.Model):
+# ===== SOFT DELETE INFRASTRUCTURE =====
+
+class SoftDeleteManager(models.Manager):
+    """Manager padrão que filtra registros deletados."""
+    def get_queryset(self):
+        return super().get_queryset().filter(deletado=False)
+
+
+class AllObjectsManager(models.Manager):
+    """Manager que retorna todos os registros, incluindo deletados."""
+    pass
+
+
+class SoftDeleteMixin(models.Model):
+    """
+    Mixin que implementa soft-delete para qualquer modelo.
+    - delete() marca como deletado em vez de remover do banco
+    - hard_delete() remove permanentemente
+    - restore() restaura um registro deletado
+    - objects filtra deletados; all_objects inclui tudo
+    """
+    deletado = models.BooleanField(default=False, db_index=True)
+    deletado_em = models.DateTimeField(null=True, blank=True)
+
+    objects = SoftDeleteManager()
+    all_objects = AllObjectsManager()
+
+    class Meta:
+        abstract = True
+
+    def delete(self, using=None, keep_parents=False):
+        """Soft-delete: marca como deletado sem remover do banco."""
+        self.deletado = True
+        self.deletado_em = timezone.now()
+        self.save(update_fields=["deletado", "deletado_em"])
+
+    def hard_delete(self, using=None, keep_parents=False):
+        """Remove permanentemente do banco de dados."""
+        super().delete(using=using, keep_parents=keep_parents)
+
+    def restore(self):
+        """Restaura um registro soft-deleted."""
+        self.deletado = False
+        self.deletado_em = None
+        self.save(update_fields=["deletado", "deletado_em"])
+
+
+# ===== MODELS =====
+
+
+class BaseNomeModel(SoftDeleteMixin, models.Model):
     nome = models.CharField(max_length=255, unique=True)
     trial446 = models.CharField(max_length=1, null=True, blank=True)
 
@@ -42,13 +93,14 @@ class Genero(BaseNomeModel):
         verbose_name_plural = "Gêneros"
 
 
-class Midia(BaseNomeModel):
+class Midia(SoftDeleteMixin, models.Model):
     id = models.AutoField(primary_key=True, db_column="idmidia")
     nome = models.CharField(
         max_length=255, 
         unique=True,
         db_column="midia"
     )
+    trial446 = models.CharField(max_length=1, null=True, blank=True)
 
     class Meta:
         db_table = "tblmidia"
@@ -89,7 +141,7 @@ class LocalPublicacao(BaseNomeModel):
         verbose_name_plural = "Locais de publicação"
 
 
-class Livro(models.Model):
+class Livro(SoftDeleteMixin, models.Model):
     id = models.AutoField(primary_key=True, db_column="idlivro")
     titulo = models.CharField(max_length=255, db_column="titulo")
     trial446 = models.CharField(max_length=1, null=True, blank=True)
@@ -104,7 +156,7 @@ class Livro(models.Model):
         return self.titulo
 
 
-class Peca(models.Model):
+class Peca(SoftDeleteMixin, models.Model):
     id = models.AutoField(primary_key=True, db_column="idpeca")
     nome_obra = models.CharField(
         max_length=255,
@@ -264,8 +316,23 @@ class Peca(models.Model):
         self.data_ordenacao = self._calcular_data_ordenacao()
         super().save(*args, **kwargs)
 
+    def delete(self, using=None, keep_parents=False):
+        """Soft-delete da peça e de todas as suas imagens."""
+        # Soft-delete das imagens associadas (incluindo já deletadas para não perder estado)
+        ImagemPeca.all_objects.filter(peca=self, deletado=False).update(
+            deletado=True, deletado_em=timezone.now()
+        )
+        super().delete(using=using, keep_parents=keep_parents)
 
-class Referencia(models.Model):
+    def restore(self):
+        """Restaura a peça e todas as suas imagens."""
+        super().restore()
+        ImagemPeca.all_objects.filter(peca=self, deletado=True).update(
+            deletado=False, deletado_em=None
+        )
+
+
+class Referencia(SoftDeleteMixin, models.Model):
     id = models.AutoField(primary_key=True, db_column="idtecnica")
     tipo = models.CharField(
         max_length=120, 
@@ -287,7 +354,7 @@ class Referencia(models.Model):
         return f"{self.tipo or 'referência'}"
 
 
-class ImagemPeca(models.Model):
+class ImagemPeca(SoftDeleteMixin, models.Model):
     peca = models.ForeignKey(
         Peca,
         on_delete=models.CASCADE,

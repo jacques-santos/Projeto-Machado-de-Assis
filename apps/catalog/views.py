@@ -446,7 +446,7 @@ class PecaViewSet(viewsets.ReadOnlyModelViewSet):
             yield [
                 "ID", "Nome da Obra", "Ano", "Mês", "Data de Publicação",
                 "Gênero", "Assinatura", "Instância", "Livro", "Mídia",
-                "Local de Publicação", "Fonte", "Observações",
+                "Periódico", "Fonte", "Observações",
             ]
             for peca in queryset.iterator():
                 yield [
@@ -505,6 +505,11 @@ class PecaViewSet(viewsets.ReadOnlyModelViewSet):
                 .order_by("-total")[:15]
             )
 
+            # Count distinct signatures excluding bracketed names like [anonimo]
+            total_assinaturas = Assinatura.objects.exclude(
+                nome__startswith="["
+            ).count()
+
             date_range = Peca.objects.aggregate(
                 primeiro_ano=Min("ano_publicacao"),
                 ultimo_ano=Max("ano_publicacao"),
@@ -516,6 +521,7 @@ class PecaViewSet(viewsets.ReadOnlyModelViewSet):
                 "por_genero": by_genre,
                 "por_assinatura": by_signature,
                 "periodo": date_range,
+                "total_assinaturas": total_assinaturas,
             })
         except Exception as e:
             logger.error(f"Error in estatisticas: {e}", exc_info=True)

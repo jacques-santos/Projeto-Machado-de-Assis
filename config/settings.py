@@ -237,6 +237,8 @@ from config.logging_config import LOGGING
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if os.getenv("CSRF_TRUSTED_ORIGINS") else []
 if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS += ["https://*.ngrok-free.app", "https://*.ngrok.io"]
 
 if not DEBUG:
     # Render.com usa proxy reverso com SSL — confiar no header X-Forwarded-Proto

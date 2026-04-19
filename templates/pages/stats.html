@@ -400,7 +400,7 @@
     document.getElementById('stat-genres').textContent =
       data.por_genero ? data.por_genero.length : '—';
     document.getElementById('stat-signatures').textContent =
-      data.por_assinatura ? data.por_assinatura.length + '+' : '—';
+      data.total_assinaturas != null ? data.total_assinaturas : '—';
 
     // Genre chart
     if (data.por_genero && data.por_genero.length > 0) {

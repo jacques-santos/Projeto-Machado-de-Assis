@@ -4,7 +4,7 @@
 {% block title %}Banco de Dados Machado de Assis{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20260417m" />
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20260419a" />
 {% endblock %}
 
 {% block content %}
@@ -24,11 +24,11 @@
       <input 
         id="global-search" 
         type="text" 
-        placeholder="Busque por código, ano, título, assinatura, gênero, palavra-chave, livro, mídia..." 
+        placeholder="Busque por código, ano, título, assinatura, gênero, local de inscrição da assinatura, livro, mídia..." 
         aria-label="Busca abrangente no banco de dados"
         aria-describedby="search-description"
       />
-      <span id="search-description" style="display: none;">Digite para buscar por código, ano, data, título, assinatura, gênero, palavra-chave, livro ou mídia</span>
+      <span id="search-description" style="display: none;">Digite para buscar por código, ano, data, título, assinatura, gênero, local de inscrição da assinatura, livro ou mídia</span>
     </label>
 
     <label class="field">
@@ -52,18 +52,7 @@
   </div>
   <div id="page-size-warning" class="page-size-warning" style="display: none;" role="alert"></div>
 
-  <!-- Linha 2: Filtros de Dados Adicionais -->
-  <div class="toolbar__row toolbar__row--filters" role="group" aria-label="Filtros de dados adicionais">
-    <div class="field field--sm field--livro">
-      <span>Publicado em livro</span>
-      <div class="livro-input-wrap">
-        <input id="filter-livro" type="text" placeholder="Filtrar..." aria-label="Filtrar por livro" />
-        <span id="livro-filter-badge" class="filter-badge" style="display:none;" title="Filtro de livros ativo">✓</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Linha 3: Opções Secundárias -->
+  <!-- Linha 2: Opções Secundárias -->
   <div class="toolbar__row toolbar__row--compact">
     <label class="toggle">
       <input id="toggle-extra" type="checkbox" aria-label="Mostrar dados adicionais" />
@@ -108,12 +97,6 @@
   <table class="results-table" id="results-table" role="table" tabindex="-1">
     <thead role="rowgroup">
       <tr role="row">
-        <th class="col-id" role="columnheader" scope="col">
-          <button class="sort-btn" data-sort="id" title="Clique para ordenar por código" aria-label="Ordenar por código">
-            Código
-            <span class="sort-indicator" aria-hidden="true"></span>
-          </button>
-        </th>
         <th class="col-ano" role="columnheader" scope="col">
           <span class="th-label">Ano</span>
         </th>
@@ -149,8 +132,8 @@
           </button>
         </th>
         <th class="col-local" role="columnheader" scope="col">
-          <button class="sort-btn" data-sort="local_publicacao" title="Clique para ordenar por local de publicação" aria-label="Ordenar por local de publicação">
-            Local de Publicação
+          <button class="sort-btn" data-sort="local_publicacao" title="Clique para ordenar por periódico" aria-label="Ordenar por periódico">
+            Periódico
             <span class="sort-indicator" aria-hidden="true"></span>
           </button>
         </th>
@@ -163,6 +146,12 @@
         <th class="col-midia" role="columnheader" scope="col">
           <button class="sort-btn" data-sort="midia" title="Clique para ordenar por mídia" aria-label="Ordenar por mídia">
             Mídia
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th class="col-livro" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="livro" title="Clique para ordenar por livro" aria-label="Ordenar por livro">
+            Livro
             <span class="sort-indicator" aria-hidden="true"></span>
           </button>
         </th>
@@ -227,6 +216,6 @@
     apiBase: '/api/v1'
   };
 </script>
-<script src="{% static 'js/filter-column-widget.js' %}?v=20260417k"></script>
-<script src="{% static 'js/catalog.js' %}?v=20260417m"></script>
+<script src="{% static 'js/filter-column-widget.js' %}?v=20260419a"></script>
+<script src="{% static 'js/catalog.js' %}?v=20260419a"></script>
 {% endblock %}

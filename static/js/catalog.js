@@ -32,12 +32,10 @@ const state = {
 
   // Extra filters (dados adicionais)
   extraFilters: {
-    livro_search: '',
   },
 
   // Column filters (client-side for now, could be server-side)
   columnFilters: {
-    id: '',
     ano_publicacao: '',
     mes_publicacao: '',
     data_publicacao: '',
@@ -46,6 +44,7 @@ const state = {
     local_publicacao: '',
     midia: '',
     genero: '',
+    livro: '',
   },
 
   // Autocomplete options
@@ -107,7 +106,6 @@ const els = {
   nomeObraSearch: document.getElementById('nome-obra-search'),
 
   // Extra filters (dados adicionais)
-  filterLivro: document.getElementById('filter-livro'),
 
   // Modal
   detailModal: document.getElementById('detail-modal'),
@@ -127,6 +125,7 @@ const serverSortableFields = new Set([
   'local_publicacao',
   'genero',
   'midia',
+  'livro',
 ]);
 
 // Maps frontend sort key to actual API ordering field
@@ -590,11 +589,10 @@ async function applyToolbarFilterWithRetry(currentKey) {
     state.onlyDated = false;
     state.nomeObraSearch = '';
     state.extraFilters = {
-      livro_search: '',
     };
     state.columnFilters = {
-      id: '', ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
-      nome_obra: '', assinatura: '', local_publicacao: '', midia: '', genero: '',
+      ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
+      nome_obra: '', assinatura: '', local_publicacao: '', midia: '', genero: '', livro: '',
     };
     state.activeColumnFilters = {};
 
@@ -605,7 +603,6 @@ async function applyToolbarFilterWithRetry(currentKey) {
     els.globalSearch.value = '';
     els.toggleDatedOnly.checked = false;
     if (els.nomeObraSearch) els.nomeObraSearch.value = '';
-    if (els.filterLivro) els.filterLivro.value = state.extraFilters.livro_search || '';
     document.querySelectorAll('[data-column-filter]').forEach((input) => { input.value = ''; });
 
     // Resetar widgets de coluna
@@ -620,9 +617,6 @@ async function applyToolbarFilterWithRetry(currentKey) {
         if (!widget.hideFilterIcon) widget.createFilterIcon();
       }
     });
-    // Resetar badge do filtro de livros
-    const _lb = document.getElementById('livro-filter-badge');
-    if (_lb) _lb.style.display = 'none';
     updateSortIndicators();
 
     state.page = 1;
@@ -713,12 +707,12 @@ function updateResultsDisplay() {
  */
 function buildExtraDataRow(row) {
   const fields = [
-    { label: 'Palavra-chave', value: row.instancia },
-    { label: 'Livros', value: row.livro },
-    { label: 'Fonte', value: row.fonte, full: true },
-    { label: 'Dados da Publicação', value: row.dados_publicacao, full: true, html: true },
-    { label: 'Observações', value: row.observacoes, full: true, html: true },
-    { label: 'Reproduções', value: row.reproducoes_texto, full: true, html: true },
+    { label: 'Código', value: row.id },
+    { label: 'Local de inscrição da assinatura', value: row.instancia },
+    { label: 'Fonte', value: row.fonte },
+    { label: 'Dados da Publicação', value: row.dados_publicacao, html: true },
+    { label: 'Observações', value: row.observacoes, html: true },
+    { label: 'Reproduções', value: row.reproducoes_texto, html: true },
   ].filter(f => f.value);
 
   const hasImages = row.imagens && row.imagens.length > 0;
@@ -776,7 +770,6 @@ function updateTableDisplay() {
   els.resultsBody.innerHTML = filtered.map((row) => {
     const mainRow = `
     <tr class="result-row" data-id="${row.id}" tabindex="0" role="button" title="Clique ou pressione Enter para ver detalhes">
-      <td class="col-id">${highlightSearch(safeText(row.id))}</td>
       <td class="col-ano">${highlightSearch(safeText(row.ano_publicacao || '—'))}</td>
       <td class="col-mes">${formatMonth(row.mes_publicacao)}</td>
       <td class="col-data">${formatDate(row.data_publicacao)}</td>
@@ -785,6 +778,7 @@ function updateTableDisplay() {
       <td class="col-local">${highlightSearch(safeText(row.local_publicacao || '—'))}</td>
       <td class="col-genero">${highlightSearch(safeText(row.genero || '—'))}</td>
       <td class="col-midia">${highlightSearch(safeText(row.midia || '—'))}</td>
+      <td class="col-livro">${highlightSearch(safeText(row.livro || '—'))}</td>
     </tr>`;
 
     const extraRow = buildExtraDataRow(row);
@@ -815,7 +809,7 @@ function updateAutocompleteData(rows) {
   // Os campos da barra de cima (nome_obra, midia, local_publicacao, fonte,
   // dados_publicacao, observacoes, reproducoes) são carregados do servidor
   // via loadServerAutocompleteData() e NÃO devem ser sobrescritos aqui.
-  const columnFields = ['assinatura', 'local_publicacao', 'genero', 'midia'];
+  const columnFields = ['assinatura', 'local_publicacao', 'genero', 'midia', 'livro'];
   const uniqueValues = {};
   columnFields.forEach((f) => { uniqueValues[f] = new Set(); });
 
@@ -824,6 +818,7 @@ function updateAutocompleteData(rows) {
     if (row.local_publicacao) uniqueValues.local_publicacao.add(row.local_publicacao);
     if (row.midia) uniqueValues.midia.add(row.midia);
     if (row.genero) uniqueValues.genero.add(row.genero);
+    if (row.livro) uniqueValues.livro.add(row.livro);
   });
 
   // Convert sets to sorted arrays
@@ -844,7 +839,6 @@ function applyClientFilters(rows) {
 
     filtered = filtered.filter((row) => {
       const valueMap = {
-        id: String(row.id),
         ano_publicacao: String(row.ano_publicacao || ''),
         mes_publicacao: String(row.mes_publicacao || ''),
         data_publicacao: formatDate(row.data_publicacao),
@@ -853,6 +847,7 @@ function applyClientFilters(rows) {
         local_publicacao: row.local_publicacao || '',
         midia: row.midia || '',
         genero: row.genero || '',
+        livro: row.livro || '',
       };
 
       return normalizeText(valueMap[key]).includes(expected);
@@ -1035,14 +1030,14 @@ function handlePageNumberClick(pageNumber) {
 // ===== ACTIVE FILTERS BAR =====
 
 const columnLabels = {
-  id: 'Código',
   ano_publicacao: 'Ano',
   mes_publicacao: 'Mês',
   data_publicacao: 'Data',
   nome_obra: 'Título',
   assinatura: 'Assinatura',
-  local_publicacao: 'Local de Publicação',
+  local_publicacao: 'Periódico',
   genero: 'Gênero',
+  midia: 'Mídia',
   livro: 'Livro',
 };
 
@@ -1147,12 +1142,6 @@ function updateActiveFiltersBar() {
             widget.filterState.rangeMax = null;
             if (!widget.hideFilterIcon) widget.createFilterIcon();
           }
-          // Atualizar badge e input do livro se necessário
-          if (columnName === 'livro') {
-            const lb = document.getElementById('livro-filter-badge');
-            if (lb) lb.style.display = 'none';
-            if (els.filterLivro) els.filterLivro.value = '';
-          }
           state.page = 1;
           fetchPecas();
           refreshAllColumnFilterWidgets(columnName);
@@ -1197,7 +1186,6 @@ function updateActiveFiltersBar() {
 
   // Extra filters (dados adicionais) chips
   const extraFilterLabels = {
-    livro_search: { label: 'Livros', el: els.filterLivro },
   };
   Object.entries(state.extraFilters).forEach(([key, value]) => {
     if (value) {
@@ -1443,11 +1431,10 @@ function handleClearFilters() {
   state.onlyDated = false;
   state.nomeObraSearch = '';
   state.extraFilters = {
-    livro_search: '',
   };
   state.columnFilters = {
-    id: '', ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
-    nome_obra: '', assinatura: '', local_publicacao: '', midia: '', genero: '',
+    ano_publicacao: '', mes_publicacao: '', data_publicacao: '',
+    nome_obra: '', assinatura: '', local_publicacao: '', midia: '', genero: '', livro: '',
   };
   state.activeColumnFilters = {};
 
@@ -1458,7 +1445,6 @@ function handleClearFilters() {
   els.toggleDatedOnly.checked = false;
   if (els.nomeObraSearch) els.nomeObraSearch.value = '';
   // Clear extra filter inputs
-  if (els.filterLivro) els.filterLivro.value = '';
   els.resultsSummary.textContent = 'Nenhuma busca realizada ainda';
   els.resultsSummary.classList.add('empty');
   
@@ -1481,11 +1467,6 @@ function handleClearFilters() {
       if (!widget.hideFilterIcon) widget.createFilterIcon();
     }
   });
-
-  // Resetar badge e input do filtro de livros
-  const livroBadge = document.getElementById('livro-filter-badge');
-  if (livroBadge) livroBadge.style.display = 'none';
-  if (els.filterLivro) els.filterLivro.value = '';
 
   updateSortIndicators();
   saveStateToUrl();
@@ -1633,10 +1614,10 @@ function showDetailModal(id) {
     { label: 'Data de Publicação', value: row.data_publicacao ? formatDate(row.data_publicacao) : null },
     { label: 'Gênero', value: row.genero ? safeText(row.genero) : null },
     { label: 'Assinatura', value: row.assinatura ? safeText(row.assinatura) : null },
-    { label: 'Palavra-chave', value: row.instancia ? safeText(row.instancia) : null },
-    { label: 'Livros', value: row.livro ? safeText(row.livro) : null },
+    { label: 'Local de inscrição da assinatura', value: row.instancia ? safeText(row.instancia) : null },
+    { label: 'Livro', value: row.livro ? safeText(row.livro) : null },
     { label: 'Mídia', value: row.midia ? safeText(row.midia) : null },
-    { label: 'Local de Publicação', value: row.local_publicacao ? safeText(row.local_publicacao) : null },
+    { label: 'Periódico', value: row.local_publicacao ? safeText(row.local_publicacao) : null },
     { label: 'Fonte', value: row.fonte },
   ];
 
@@ -1835,7 +1816,6 @@ function loadStateFromUrl() {
   els.toggleDatedOnly.checked = state.onlyDated;
   if (els.nomeObraSearch) els.nomeObraSearch.value = state.nomeObraSearch;
   // Restore extra filter inputs
-  if (els.filterLivro) els.filterLivro.value = state.extraFilters.livro_search;
   updateSortIndicators();
 
 
@@ -2067,14 +2047,14 @@ function refreshAllColumnFilterWidgets(exceptColumn) {
 function initializeColumnFilterWidgets() {
   // Colunas para aplicar filtro
   const textColumns = [
-    { name: 'id', label: 'Código', headerSelector: '[data-sort="id"]' },
     { name: 'ano_publicacao', label: 'Ano', thSelector: '.col-ano', columnType: 'year' },
     { name: 'mes_publicacao', label: 'Mês', thSelector: '.col-mes', columnType: 'month' },
     { name: 'data_publicacao', label: 'Data', headerSelector: '[data-sort="data_publicacao"]', columnType: 'date' },
     { name: 'assinatura', label: 'Assinatura', headerSelector: '[data-sort="assinatura"]' },
-    { name: 'local_publicacao', label: 'Local de Publicação', headerSelector: '[data-sort="local_publicacao"]' },
+    { name: 'local_publicacao', label: 'Periódico', headerSelector: '[data-sort="local_publicacao"]' },
     { name: 'genero', label: 'Gênero', headerSelector: '[data-sort="genero"]' },
     { name: 'midia', label: 'Mídia', headerSelector: '[data-sort="midia"]' },
+    { name: 'livro', label: 'Livro', headerSelector: '[data-sort="livro"]' },
   ];
 
   textColumns.forEach((col) => {
@@ -2106,69 +2086,7 @@ function initializeColumnFilterWidgets() {
     });
   });
 
-  // Livro filter — clicking the input opens the column filter widget
-  const livroField = document.querySelector('.field--livro');
-  if (livroField) {
-    const livroWidget = new FilterColumnWidget({
-      apiBase: apiBase,
-      columnName: 'livro',
-      columnLabel: 'Livros',
-      headerElement: livroField,
-      resourcePath: 'pecas',
-      columnType: 'default',
-      hideFilterIcon: true,
-      hideSearch: true,
-      excludeBlanks: true,
-      getActiveFilters: (excludeColumn) => buildFilterParamsForColumn(excludeColumn),
-      onFilterApply: (filterData) => {
-        applyColumnFilter(filterData);
-        updateLivroBadge();
-      },
-      onFilterClear: (filterData) => {
-        clearColumnFilter(filterData);
-        updateLivroBadge();
-        const inp = document.getElementById('filter-livro');
-        if (inp) inp.value = '';
-      },
-    });
-    state.columnFilterWidgets['livro'] = livroWidget;
-
-    const livroInput = document.getElementById('filter-livro');
-    const livroBadge = document.getElementById('livro-filter-badge');
-
-    function updateLivroBadge() {
-      if (livroBadge) {
-        const active = livroWidget.filterState.isActive;
-        livroBadge.style.display = active ? 'inline-flex' : 'none';
-      }
-    }
-
-    if (livroInput) {
-      // Click opens the dropdown
-      livroInput.addEventListener('click', () => {
-        livroWidget.toggleDropdown();
-      });
-      // Typing filters the values list inside the dropdown
-      let livroInputDebounceTimer = null;
-      livroInput.addEventListener('input', () => {
-        // Abrir dropdown apenas se não estiver aberto
-        const isOpen = livroWidget.dropdown && livroWidget.dropdown.parentElement;
-        if (!isOpen) {
-          livroWidget.openDropdown();
-        }
-        // Debounce para evitar piscar ao digitar rápido
-        clearTimeout(livroInputDebounceTimer);
-        livroInputDebounceTimer = setTimeout(() => {
-          livroWidget.filterValuesList(livroInput.value);
-        }, 150);
-      });
-    }
-    if (livroBadge) {
-      livroBadge.addEventListener('click', () => {
-        livroWidget.toggleDropdown();
-      });
-    }
-  }
+  // Livro column filter is now handled via the regular textColumns table header widget above
 }
 
 function applyColumnFilter(filterData) {
@@ -2433,6 +2351,12 @@ async function initialize() {
   
   // Load state from URL
   loadStateFromUrl();
+
+  // Set default sort to Data ascending if no sort specified
+  if (!state.sortKey) {
+    state.sortKey = 'data_publicacao';
+    state.sortDirection = 'asc';
+  }
 
   // Initialize event listeners
   initializeEventListeners();
