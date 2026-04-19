@@ -4,14 +4,14 @@
 {% block title %}Estatísticas — Banco de Dados Machado de Assis{% endblock %}
 
 {% block content %}
-<article class="page-content card">
+<article class="page-content card stats-page">
   <h1>Estatísticas do banco de dados</h1>
 
   <div id="stats-loading" class="loading-text" role="status" aria-busy="true">
     Carregando estatísticas...
   </div>
 
-  <div id="stats-content" style="display: none;">
+  <div id="stats-content" style="display: none;" class="stats-scroll-area">
     <!-- Resumo -->
     <section class="stats-summary" id="stats-summary">
       <div class="stat-card">
@@ -60,7 +60,7 @@
     </section>
   </div>
 
-  <nav class="nav-links" aria-label="Navegação entre páginas">
+  <nav class="nav-links stats-sticky-nav" aria-label="Navegação entre páginas">
     <a href="{% url 'catalog:home' %}" class="btn-primary">← Voltar ao Banco de Dados</a>
     <a href="{% url 'catalog:about' %}" class="btn-secondary">Sobre o Projeto</a>
   </nav>
@@ -69,6 +69,39 @@
 
 {% block extra_css %}
 <style>
+  .stats-page {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: calc(98vh - 80px);
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  .stats-page > h1 {
+    flex-shrink: 0;
+  }
+  .stats-page > .loading-text {
+    flex-shrink: 0;
+  }
+  .stats-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding-right: 4px;
+  }
+  .stats-scroll-area::-webkit-scrollbar { width: 6px; }
+  .stats-scroll-area::-webkit-scrollbar-track { background: transparent; }
+  .stats-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .stats-sticky-nav {
+    flex-shrink: 0;
+    margin-top: 0;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+    position: sticky;
+    bottom: 0;
+  }
+
   .stats-summary {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -225,8 +258,8 @@
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    width: 16px;
-    margin-right: 1px;
+    flex: 1 1 0;
+    min-width: 0;
     vertical-align: bottom;
     cursor: default;
   }
@@ -236,7 +269,8 @@
   }
 
   .timeline-bar {
-    width: 12px;
+    width: 80%;
+    max-width: 20px;
     background: var(--accent, #6d4c41);
     border-radius: 2px 2px 0 0;
     min-height: 1px;
@@ -267,6 +301,8 @@
     min-height: 160px;
     border-bottom: 2px solid var(--border, #c9b99a);
     padding-bottom: 0;
+    width: 100%;
+    gap: 1px;
   }
 
   .stats-error {

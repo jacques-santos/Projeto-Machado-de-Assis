@@ -1131,7 +1131,7 @@ a:hover {
 
 /* ===== PAGE CONTENT (For static pages) ===== */
 .page-content {
-  max-width: 800px;
+  max-width: 100%;
   margin: 0 auto;
   line-height: 1.7;
 }
