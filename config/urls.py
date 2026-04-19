@@ -3,6 +3,7 @@ from django.urls import include, path
 from django.http import JsonResponse
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.catalog.frontend_views import AboutView, CatalogHomeView, StatsView
@@ -37,6 +38,9 @@ api_patterns = [
 ]
 
 urlpatterns = [
+    # robots.txt
+    path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
+    
     # Frontend pages
     path("", CatalogHomeView.as_view(), name="catalog-home"),
     path("", include((frontend_patterns, 'catalog'), namespace='catalog')),
