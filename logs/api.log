@@ -1,0 +1,358 @@
+INFO 2026-04-19 01:24:39 filters 24904 31960 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:39 filters 24904 26740 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:39 filters 24904 26464 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:39 filters 24904 16416 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:39 filters 24904 33032 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:39 filters 24904 31356 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:41 filters 24904 26464 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:41 filters 24904 26740 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:41 filters 24904 16416 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:24:52 filters 24904 16416 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:25:01 filters 24904 16416 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:25:02 filters 24904 26740 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:25:03 filters 24904 31960 Applied filters: {'ano_min': 1900, 'ano_max': 1901}
+INFO 2026-04-19 01:29:43 filters 24904 34872 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:43 filters 24904 34880 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:43 filters 24904 24708 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:43 filters 24904 33404 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:43 filters 24904 32324 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:43 filters 24904 31812 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:44 filters 24904 24708 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:44 filters 24904 34880 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:29:45 filters 24904 31812 Applied filters: {'assinatura': ['?']}
+INFO 2026-04-19 01:36:01 filters 24904 34968 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:01 filters 24904 8400 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:01 filters 24904 8384 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:01 filters 24904 7408 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:01 filters 24904 7484 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:01 filters 24904 2200 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:03 filters 24904 8400 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:03 filters 24904 7408 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:36:03 filters 24904 2200 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:15 filters 24904 36000 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:16 filters 24904 33932 Applied filters: {'nome_obra_search': 'carta', 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:16 filters 24904 36620 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:16 filters 24904 29788 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:16 filters 24904 3032 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:16 filters 24904 8824 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:18 filters 24904 36620 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:18 filters 24904 29788 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:39:18 filters 24904 36000 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:17 filters 24904 31116 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:17 filters 24904 2496 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:18 filters 24904 8388 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:18 filters 24904 34964 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:18 filters 24904 20248 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:18 filters 24904 1312 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:19 filters 24904 2496 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:53:19 filters 24904 8388 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:12 filters 24904 2496 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:37 filters 24904 2496 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:37 filters 24904 8388 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:37 filters 24904 34964 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:37 filters 24904 31116 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:37 filters 24904 20248 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:38 filters 24904 1312 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:39 filters 24904 34964 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:39 filters 24904 8388 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:54:40 filters 24904 1312 Applied filters: {'ano_min': 1869, 'ano_max': 1886}
+INFO 2026-04-19 01:56:19 filters 24904 2496 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:19 filters 24904 20248 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:19 filters 24904 31116 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:19 filters 24904 1312 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:19 filters 24904 8388 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:19 filters 24904 34964 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:22 filters 24904 20248 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:22 filters 24904 34964 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 01:56:22 filters 24904 31116 Applied filters: {'local_publicacao': ['O Poeta']}
+INFO 2026-04-19 13:36:02 filters 24904 22852 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:02 filters 24904 36556 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:02 filters 24904 23568 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:02 filters 24904 32840 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:03 filters 24904 27512 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:03 filters 24904 9724 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:07 filters 24904 22852 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:07 filters 24904 23568 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:07 filters 24904 36556 Applied filters: {'data_publicacao': ['1854-10-03', '1855-01-12', '1855-01-16']}
+INFO 2026-04-19 13:36:52 filters 24904 9724 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:52 filters 24904 22852 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:52 filters 24904 32840 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:52 filters 24904 23568 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:52 filters 24904 36556 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:52 filters 24904 27512 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:54 filters 24904 22852 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:54 filters 24904 9724 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:36:54 filters 24904 36556 Applied filters: {'data_publicacao': ['1854-10-03', '1855-03-20', '1855-05-01']}
+INFO 2026-04-19 13:37:35 filters 24904 23568 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:35 filters 24904 36556 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:35 filters 24904 22852 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:35 filters 24904 9724 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:35 filters 24904 32840 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:35 filters 24904 27512 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:37 filters 24904 23568 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:38 filters 24904 36556 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 13:37:38 filters 24904 22852 Applied filters: {'data_publicacao': ['1855-01-12', '1855-01-16', '1855-05-01']}
+INFO 2026-04-19 14:09:41 filters 24904 34832 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:41 filters 24904 29356 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:41 filters 24904 19944 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:41 filters 24904 27160 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:42 filters 24904 30104 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:42 filters 24904 24780 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:43 filters 24904 34832 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:43 filters 24904 29356 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:09:44 filters 24904 27160 Applied filters: {'data_publicacao': ['1854-10-03']}
+INFO 2026-04-19 14:16:53 filters 24904 35324 Applied filters: {'local_publicacao': ['Correio da Tarde']}
+INFO 2026-04-19 14:16:53 filters 24904 33336 Applied filters: {'local_publicacao': ['Correio da Tarde']}
+INFO 2026-04-19 14:16:53 filters 24904 27436 Applied filters: {'local_publicacao': ['Correio da Tarde']}
+INFO 2026-04-19 14:16:54 filters 24904 27980 Applied filters: {'local_publicacao': ['Correio da Tarde']}
+INFO 2026-04-19 14:16:54 filters 24904 36780 Applied filters: {'local_publicacao': ['Correio da Tarde']}
+INFO 2026-04-19 14:16:54 filters 24904 37628 Applied filters: {'local_publicacao': ['Correio da Tarde']}
+INFO 2026-04-19 14:16:55 filters 24904 35324 Applied filters: {'local_publicacao': ['Correio da Tarde']}
+INFO 2026-04-19 14:18:07 filters 6268 13484 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:07 filters 6268 2112 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:07 filters 6268 31848 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:07 filters 6268 11680 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:07 filters 6268 32772 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:07 filters 6268 37724 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:11 filters 6268 13484 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:12 filters 6268 31848 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:12 filters 6268 2112 Applied filters: {'search': 'diário'}
+INFO 2026-04-19 14:18:12 filters 6268 37724 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:13 filters 6268 32772 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:14 filters 6268 13484 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:16 filters 6268 2112 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:17 filters 6268 37724 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:18 filters 6268 11680 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:18 filters 6268 32772 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:19 filters 6268 13484 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:20 filters 6268 2112 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:21 filters 6268 37724 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:22 filters 6268 11680 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:22 filters 6268 32772 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:22 filters 6268 13484 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:23 filters 6268 31848 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:23 filters 6268 2112 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:26 filters 6268 32772 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:18:56 filters 27656 27072 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:39 filters 27656 27072 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:39 filters 27656 23912 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:39 filters 27656 18124 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:39 filters 27656 13732 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:39 filters 27656 32412 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:39 filters 27656 15328 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:42 filters 27656 32412 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:43 filters 27656 13732 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:19:43 filters 27656 27072 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:20:03 filters 27656 18124 Applied filters: {'search': 'diário do rio'}
+INFO 2026-04-19 14:20:08 filters 27656 18124 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:08 filters 27656 15328 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:09 filters 27656 32412 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:09 filters 27656 13732 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:09 filters 27656 27072 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:09 filters 27656 23912 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:12 filters 27656 32412 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:13 filters 27656 15328 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro'], 'search': 'diário do rio'}
+INFO 2026-04-19 14:20:16 filters 27656 13732 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:20:16 filters 27656 18124 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:20:16 filters 27656 32412 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:20:16 filters 27656 27072 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:20:16 filters 27656 15328 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:20:18 filters 27656 23912 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:20:18 filters 27656 13732 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:20:18 filters 27656 18124 Applied filters: {'local_publicacao': ['Diário do Rio de Janeiro']}
+INFO 2026-04-19 14:23:59 signals 15420 33880 Peca 1001 criada. Invalidando cache...
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de column_values
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de facetas
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de busca
+INFO 2026-04-19 14:23:59 signals 15420 33880 Peca 1002 criada. Invalidando cache...
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de column_values
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de facetas
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de busca
+INFO 2026-04-19 14:23:59 signals 15420 33880 Peca 2001 criada. Invalidando cache...
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de column_values
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de facetas
+INFO 2026-04-19 14:23:59 cache_service 15420 33880 Invalidando cache de busca
+INFO 2026-04-19 14:25:20 signals 30272 36492 Peca 1001 criada. Invalidando cache...
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de column_values
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de facetas
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de busca
+INFO 2026-04-19 14:25:20 signals 30272 36492 Peca 1002 criada. Invalidando cache...
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de column_values
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de facetas
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de busca
+INFO 2026-04-19 14:25:20 signals 30272 36492 Peca 2001 criada. Invalidando cache...
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de column_values
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de facetas
+INFO 2026-04-19 14:25:20 cache_service 30272 36492 Invalidando cache de busca
+INFO 2026-04-19 15:14:49 filters 11744 24232 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:14:49 filters 11744 20428 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:14:49 filters 11744 16440 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:14:49 filters 11744 23908 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:14:49 filters 11744 17852 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:14:49 filters 11744 3700 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:14:51 filters 11744 24232 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:14:51 filters 11744 20428 Applied filters: {'data_publicacao': ['1855-01-12', '1855-03-20']}
+INFO 2026-04-19 15:17:34 filters 11744 16440 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:34 filters 11744 23908 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:34 filters 11744 20428 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:34 filters 11744 3700 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:34 filters 11744 17852 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:34 filters 11744 24232 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:37 filters 11744 16440 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:38 filters 11744 23908 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:39 filters 11744 20428 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:40 filters 11744 3700 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:40 filters 11744 17852 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:40 filters 11744 16440 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:41 filters 11744 23908 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:44 filters 11744 20428 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:45 filters 11744 16440 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:45 filters 11744 17852 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:45 filters 11744 24232 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:17:45 filters 11744 3700 Applied filters: {'search': 'legenda'}
+INFO 2026-04-19 15:29:57 signals 34880 36692 Peca 2194 deletada. Invalidando cache...
+INFO 2026-04-19 15:29:57 cache_service 34880 36692 Invalidando cache de column_values
+INFO 2026-04-19 15:29:57 cache_service 34880 36692 Invalidando cache de facetas
+INFO 2026-04-19 15:29:57 cache_service 34880 36692 Invalidando cache de busca
+INFO 2026-04-19 15:57:14 filters 34156 23900 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:14 filters 34156 31980 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:14 filters 34156 31544 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:14 filters 34156 31344 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:14 filters 34156 37520 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:15 filters 34156 33492 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:17 filters 34156 31980 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:17 filters 34156 31544 Applied filters: {'has_date': True}
+INFO 2026-04-19 15:57:17 filters 34156 31344 Applied filters: {'has_date': True}
+INFO 2026-04-19 16:45:49 signals 26496 12608 Peca 99 atualizada. Invalidando cache...
+INFO 2026-04-19 16:45:49 cache_service 26496 12608 Invalidando cache de column_values
+INFO 2026-04-19 16:45:49 cache_service 26496 12608 Invalidando cache de facetas
+INFO 2026-04-19 16:45:49 cache_service 26496 12608 Invalidando cache de busca
+INFO 2026-04-19 16:50:39 filters 26496 20420 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 16:50:39 filters 26496 27408 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 16:50:40 filters 26496 31716 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 16:50:40 filters 26496 29280 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 16:50:40 filters 26496 29492 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 16:50:40 filters 26496 33052 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 16:50:40 filters 26496 30320 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 16:50:40 filters 26496 23372 Applied filters: {'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 19:49:54 filters 11916 34792 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:49:54 filters 11916 32912 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:49:54 filters 11916 34152 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:49:54 filters 11916 5972 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:49:54 filters 11916 28676 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:49:54 filters 11916 8876 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:49:55 filters 11916 34792 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:49:55 filters 11916 32912 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:01 filters 11916 7560 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:01 filters 11916 27300 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:01 filters 11916 20308 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:01 filters 11916 25624 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:01 filters 11916 11988 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:02 filters 11916 32756 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:02 filters 11916 7560 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:03 filters 11916 27300 Applied filters: {'local_publicacao': ['A Bruxa', 'A Crença']}
+INFO 2026-04-19 19:51:27 filters 11916 32756 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 19:51:28 filters 11916 7560 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 19:51:28 filters 11916 25624 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 19:51:28 filters 11916 20308 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 19:51:28 filters 11916 11988 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 19:51:28 filters 11916 27300 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 19:51:29 filters 11916 32756 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 19:51:29 filters 11916 7560 Applied filters: {'genero': ['Poesia']}
+INFO 2026-04-19 21:15:00 filters 11916 30892 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 21:15:00 filters 11916 11148 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 21:15:01 filters 11916 28556 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 21:15:01 filters 11916 29632 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 21:15:01 filters 11916 22368 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 21:15:01 filters 11916 38756 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 21:15:01 filters 11916 5804 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1879, 'ano_max': 1881}
+INFO 2026-04-19 21:18:28 filters 11916 35848 Applied filters: {'nome_obra_search': 'Analf'}
+INFO 2026-04-19 21:18:52 filters 11916 13328 Applied filters: {'nome_obra_search': 'Analf'}
+INFO 2026-04-19 21:21:33 filters 11916 35204 Applied filters: {'nome_obra_search': 'palmeiras'}
+INFO 2026-04-19 21:21:38 filters 11916 35204 Applied filters: {'nome_obra_search': 'palmeira'}
+INFO 2026-04-19 21:25:45 filters 27520 35980 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:45 filters 27520 8568 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:45 filters 27520 20420 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:45 filters 27520 5472 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:45 filters 27520 32548 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:45 filters 27520 30984 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:46 filters 27520 35980 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:47 filters 27520 20420 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:25:47 filters 27520 8568 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:34 filters 27520 35980 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:34 filters 27520 20420 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:34 filters 27520 5472 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:34 filters 27520 30984 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:34 filters 27520 32548 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:34 filters 27520 8568 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:35 filters 27520 20420 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:35 filters 27520 35980 Applied filters: {'has_images': True}
+INFO 2026-04-19 21:27:36 filters 27520 5472 Applied filters: {'has_images': True}
+INFO 2026-04-20 11:14:23 filters 5460 27348 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:23 filters 5460 38608 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:23 filters 5460 14720 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:23 filters 5460 13872 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:24 filters 5460 4400 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:24 filters 5460 19992 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:24 filters 5460 27728 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:24 filters 5460 23444 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:24 filters 5460 6256 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:43 filters 5460 9200 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:43 filters 5460 38360 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:43 filters 5460 25448 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:44 filters 5460 28344 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:44 filters 5460 7552 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:44 filters 5460 24068 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:44 filters 5460 2988 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:44 filters 5460 13996 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:14:44 filters 5460 6808 Applied filters: {'search': 'Tronco'}
+INFO 2026-04-20 11:52:29 filters 5460 34420 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-20 11:52:29 filters 5460 32300 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-20 11:52:29 filters 5460 30020 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-20 11:52:29 filters 5460 28492 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-20 11:52:29 filters 5460 37208 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-20 11:52:29 filters 5460 35752 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-20 11:52:29 filters 5460 37380 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-20 11:52:29 filters 5460 9708 Applied filters: {'ano_publicacao': ['1862']}
+INFO 2026-04-22 09:58:53 filters 32284 6136 Applied filters: {'nome_obra_search': 'A PALMEIRA - O. D. C. A FRANCISCO GONÇALVES BRAGA'}
+INFO 2026-04-22 10:02:49 filters 32284 28552 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:49 filters 32284 28580 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:49 filters 32284 31336 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:49 filters 32284 25880 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:49 filters 32284 23036 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:49 filters 32284 33948 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:50 filters 32284 28580 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:51 filters 32284 25880 Applied filters: {'has_images': True}
+INFO 2026-04-22 10:02:51 filters 32284 31336 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 19816 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 44016 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 47340 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 21380 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 47364 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 45612 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 45028 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 43872 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:16:01 filters 32284 29468 Applied filters: {'has_images': True}
+INFO 2026-04-23 13:17:03 filters 32284 47212 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:17:03 filters 32284 46004 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:17:03 filters 32284 48300 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:17:03 filters 32284 46864 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:17:03 filters 32284 1788 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:17:03 filters 32284 31388 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:17:03 filters 32284 16500 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:17:03 filters 32284 45816 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:39 filters 32284 29608 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:39 filters 32284 51868 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:39 filters 32284 47948 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:39 filters 32284 41040 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:39 filters 32284 37772 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:39 filters 32284 52128 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:39 filters 32284 32068 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 50552 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 51008 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 43092 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 47344 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 51304 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 45372 Applied filters: {'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 47176 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}
+INFO 2026-04-23 13:47:45 filters 32284 26288 Applied filters: {'ano_publicacao': ['1854', '1855', '1856', '1857', '1858', '1859', '1860', '1861', '1862', '1863', '1864', '1865', '1866', '1867', '1868', '1869', '1870', '1871', '1872', '1873', '1874', '1875', '1876', '1877', '1878', '1879', '1880', '1881', '1882', '1883', '1884', '1885', '1886', '1887', '1888', '1889', '1890', '1891', '1892', '1893', '1894', '1895', '1896', '1897', '1898', '1899', '1900', '1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909', '__blank__'], 'ano_min': 1854, 'ano_max': 1870}

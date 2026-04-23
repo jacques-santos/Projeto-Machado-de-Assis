@@ -141,6 +141,7 @@ class PecaViewSet(viewsets.ReadOnlyModelViewSet):
         "instancia",
         "local_publicacao",
         "midia",
+        "livro",
     ]
     ordering = ["-data_ordenacao", "nome_obra"]
 

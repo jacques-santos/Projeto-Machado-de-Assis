@@ -504,6 +504,28 @@ button {
   content: '▼';
 }
 
+/* Sort priority badge (multi-column sorting) */
+.sort-priority {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+[data-theme="principal"] .sort-priority {
+  background-color: #ffd633;
+  color: #000;
+}
+
 /* Table body rows */
 .results-table tbody {
   background-color: var(--table-row-bg);
@@ -2483,6 +2505,27 @@ a:not(.btn):not([role="tab"]):not(.navbtn):visited {
   .filter-column-dropdown label {
     font-size: 12px;
     padding: 8px 10px;
+  }
+}
+
+/* ===== LANDSCAPE MOBILE / SHORT VIEWPORT FIX ===== */
+/* When the viewport is very short (landscape phones), switch to normal
+   scrolling so the user can scroll past the toolbar to reach the table. */
+@media (max-height: 500px) {
+  html, body {
+    height: auto;
+    max-height: none;
+    overflow: auto;
+  }
+
+  .page {
+    overflow: visible;
+    min-height: auto;
+  }
+
+  .table-container {
+    min-height: 50vh;
+    flex: none;
   }
 }
 

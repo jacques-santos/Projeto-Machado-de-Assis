@@ -1,0 +1,8 @@
+ERROR 2026-04-18 23:14:48 basehttp 6148 29344 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 26922
+ERROR 2026-04-18 23:15:01 basehttp 6148 29344 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 26922
+ERROR 2026-04-18 23:17:29 basehttp 7584 2116 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 26922
+ERROR 2026-04-18 23:19:43 basehttp 27748 26152 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 26865
+ERROR 2026-04-18 23:22:36 basehttp 27748 28656 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 26933
+ERROR 2026-04-18 23:29:26 basehttp 27748 17768 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 26738
+ERROR 2026-04-18 23:30:27 basehttp 27748 29516 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 26922
+ERROR 2026-04-18 23:31:04 basehttp 5400 25996 "GET /api/v1/pecas/?page=1&page_size=250 HTTP/1.1" 500 25244

@@ -128,8 +128,12 @@ class PecaAdmin(SoftDeleteAdmin):
         "assinatura",
         "status_registro",
     )
-    search_fields = ("nome_obra", "nome_obra_simples", "dados_publicacao", "observacoes")
+    list_select_related = ("genero", "assinatura", "midia", "instancia", "livro")
+    list_per_page = 50
+    show_full_result_count = False
+    search_fields = ("id", "nome_obra", "nome_obra_simples", "dados_publicacao", "observacoes")
     list_filter = (StatusDeletadoFilter, "genero", "assinatura", "midia", "instancia", "livro")
+    autocomplete_fields = ("assinatura", "genero", "midia", "instancia", "local_publicacao", "livro")
     actions = ["restaurar_registros", "deletar_permanente"]
 
     @admin.display(description="Nome Obra")
@@ -146,31 +150,37 @@ class SimpleModelAdmin(SoftDeleteAdmin):
 @admin.register(Assinatura)
 class AssinaturaAdmin(SimpleModelAdmin):
     list_display = ("id", "nome", "status_registro")
+    search_fields = ("nome",)
 
 
 @admin.register(Genero)
 class GeneroAdmin(SimpleModelAdmin):
     list_display = ("id", "nome", "status_registro")
+    search_fields = ("nome",)
 
 
 @admin.register(Midia)
 class MidiaAdmin(SimpleModelAdmin):
     list_display = ("id", "nome", "status_registro")
+    search_fields = ("nome",)
 
 
 @admin.register(Instancia)
 class InstanciaAdmin(SimpleModelAdmin):
     list_display = ("id", "nome", "status_registro")
+    search_fields = ("nome",)
 
 
 @admin.register(LocalPublicacao)
 class LocalPublicacaoAdmin(SimpleModelAdmin):
     list_display = ("id", "nome", "status_registro")
+    search_fields = ("nome",)
 
 
 @admin.register(Livro)
 class LivroAdmin(SoftDeleteAdmin):
     list_display = ("id", "titulo", "status_registro")
+    search_fields = ("titulo",)
     list_filter = (StatusDeletadoFilter,)
     actions = ["restaurar_registros", "deletar_permanente"]
 

@@ -7,13 +7,18 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="description" content="Catálogo digital de obras de Machado de Assis — busca, filtros e estatísticas do banco de dados literário." />
   <title>{% block title %}Banco de Dados Machado de Assis{% endblock %}</title>
-  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}" />
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260417d" />
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}" />
+  <link rel="apple-touch-icon" href="{% static 'img/logo.png' %}" />
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260423c" />
   {% block extra_css %}{% endblock %}
 </head>
 <body>  
   <header class="topbar" role="banner">
     <div class="brand">
+      <a href="{% url 'catalog:home' %}" class="brand__logo-link" aria-label="Página inicial">
+        <img src="{% static 'img/logo.png' %}" alt="Logotipo Machado de Assis" class="brand__logo" width="56" height="56" />
+      </a>
+      <div class="brand__text">
       <h1 class="brand__title">
         <span class="brand__title--light">Banco de dados Machado de Assis</span>
         <span class="brand__title--dark">Banco de dados Machado de Assis</span>
@@ -23,6 +28,7 @@
         <span class="brand__subtitle--light">Bibliografia digital</span>
         <span class="brand__subtitle--dark">Bibliografia digital</span>
         <span class="brand__subtitle--book">Bibliografia digital</span>
+      </div>
       </div>
     </div>
 

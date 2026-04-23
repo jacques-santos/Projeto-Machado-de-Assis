@@ -61,14 +61,14 @@
     <label class="toggle">
       <input id="toggle-compact" type="checkbox" />
       <span>Modo compacto</span>
-    </label>
-    <label class="toggle">
-      <input id="toggle-dated-only" type="checkbox" />
-      <span>Apenas com data</span>
-    </label>
+    </label>    
     <label class="toggle">
       <input id="toggle-biographical" type="checkbox" />
       <span>Dados biográficos</span>
+    </label>
+    <label class="toggle">
+      <input id="toggle-with-images" type="checkbox" aria-label="Mostrar apenas títulos com imagens" />
+      <span>Títulos com imagens</span>
     </label>
 
   </div>
@@ -131,15 +131,15 @@
             <span class="sort-indicator" aria-hidden="true"></span>
           </button>
         </th>
-        <th class="col-local" role="columnheader" scope="col">
-          <button class="sort-btn" data-sort="local_publicacao" title="Clique para ordenar por periódico" aria-label="Ordenar por periódico">
-            Periódico
-            <span class="sort-indicator" aria-hidden="true"></span>
-          </button>
-        </th>
         <th class="col-genero" role="columnheader" scope="col">
           <button class="sort-btn" data-sort="genero" title="Clique para ordenar por gênero" aria-label="Ordenar por gênero">
             Gênero
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th class="col-local" role="columnheader" scope="col">
+          <button class="sort-btn" data-sort="local_publicacao" title="Clique para ordenar por periódico" aria-label="Ordenar por periódico">
+            Periódico
             <span class="sort-indicator" aria-hidden="true"></span>
           </button>
         </th>

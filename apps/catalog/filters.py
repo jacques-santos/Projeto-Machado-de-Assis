@@ -237,6 +237,12 @@ class PecaFilterService:
                 queryset = queryset.filter(data_publicacao__isnull=False)
                 filters_applied['has_date'] = True
         
+        # Filtro: ?has_images=true → apenas registros que possuem imagens
+        if has_images := params.get('has_images'):
+            if has_images.lower() in ('true', '1', 'yes'):
+                queryset = queryset.filter(imagens__isnull=False).distinct()
+                filters_applied['has_images'] = True
+        
         # Filtro por range de ano: ?ano_min=1850&ano_max=1900
         ano_min = params.get('ano_min')
         ano_max = params.get('ano_max')

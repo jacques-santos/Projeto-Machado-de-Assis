@@ -19,13 +19,13 @@ const state = {
 
   // Search and filters
   globalSearch: '',
-  sortKey: '',
-  sortDirection: '', // 'asc', 'desc', or ''
+  sortColumns: [], // Array of {key, direction} for multi-column sort
   
   // Toggles
   showExtra: false,
   compact: false,
   onlyDated: false,
+  onlyWithImages: false,
 
   // Nome da Peça header search
   nomeObraSearch: '',
@@ -100,6 +100,7 @@ const els = {
   // Toggles
   toggleExtra: document.getElementById('toggle-extra'),
   toggleCompact: document.getElementById('toggle-compact'),
+  toggleWithImages: document.getElementById('toggle-with-images'),
   toggleDatedOnly: document.getElementById('toggle-dated-only'),
 
   // Nome da Peça header search
@@ -293,27 +294,28 @@ function debounce(fn, delay) {
 }
 
 function cycleSort(sortKey) {
-  if (state.sortKey !== sortKey) {
-    state.sortKey = sortKey;
-    state.sortDirection = 'asc';
+  const idx = state.sortColumns.findIndex(c => c.key === sortKey);
+  if (idx === -1) {
+    // Add new column to sort order
+    state.sortColumns.push({ key: sortKey, direction: 'asc' });
     return;
   }
-
-  if (state.sortDirection === 'asc') {
-    state.sortDirection = 'desc';
+  if (state.sortColumns[idx].direction === 'asc') {
+    state.sortColumns[idx].direction = 'desc';
     return;
   }
-
-  state.sortKey = '';
-  state.sortDirection = '';
+  // Remove column from sort order
+  state.sortColumns.splice(idx, 1);
 }
 
 function getServerOrdering() {
-  if (!state.sortKey || !state.sortDirection || !serverSortableFields.has(state.sortKey)) {
-    return '';
-  }
-  const apiField = sortFieldMapping[state.sortKey] || state.sortKey;
-  return state.sortDirection === 'desc' ? `-${apiField}` : apiField;
+  const parts = state.sortColumns
+    .filter(c => serverSortableFields.has(c.key))
+    .map(c => {
+      const apiField = sortFieldMapping[c.key] || c.key;
+      return c.direction === 'desc' ? `-${apiField}` : apiField;
+    });
+  return parts.join(',');
 }
 
 function updateSortIndicators() {
@@ -321,8 +323,21 @@ function updateSortIndicators() {
     const field = btn.dataset.sort;
     const indicator = btn.querySelector('.sort-indicator');
     indicator.classList.remove('asc', 'desc');
-    if (field === state.sortKey && state.sortDirection) {
-      indicator.classList.add(state.sortDirection);
+    // Remove existing priority badge
+    const oldBadge = btn.querySelector('.sort-priority');
+    if (oldBadge) oldBadge.remove();
+
+    const idx = state.sortColumns.findIndex(c => c.key === field);
+    if (idx !== -1) {
+      indicator.classList.add(state.sortColumns[idx].direction);
+      // Show priority number when multi-sorting
+      if (state.sortColumns.length > 1) {
+        const badge = document.createElement('span');
+        badge.className = 'sort-priority';
+        badge.textContent = idx + 1;
+        badge.setAttribute('aria-label', `Prioridade de ordenação ${idx + 1}`);
+        btn.appendChild(badge);
+      }
     }
   });
 }
@@ -350,6 +365,11 @@ function buildApiUrl() {
   // Filtro "apenas com data" no servidor
   if (state.onlyDated) {
     url.searchParams.set('has_date', 'true');
+  }
+
+  // Filtro "apenas com imagens" no servidor
+  if (state.onlyWithImages) {
+    url.searchParams.set('has_images', 'true');
   }
 
   const ordering = getServerOrdering();
@@ -584,9 +604,9 @@ async function applyToolbarFilterWithRetry(currentKey) {
 
     // Limpar tudo
     state.globalSearch = '';
-    state.sortKey = '';
-    state.sortDirection = '';
+    state.sortColumns = [{ key: 'data_publicacao', direction: 'asc' }];
     state.onlyDated = false;
+    state.onlyWithImages = false;
     state.nomeObraSearch = '';
     state.extraFilters = {
     };
@@ -601,7 +621,8 @@ async function applyToolbarFilterWithRetry(currentKey) {
 
     // Atualizar UI
     els.globalSearch.value = '';
-    els.toggleDatedOnly.checked = false;
+    if (els.toggleDatedOnly) els.toggleDatedOnly.checked = false;
+    if (els.toggleWithImages) els.toggleWithImages.checked = false;
     if (els.nomeObraSearch) els.nomeObraSearch.value = '';
     document.querySelectorAll('[data-column-filter]').forEach((input) => { input.value = ''; });
 
@@ -728,7 +749,7 @@ function buildExtraDataRow(row) {
       return `<img src="${safeText(img.imagem)}" alt="${safeText(img.legenda || 'Imagem da peça')}" class="extra-thumb" data-full-src="${safeText(img.imagem)}" data-legenda="${safeText(img.legenda || '')}"${legendaAttr} loading="lazy" />`;
     }).join('');
     imagesHtml = `
-      <div class="extra-field-full extra-images-row">
+      <div class="extra-field">
         <span class="extra-label">Imagens</span>
         <div class="extra-thumbs">${thumbs}</div>
       </div>`;
@@ -746,7 +767,7 @@ function buildExtraDataRow(row) {
 
 function updateTableDisplay() {
   if (state.rows.length === 0) {
-    const hasFilters = state.globalSearch || state.onlyDated || Object.keys(state.activeColumnFilters).length > 0;
+    const hasFilters = state.globalSearch || state.onlyDated || state.onlyWithImages || Object.keys(state.activeColumnFilters).length > 0;
     const suggestion = hasFilters
       ? '<p>Tente ajustar os filtros, remover termos de busca ou <button type="button" class="link-btn" id="empty-clear-filters">limpar todos os filtros</button>.</p>'
       : '<p>Nenhum título disponível no momento.</p>';
@@ -775,8 +796,8 @@ function updateTableDisplay() {
       <td class="col-data">${formatDate(row.data_publicacao)}</td>
       <td class="col-obra">${highlightSearch(safeText(stripHtmlAndDecode(row.nome_obra)))}</td>
       <td class="col-assinatura">${highlightSearch(safeText(row.assinatura || '—'))}</td>
-      <td class="col-local">${highlightSearch(safeText(row.local_publicacao || '—'))}</td>
       <td class="col-genero">${highlightSearch(safeText(row.genero || '—'))}</td>
+      <td class="col-local">${highlightSearch(safeText(row.local_publicacao || '—'))}</td>
       <td class="col-midia">${highlightSearch(safeText(row.midia || '—'))}</td>
       <td class="col-livro">${highlightSearch(safeText(row.livro || '—'))}</td>
     </tr>`;
@@ -926,22 +947,23 @@ function applyClientFilters(rows) {
   });
 
   // Apply client-side sorting for non-server fields
-  if (state.sortKey && !serverSortableFields.has(state.sortKey)) {
+  const clientSortCols = state.sortColumns.filter(c => !serverSortableFields.has(c.key));
+  if (clientSortCols.length > 0) {
     filtered.sort((a, b) => {
-      const extractValue = (row) => {
-        const map = {
-          assinatura: row.assinatura || '',
-          livro: row.livro || '',
-          genero: row.genero || '',
+      for (const col of clientSortCols) {
+        const extractValue = (row) => {
+          const map = {
+            assinatura: row.assinatura || '',
+            livro: row.livro || '',
+            genero: row.genero || '',
+          };
+          return normalizeText(map[col.key] || '');
         };
-        return normalizeText(map[state.sortKey]);
-      };
-
-      const aVal = extractValue(a);
-      const bVal = extractValue(b);
-
-      if (aVal < bVal) return state.sortDirection === 'desc' ? 1 : -1;
-      if (aVal > bVal) return state.sortDirection === 'desc' ? -1 : 1;
+        const aVal = extractValue(a);
+        const bVal = extractValue(b);
+        if (aVal < bVal) return col.direction === 'desc' ? 1 : -1;
+        if (aVal > bVal) return col.direction === 'desc' ? -1 : 1;
+      }
       return 0;
     });
   }
@@ -1158,7 +1180,24 @@ function updateActiveFiltersBar() {
       value: 'Apenas com data',
       onRemove: () => {
         state.onlyDated = false;
-        els.toggleDatedOnly.checked = false;
+        if (els.toggleDatedOnly) els.toggleDatedOnly.checked = false;
+        state.page = 1;
+        saveStateToUrl();
+        fetchPecas();
+        refreshAllColumnFilterWidgets();
+      },
+    });
+  }
+
+  // "Only with images" toggle chip
+  if (state.onlyWithImages) {
+    chips.push({
+      type: 'toggle',
+      label: 'Filtro',
+      value: 'Títulos com imagens',
+      onRemove: () => {
+        state.onlyWithImages = false;
+        if (els.toggleWithImages) els.toggleWithImages.checked = false;
         state.page = 1;
         saveStateToUrl();
         fetchPecas();
@@ -1424,11 +1463,11 @@ function handleSearch() {
 function handleClearFilters() {
   state.globalSearch = '';
   state.page = 1;
-  state.sortKey = '';
-  state.sortDirection = '';
+  state.sortColumns = [{ key: 'data_publicacao', direction: 'asc' }];
   state.showExtra = false;
   state.compact = false;
   state.onlyDated = false;
+  state.onlyWithImages = false;
   state.nomeObraSearch = '';
   state.extraFilters = {
   };
@@ -1442,7 +1481,8 @@ function handleClearFilters() {
   els.globalSearch.value = '';
   els.toggleExtra.checked = false;
   els.toggleCompact.checked = false;
-  els.toggleDatedOnly.checked = false;
+  if (els.toggleDatedOnly) els.toggleDatedOnly.checked = false;
+  if (els.toggleWithImages) els.toggleWithImages.checked = false;
   if (els.nomeObraSearch) els.nomeObraSearch.value = '';
   // Clear extra filter inputs
   els.resultsSummary.textContent = 'Nenhuma busca realizada ainda';
@@ -1528,6 +1568,8 @@ function handleToggleChange(e) {
     return;
   } else if (id === 'toggle-dated-only') {
     state.onlyDated = e.target.checked;
+  } else if (id === 'toggle-with-images') {
+    state.onlyWithImages = e.target.checked;
   }
 
   // "Apenas com data" faz requisição ao servidor
@@ -1722,11 +1764,12 @@ function saveStateToUrl() {
   if (state.globalSearch) params.set('search', state.globalSearch);
   if (state.page > 1) params.set('page', state.page);
   if (state.pageSize !== 250) params.set('page_size', state.pageSize);
-  if (state.sortKey) {
-    params.set('sort', state.sortKey);
-    params.set('sort_dir', state.sortDirection);
+  if (state.sortColumns.length > 0) {
+    params.set('sort', state.sortColumns.map(c => c.key).join(','));
+    params.set('sort_dir', state.sortColumns.map(c => c.direction).join(','));
   }
   if (state.onlyDated) params.set('dated', '1');
+  if (state.onlyWithImages) params.set('with_images', '1');
   if (state.nomeObraSearch) params.set('nome_obra_search', state.nomeObraSearch);
 
   // Persist extra filters in URL
@@ -1764,9 +1807,21 @@ function loadStateFromUrl() {
   state.globalSearch = params.get('search') || '';
   state.page = parseInt(params.get('page') || '1', 10);
   state.pageSize = parseInt(params.get('page_size') || '250', 10);
-  state.sortKey = params.get('sort') || '';
-  state.sortDirection = params.get('sort_dir') || '';
+  // Load multi-column sort from URL
+  const sortKeysStr = params.get('sort') || '';
+  const sortDirsStr = params.get('sort_dir') || '';
+  if (sortKeysStr) {
+    const keys = sortKeysStr.split(',');
+    const dirs = sortDirsStr.split(',');
+    state.sortColumns = keys.map((key, i) => ({
+      key,
+      direction: dirs[i] || 'asc',
+    }));
+  } else {
+    state.sortColumns = [];
+  }
   state.onlyDated = params.get('dated') === '1';
+  state.onlyWithImages = params.get('with_images') === '1';
   state.nomeObraSearch = params.get('nome_obra_search') || '';
 
   // Load extra filters from URL
@@ -1812,9 +1867,9 @@ function loadStateFromUrl() {
 
   // Update UI to reflect state
   els.globalSearch.value = state.globalSearch;
-  els.pageSize.value = state.pageSize >= 100000 ? 'all' : state.pageSize;
-  els.toggleDatedOnly.checked = state.onlyDated;
+  els.pageSize.value = state.pageSize >= 100000 ? 'all' : state.pageSize;  
   if (els.nomeObraSearch) els.nomeObraSearch.value = state.nomeObraSearch;
+  if (els.toggleWithImages) els.toggleWithImages.checked = state.onlyWithImages;
   // Restore extra filter inputs
   updateSortIndicators();
 
@@ -1908,8 +1963,8 @@ function initializeEventListeners() {
   // Toggles
   els.toggleExtra.addEventListener('change', handleToggleChange);
   els.toggleCompact.addEventListener('change', handleToggleChange);
-  els.toggleDatedOnly.addEventListener('change', handleToggleChange);
-
+  if (els.toggleWithImages) els.toggleWithImages.addEventListener('change', handleToggleChange);
+  
 
   // Column filters (debounced)
   const debouncedColumnFilter = debounce(handleColumnFilterChange, 300);
@@ -1989,6 +2044,9 @@ function buildFilterParamsForColumn(excludeColumn) {
   if (state.onlyDated) {
     params.has_date = 'true';
   }
+  if (state.onlyWithImages) {
+    params.has_images = 'true';
+  }
   
   // Filtros de coluna ativos (excluindo a coluna solicitada)
   Object.entries(state.activeColumnFilters).forEach(([columnName, filterData]) => {
@@ -2051,8 +2109,8 @@ function initializeColumnFilterWidgets() {
     { name: 'mes_publicacao', label: 'Mês', thSelector: '.col-mes', columnType: 'month' },
     { name: 'data_publicacao', label: 'Data', headerSelector: '[data-sort="data_publicacao"]', columnType: 'date' },
     { name: 'assinatura', label: 'Assinatura', headerSelector: '[data-sort="assinatura"]' },
-    { name: 'local_publicacao', label: 'Periódico', headerSelector: '[data-sort="local_publicacao"]' },
     { name: 'genero', label: 'Gênero', headerSelector: '[data-sort="genero"]' },
+    { name: 'local_publicacao', label: 'Periódico', headerSelector: '[data-sort="local_publicacao"]' },
     { name: 'midia', label: 'Mídia', headerSelector: '[data-sort="midia"]' },
     { name: 'livro', label: 'Livro', headerSelector: '[data-sort="livro"]' },
   ];
@@ -2124,6 +2182,7 @@ function exportCSV() {
   const ordering = getServerOrdering();
   if (ordering) params.set('ordering', ordering);
   if (state.onlyDated) params.set('has_date', 'true');
+  if (state.onlyWithImages) params.set('has_images', 'true');
 
   Object.entries(state.activeColumnFilters).forEach(([columnName, filterData]) => {
     if (filterData.rangeMin) {
@@ -2353,9 +2412,8 @@ async function initialize() {
   loadStateFromUrl();
 
   // Set default sort to Data ascending if no sort specified
-  if (!state.sortKey) {
-    state.sortKey = 'data_publicacao';
-    state.sortDirection = 'asc';
+  if (state.sortColumns.length === 0) {
+    state.sortColumns = [{ key: 'data_publicacao', direction: 'asc' }];
   }
 
   // Initialize event listeners
